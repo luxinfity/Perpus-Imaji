@@ -1,4 +1,4 @@
-package com.selasarimaji.perpus.view
+package com.selasarimaji.perpus.view.fragment
 
 
 import android.content.Intent
