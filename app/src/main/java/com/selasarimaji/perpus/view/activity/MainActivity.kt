@@ -3,6 +3,7 @@ package com.selasarimaji.perpus.view.activity
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import com.selasarimaji.perpus.ContentType
 import com.selasarimaji.perpus.R
 import com.selasarimaji.perpus.view.fragment.InfoFragment
 import com.selasarimaji.perpus.view.fragment.RecyclerFabMenuFragment
@@ -10,10 +11,10 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
     private val bookFragment by lazy {
-        RecyclerFabMenuFragment.intantiate(RecyclerFabMenuFragment.ContentType.Book)
+        RecyclerFabMenuFragment.instantiate(ContentType.Book)
     }
     private val kidFragment by lazy {
-        RecyclerFabMenuFragment.intantiate(RecyclerFabMenuFragment.ContentType.Kid)
+        RecyclerFabMenuFragment.instantiate(ContentType.Kid)
     }
     private val infoFragment by lazy { InfoFragment() }
 

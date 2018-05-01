@@ -1,27 +1,23 @@
 package com.selasarimaji.perpus.repository.firebase
 
-import android.arch.lifecycle.MutableLiveData
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
-import com.selasarimaji.perpus.model.Model
+import com.selasarimaji.perpus.model.DataModel
 
+class CategoryRepo : BaseRepo<DataModel.Category>() {
+    override val collectionName: String
+        get() = "Category"
 
-class CategoryRepo {
-    companion object {
-        const val COLLECTION_NAME = "Category"
+    override val TAG: String
+        get() = CategoryRepo::javaClass.toString()
+
+    override fun loadRangeInternal(startPosition: Int, loadCount: Int, isInitial: Boolean, listener: Any) {
+
     }
 
-    private val db = FirebaseFirestore.getInstance().collection(COLLECTION_NAME)
-    fun storeNewData(category: Model.Category, loadingFlag: MutableLiveData<Boolean>,
-                     successFlag: MutableLiveData<Boolean>){
-        loadingFlag.value = true
-        db.add(category).addOnCompleteListener {
-            loadingFlag.value = false
-            successFlag.value = it.isSuccessful
-        }
+    override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<DataModel.Category>) {
+
     }
 
-    fun updateData(category: Model.Category){
-        db.document(category.id!!).set(category, SetOptions.merge())
+    override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<DataModel.Category>) {
+
     }
 }

@@ -54,13 +54,12 @@
             android:imeOptions="actionNext"
             android:singleLine="true"/>
     </android.support.design.widget.TextInputLayout>
-
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp">
         <com.hootsuite.nachos.NachoTextView
-            android:id="@+id/nacho_text_view"
+            android:id="@+id/categoryListChipInput"
             android:hint="Kategori"
             android:imeOptions="actionDone"
             android:layout_width="match_parent"

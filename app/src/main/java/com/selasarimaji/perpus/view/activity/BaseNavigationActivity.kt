@@ -23,7 +23,8 @@ abstract class BaseNavigationActivity : AppCompatActivity() {
                 } else {
                     // This activity is part of this app's task, so simply
                     // navigate up to the logical parent activity.
-                    NavUtils.navigateUpTo(this, upIntent)
+                    // NavUtils.navigateUpTo(this, upIntent)
+                    finish()
                 }
                 return true
             }

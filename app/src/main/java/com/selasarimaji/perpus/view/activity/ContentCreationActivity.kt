@@ -1,25 +1,28 @@
 package com.selasarimaji.perpus.view.activity
 
+import android.app.DatePickerDialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.view.View
+import android.widget.EditText
 import android.widget.Toast
+import com.selasarimaji.perpus.CONTENT_TYPE_KEY
+import com.selasarimaji.perpus.ContentType
 import com.selasarimaji.perpus.R
-import com.selasarimaji.perpus.model.Model
-import com.selasarimaji.perpus.viewmodel.activity.EditCategoryVM
-import com.selasarimaji.perpus.viewmodel.activity.TempVM
+import com.selasarimaji.perpus.model.DataModel
+import com.selasarimaji.perpus.viewmodel.EditBookVM
+import com.selasarimaji.perpus.viewmodel.EditBorrowVM
+import com.selasarimaji.perpus.viewmodel.EditCategoryVM
+import com.selasarimaji.perpus.viewmodel.EditKidVM
 import kotlinx.android.synthetic.main.activity_content_creation.*
+import kotlinx.android.synthetic.main.content_book.*
+import kotlinx.android.synthetic.main.content_borrow.*
 import kotlinx.android.synthetic.main.content_category.*
+import kotlinx.android.synthetic.main.content_kid.*
+import java.util.*
 
 class ContentCreationActivity : BaseNavigationActivity() {
-    companion object {
-        const val CONTENT_TYPE_KEY = "CONTENT_TYPE_KEY"
-    }
-
-    enum class ContentType {
-        Book, Category, Kid, Borrow
-    }
 
     private val contentType by lazy {
         intent.extras?.getSerializable(CONTENT_TYPE_KEY) ?: ContentType.Book
@@ -28,7 +31,10 @@ class ContentCreationActivity : BaseNavigationActivity() {
     private val viewModel by lazy {
         when(contentType){
             ContentType.Category -> ViewModelProviders.of(this).get(EditCategoryVM::class.java)
-            else -> ViewModelProviders.of(this).get(TempVM::class.java)
+            ContentType.Book -> ViewModelProviders.of(this).get(EditBookVM::class.java)
+            ContentType.Borrow -> ViewModelProviders.of(this).get(EditBorrowVM::class.java)
+            ContentType.Kid -> ViewModelProviders.of(this).get(EditKidVM::class.java)
+            else -> ViewModelProviders.of(this).get(EditBookVM::class.java)
         }
     }
 
@@ -38,10 +44,14 @@ class ContentCreationActivity : BaseNavigationActivity() {
 
         setupView()
         setupToolbar()
+        setupDatePicker()
         setupObserver()
         addButton.setOnClickListener {
             when(contentType){
                 ContentType.Category -> addCategory()
+                ContentType.Book -> addBook()
+                ContentType.Borrow -> addBorrow()
+                ContentType.Kid -> addKid()
             }
         }
     }
@@ -69,8 +79,17 @@ class ContentCreationActivity : BaseNavigationActivity() {
         }} Baru"
     }
 
+    private fun setupDatePicker(){
+        when(contentType){
+            ContentType.Kid -> kidBirthDateInputLayout.editText?.run { showDatePickerOnClick(this) }
+            ContentType.Borrow -> {
+                borrowStartDateInputLayout.editText?.run { showDatePickerOnClick(this) }
+                borrowEndDateInputLayout.editText?.run { showDatePickerOnClick(this) }
+            }
+        }
+    }
+
     private fun setupObserver(){
-        viewModel.initLiveData()
         viewModel.uploadingFlag.observe(this, Observer<Boolean> {
             it?.run {
                 progressBar.visibility = if (this) View.VISIBLE else View.GONE
@@ -89,11 +108,53 @@ class ContentCreationActivity : BaseNavigationActivity() {
         })
     }
 
+    private fun showDatePickerOnClick(editText: EditText){
+        val c = Calendar.getInstance()
+        val year = c.get(Calendar.YEAR)
+        val month = c.get(Calendar.MONTH)
+        val day = c.get(Calendar.DAY_OF_MONTH)
+        editText.setOnClickListener {
+            DatePickerDialog(this,
+                    DatePickerDialog.OnDateSetListener { _, year, month, day ->
+                        editText.setText("$month/$day/$year")
+                    },
+                    year, month, day).show()
+        }
+    }
+
     private fun addCategory() {
         val name = categoryNameInputLayout.editText?.text.toString()
         val desc = categoryDescInputLayout.editText?.text.toString()
         val parent = categoryParentInputLayout.editText?.text.toString()
 
-        (viewModel as EditCategoryVM).storeData(Model.Category(name, desc, parent))
+        (viewModel as EditCategoryVM).storeData(DataModel.Category(name, desc, parent))
+    }
+
+    private fun addBook() {
+        val name = bookNameInputLayout.editText?.text.toString()
+        val author = bookAuthorInputLayout.editText?.text.toString()
+        val year = yearInputLayout.editText?.text.toString().toInt()
+        val publisher = publisherInputLayout.editText?.text.toString()
+        val category = categoryListChipInput.text.toString()
+
+        (viewModel as EditBookVM).storeData(DataModel.Book(name, author, year, publisher, category))
+    }
+
+    private fun addBorrow() {
+        val bookName = borrowBookInputLayout.editText?.text.toString()
+        val borrower = borrowNameInputLayout.editText?.text.toString()
+        val startDate = borrowStartDateInputLayout.editText?.text.toString()
+        val endDate = borrowEndDateInputLayout.editText?.text.toString()
+
+        (viewModel as EditBorrowVM).storeData(DataModel.Borrow(bookName, borrower, startDate, endDate))
+    }
+
+    private fun addKid() {
+        val name = kidNameInputLayout.editText?.text.toString()
+        val address = kidAddressInputLayout.editText?.text.toString()
+        val gender = kidGenderInputLayout.editText?.text.toString() == "Cowok"
+        val dateOfBirth = kidBirthDateInputLayout.editText?.text.toString()
+
+        (viewModel as EditKidVM).storeData(DataModel.Kid(name, address, gender, dateOfBirth))
     }
 }
