@@ -6,7 +6,8 @@ import android.os.Bundle
 import com.selasarimaji.perpus.CONTENT_TYPE_KEY
 import com.selasarimaji.perpus.ContentType
 import com.selasarimaji.perpus.R
-import com.selasarimaji.perpus.view.fragment.RecyclerFabMenuFragment
+import com.selasarimaji.perpus.view.fragment.BorrowRecyclerFragment
+import com.selasarimaji.perpus.view.fragment.CategoryRecyclerFragment
 import com.selasarimaji.perpus.viewmodel.EditBookVM
 import com.selasarimaji.perpus.viewmodel.EditBorrowVM
 import com.selasarimaji.perpus.viewmodel.EditCategoryVM
@@ -34,8 +35,12 @@ class FragmentedActivity : BaseNavigationActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_fragmented)
 
-        supportFragmentManager.beginTransaction().replace(frameContainer.id, RecyclerFabMenuFragment
-                .instantiate(contentType as ContentType)).commit()
+        when(contentType){
+            ContentType.Category -> supportFragmentManager
+                    .beginTransaction().replace(frameContainer.id, CategoryRecyclerFragment()).commit()
+            ContentType.Borrow -> supportFragmentManager
+                    .beginTransaction().replace(frameContainer.id, BorrowRecyclerFragment()).commit()
+        }
 
         viewModel.title.observe(this, Observer {
             supportActionBar?.title = it

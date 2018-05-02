@@ -1,23 +1,16 @@
 package com.selasarimaji.perpus.repository.firebase
 
+import android.arch.lifecycle.MutableLiveData
 import com.selasarimaji.perpus.model.DataModel
 
 class CategoryRepo : BaseRepo<DataModel.Category>() {
     override val collectionName: String
         get() = "Category"
 
-    override val TAG: String
-        get() = CategoryRepo::javaClass.toString()
-
-    override fun loadRangeInternal(startPosition: Int, loadCount: Int, isInitial: Boolean, listener: Any) {
-
+    private val liveData by lazy {
+        MutableLiveData<List<DataModel.Category>>()
     }
 
-    override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<DataModel.Category>) {
-
-    }
-
-    override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<DataModel.Category>) {
-
-    }
+    override val fetchedData: MutableLiveData<List<DataModel.Category>>
+        get() = liveData
 }
