@@ -1,4 +1,4 @@
-package com.selasarimaji.perpus.repository.firebase
+package com.selasarimaji.perpus.repository.firestore
 
 import android.arch.lifecycle.MutableLiveData
 import com.selasarimaji.perpus.model.DataModel

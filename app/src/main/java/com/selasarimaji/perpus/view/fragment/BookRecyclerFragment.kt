@@ -13,7 +13,7 @@ import android.support.v7.widget.LinearLayoutManager
 import com.selasarimaji.perpus.CONTENT_TYPE_KEY
 import com.selasarimaji.perpus.ContentType
 import com.selasarimaji.perpus.model.DataModel
-import com.selasarimaji.perpus.repository.firebase.BookRepo
+import com.selasarimaji.perpus.repository.firestore.BookRepo
 import com.selasarimaji.perpus.view.activity.FragmentedActivity
 import com.selasarimaji.perpus.view.adapter.ContentRecyclerAdapter
 import com.selasarimaji.perpus.viewmodel.EditBookVM
@@ -80,7 +80,7 @@ class BookRecyclerFragment : Fragment() {
         view.recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         view.recyclerView.adapter = adapter
 
-        (viewModel.repo as BookRepo).fetchedData.observe(this, Observer {
+        viewModel.repo.fetchedData.observe(this, Observer {
             it?.let {
                 adapter.setupNewData(it)
             }

@@ -1,4 +1,4 @@
-package com.selasarimaji.perpus.repository.firebase
+package com.selasarimaji.perpus.repository.firestore
 
 import android.arch.lifecycle.MutableLiveData
 import com.google.firebase.firestore.FirebaseFirestore
@@ -37,10 +37,12 @@ abstract class BaseRepo <T:DataModel>{
         db.document(dataModel.id!!).set(dataModel, SetOptions.merge())
     }
 
-    fun addLocalItem(dataModel: T){
-        val items = listOf(dataModel)
-        fetchedData.value?.toMutableList()?.run {
-            this.addAll(items)
+    open fun addLocalItem(dataModel: T){
+        if (editLocalItem(dataModel)) return // don't need to add if edit value
+
+        val items = mutableListOf(dataModel)
+        fetchedData.value?.run {
+            items.addAll(this)
         }
         fetchedData.value = items
     }
@@ -55,11 +57,15 @@ abstract class BaseRepo <T:DataModel>{
         }
     }
 
-    fun editLocalItem(dataModel: T){
+    fun editLocalItem(dataModel: T) : Boolean{
         fetchedData.value?.toMutableList()?.run {
             val position = indexOfFirst { it.id == dataModel.id }
-            this[position] = dataModel
-            fetchedData.value = this
+            if (position > -1) {
+                this[position] = dataModel
+                fetchedData.value = this
+                return true
+            }
         }
+        return false
     }
 }
