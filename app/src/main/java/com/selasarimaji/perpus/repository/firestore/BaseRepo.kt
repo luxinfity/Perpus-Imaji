@@ -42,7 +42,7 @@ abstract class BaseRepo <T:DataModel>{
 
         val items = mutableListOf(dataModel)
         fetchedData.value?.run {
-            items.addAll(this)
+            items.addAll(0,this)
         }
         fetchedData.value = items
     }

@@ -10,6 +10,7 @@ import com.selasarimaji.perpus.R
 import com.selasarimaji.perpus.view.activity.ContentCreationActivity
 import kotlinx.android.synthetic.main.fragment_recycler.view.*
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import com.selasarimaji.perpus.CONTENT_TYPE_KEY
 import com.selasarimaji.perpus.ContentType
 import com.selasarimaji.perpus.model.DataModel
@@ -18,23 +19,9 @@ import com.selasarimaji.perpus.view.activity.FragmentedActivity
 import com.selasarimaji.perpus.view.adapter.ContentRecyclerAdapter
 import com.selasarimaji.perpus.viewmodel.EditBookVM
 
-class BookRecyclerFragment : Fragment() {
+class BookRecyclerFragment : BaseRecyclerFragment() {
     private val viewModel by lazy {
         ViewModelProviders.of(activity!!).get(EditBookVM::class.java)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_recycler, container, false).apply {
-            setupButton(this)
-            setupRecycler(this)
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -54,7 +41,7 @@ class BookRecyclerFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun setupButton(view: View){
+    override fun setupButton(view: View){
         val firstMenu = ContentType.Category
         val secondMenu = ContentType.Book
         view.fabItem1.setImageResource(R.drawable.ic_category)
@@ -75,10 +62,23 @@ class BookRecyclerFragment : Fragment() {
         }
     }
 
-    private fun setupRecycler(view: View){
+    override fun setupRecycler(view: View){
         val adapter = ContentRecyclerAdapter<DataModel.Book>(ContentType.Book)
-        view.recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        val layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        view.recyclerView.layoutManager = layoutManager
         view.recyclerView.adapter = adapter
+
+        view.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+                val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
+                val totalItemCount = layoutManager.itemCount
+
+                if (lastVisiblePosition + thresholdItemCount >= totalItemCount
+                    /*&& totalItemCount < totalRemoteCount*/){
+                    viewModel.loadMore()
+                }
+            }
+        })
 
         viewModel.repo.fetchedData.observe(this, Observer {
             it?.let {

@@ -12,10 +12,16 @@ abstract class BaseContentVM <T: DataModel> : BaseLoadingVM() {
 
     var title = MutableLiveData<String>()
     protected var isInitialLoaded = MutableLiveData<Boolean>()
+    protected var lastIndex = MutableLiveData<Int>()
+    protected var isLoading = MutableLiveData<Boolean>().apply {
+        value = false
+    }
 
     open fun storeData(category: T){
         repo?.storeNewRemoteData(category, uploadingFlag, uploadingSuccessFlag)
     }
 
     abstract fun loadInitial()
+
+    abstract fun loadMore()
 }
