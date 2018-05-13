@@ -4,14 +4,10 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.*
-import com.selasarimaji.perpus.R
-import com.selasarimaji.perpus.view.activity.ContentCreationActivity
 import kotlinx.android.synthetic.main.fragment_recycler.view.*
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import com.selasarimaji.perpus.CONTENT_TYPE_KEY
 import com.selasarimaji.perpus.ContentType
 import com.selasarimaji.perpus.model.DataModel
 import com.selasarimaji.perpus.view.adapter.ContentRecyclerAdapter
@@ -32,14 +28,11 @@ class BorrowRecyclerFragment : BaseRecyclerFragment() {
 
 
     override fun setupButton(view: View){
-        val mainMenu = ContentType.Borrow
         view.fabButton.visibility = View.VISIBLE
         view.fabMenu.visibility = View.GONE
 
-
-        val intent = Intent(context, ContentCreationActivity::class.java)
         view.fabButton.setOnClickListener {
-            intent.putExtra(CONTENT_TYPE_KEY, mainMenu)
+            val intent = Intent(context, BorrowRecyclerFragment::class.java)
             startActivity(intent)
         }
     }

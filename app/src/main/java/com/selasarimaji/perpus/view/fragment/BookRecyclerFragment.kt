@@ -3,18 +3,16 @@ package com.selasarimaji.perpus.view.fragment
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
-import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.*
 import com.selasarimaji.perpus.R
-import com.selasarimaji.perpus.view.activity.ContentCreationActivity
 import kotlinx.android.synthetic.main.fragment_recycler.view.*
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import com.selasarimaji.perpus.CONTENT_TYPE_KEY
 import com.selasarimaji.perpus.ContentType
 import com.selasarimaji.perpus.model.DataModel
-import com.selasarimaji.perpus.repository.firestore.BookRepo
+import com.selasarimaji.perpus.view.activity.BookCreationActivity
+import com.selasarimaji.perpus.view.activity.CategoryCreationActivity
 import com.selasarimaji.perpus.view.activity.FragmentedActivity
 import com.selasarimaji.perpus.view.adapter.ContentRecyclerAdapter
 import com.selasarimaji.perpus.viewmodel.EditBookVM
@@ -42,22 +40,19 @@ class BookRecyclerFragment : BaseRecyclerFragment() {
     }
 
     override fun setupButton(view: View){
-        val firstMenu = ContentType.Category
-        val secondMenu = ContentType.Book
         view.fabItem1.setImageResource(R.drawable.ic_category)
         view.fabItem2.setImageResource(R.drawable.ic_book)
         view.fabItem1.labelText = "Kategori"
         view.fabItem2.labelText = "Buku"
 
 
-        val intent = Intent(context, ContentCreationActivity::class.java)
         view.fabItem1.setOnClickListener {
-            intent.putExtra(CONTENT_TYPE_KEY, firstMenu)
+            val intent = Intent(context, CategoryCreationActivity::class.java)
             startActivity(intent)
         }
 
         view.fabItem2.setOnClickListener {
-            intent.putExtra(CONTENT_TYPE_KEY, secondMenu)
+            val intent = Intent(context, BookCreationActivity::class.java)
             startActivity(intent)
         }
     }
