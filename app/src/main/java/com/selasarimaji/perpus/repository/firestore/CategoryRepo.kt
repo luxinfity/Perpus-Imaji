@@ -5,7 +5,7 @@ import com.selasarimaji.perpus.model.DataModel
 
 class CategoryRepo : BaseRepo<DataModel.Category>() {
     override val collectionName: String
-        get() = "Category"
+        get() = "content/category/list"
 
     private val liveData by lazy {
         MutableLiveData<List<DataModel.Category>>()

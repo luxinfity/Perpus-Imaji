@@ -19,8 +19,10 @@ class EditCategoryVM : BaseContentVM<DataModel.Category>() {
         get() = EditCategoryVM::class.java.name
 
     override fun loadInitial(){
+        super.loadInitial()
         if (isInitialLoaded.value == null || !isInitialLoaded.value!!){
             lastIndex.value = 0
+            isInitialLoaded.value = true
             repo.loadRange(0, 10, listener = this@EditCategoryVM::handleFirebaseQueryCallback)
         }
     }

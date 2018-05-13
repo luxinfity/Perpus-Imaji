@@ -1,10 +1,7 @@
 package com.selasarimaji.perpus.repository.firestore
 
 import android.arch.lifecycle.MutableLiveData
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreException
-import com.google.firebase.firestore.QuerySnapshot
-import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.*
 import com.selasarimaji.perpus.model.DataModel
 
 abstract class BaseRepo <T:DataModel>{
@@ -14,6 +11,12 @@ abstract class BaseRepo <T:DataModel>{
 
     private val db by lazy {
         FirebaseFirestore.getInstance().collection(collectionName)
+    }
+
+    fun getRemoteTotalCount(listener : (documentSnapshot:DocumentSnapshot?, exception:FirebaseFirestoreException?) -> Unit){
+        db.document(collectionName).addSnapshotListener { documentSnapshot, exception ->
+            listener(documentSnapshot, exception)
+        }
     }
 
     open fun loadRange(startPosition: Int, loadCount: Int, orderBy: String = "name",

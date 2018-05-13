@@ -19,8 +19,10 @@ class EditKidVM : BaseContentVM<DataModel.Kid>() {
         get() = EditKidVM::class.java.name
 
     override fun loadInitial(){
+        super.loadInitial()
         if (isInitialLoaded.value == null || !isInitialLoaded.value!!){
             lastIndex.value = 0
+            isInitialLoaded.value = true
             repo.loadRange(0, 10, listener = this@EditKidVM::handleFirebaseQueryCallback)
         }
     }

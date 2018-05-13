@@ -5,7 +5,7 @@ import com.selasarimaji.perpus.model.DataModel
 
 class KidRepo : BaseRepo<DataModel.Kid>() {
     override val collectionName: String
-        get() = "Kid"
+        get() = "content/kid/list"
 
     private val liveData by lazy {
         MutableLiveData<List<DataModel.Kid>>()

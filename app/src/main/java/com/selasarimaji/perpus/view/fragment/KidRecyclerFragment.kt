@@ -71,8 +71,9 @@ class KidRecyclerFragment : BaseRecyclerFragment() {
                 val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
                 val totalItemCount = layoutManager.itemCount
 
+                val totalRemoteCount = viewModel.totalRemoteCount.value ?: totalItemCount
                 if (lastVisiblePosition + thresholdItemCount >= totalItemCount
-                /*&& totalItemCount < totalRemoteCount*/){
+                        && totalItemCount < totalRemoteCount){
                     viewModel.loadMore()
                 }
             }

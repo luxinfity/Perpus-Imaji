@@ -5,11 +5,11 @@ import com.google.firebase.firestore.QueryDocumentSnapshot
 
 abstract class DataModel {
     @get:Exclude var id: String? = ""
-    @Exclude open val collectionName = ""
+    @get:Exclude open val collectionName = ""
 
     data class Category (val name: String, val description: String,
                          val idParent: String? = "") : DataModel() {
-        override val collectionName: String
+        @get:Exclude override val collectionName: String
             get() = "Category"
 
         companion object {
@@ -27,7 +27,7 @@ abstract class DataModel {
     }
     data class Book (val name: String, val author: String, val year: Int, val publisher: String,
                      val idCategory: String? = "") : DataModel(){
-        override val collectionName: String
+        @get:Exclude override val collectionName: String
             get() = "Book"
 
         companion object {
@@ -47,7 +47,7 @@ abstract class DataModel {
     }
     data class Borrow (val idBook: String, val idChild: String,
                        val startDate: String, val endDate: String) : DataModel(){
-        override val collectionName: String
+        @get:Exclude override val collectionName: String
             get() = "Borrow"
 
         companion object {
@@ -66,7 +66,7 @@ abstract class DataModel {
     }
     data class Kid (val name: String, val address: String, val isMale: Boolean,
                        val birthDate: String) : DataModel(){
-        override val collectionName: String
+        @get:Exclude override val collectionName: String
             get() = "Kid"
 
         companion object {

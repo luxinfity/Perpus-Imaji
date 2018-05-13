@@ -5,7 +5,7 @@ import com.selasarimaji.perpus.model.DataModel
 
 class BorrowRepo : BaseRepo<DataModel.Borrow>() {
     override val collectionName: String
-        get() = "Borrow"
+        get() = "content/borrow/list"
 
     private val liveData by lazy {
         MutableLiveData<List<DataModel.Borrow>>()
