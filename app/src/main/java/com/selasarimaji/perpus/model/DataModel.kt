@@ -1,5 +1,6 @@
 package com.selasarimaji.perpus.model
 
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.QueryDocumentSnapshot
 
@@ -13,8 +14,8 @@ abstract class DataModel {
             get() = "Category"
 
         companion object {
-            fun turnDocumentToObject(documentSnapshot: QueryDocumentSnapshot) : Category {
-                documentSnapshot.data.let {
+            fun turnDocumentToObject(documentSnapshot: DocumentSnapshot) : Category {
+                documentSnapshot.let {
                     val name = it["name"].toString()
                     val description = it["description"].toString()
                     val idParent = it["idParent"].toString()
@@ -31,8 +32,8 @@ abstract class DataModel {
             get() = "Book"
 
         companion object {
-            fun turnDocumentToObject(documentSnapshot: QueryDocumentSnapshot) : Book {
-                documentSnapshot.data.let {
+            fun turnDocumentToObject(documentSnapshot: DocumentSnapshot) : Book {
+                documentSnapshot.let {
                     val name = it["name"].toString()
                     val author = it["author"].toString()
                     val year = it["year"].toString().toInt()
@@ -51,8 +52,8 @@ abstract class DataModel {
             get() = "Borrow"
 
         companion object {
-            fun turnDocumentToObject(documentSnapshot: QueryDocumentSnapshot) : Borrow {
-                documentSnapshot.data.let {
+            fun turnDocumentToObject(documentSnapshot: DocumentSnapshot) : Borrow {
+                documentSnapshot.let {
                     val idBook = it["idBook"].toString()
                     val idChild = it["idChild"].toString()
                     val startDate = it["startDate"].toString()
@@ -70,8 +71,8 @@ abstract class DataModel {
             get() = "Kid"
 
         companion object {
-            fun turnDocumentToObject(documentSnapshot: QueryDocumentSnapshot) : Kid {
-                documentSnapshot.data.let {
+            fun turnDocumentToObject(documentSnapshot: DocumentSnapshot) : Kid {
+                documentSnapshot.let {
                     val name = it["name"].toString()
                     val address = it["address"].toString()
                     val isMale = it["male"].toString().toBoolean()

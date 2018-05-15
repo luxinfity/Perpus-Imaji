@@ -3,12 +3,16 @@ package com.selasarimaji.perpus.view.activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Toast
+import com.jakewharton.rxbinding2.widget.RxTextView
 import com.selasarimaji.perpus.R
 import com.selasarimaji.perpus.model.DataModel
 import com.selasarimaji.perpus.viewmodel.EditCategoryVM
 import kotlinx.android.synthetic.main.activity_content_creation.*
 import kotlinx.android.synthetic.main.content_category.*
+import java.util.concurrent.TimeUnit
 
 
 class CategoryCreationActivity : BaseContentCreationActivity() {
@@ -17,9 +21,23 @@ class CategoryCreationActivity : BaseContentCreationActivity() {
         ViewModelProviders.of(this).get(EditCategoryVM::class.java)
     }
 
+    private val parentCategoryText : String
+        get() = categoryParentInputLayout.editText?.text.toString()
+
     override fun setupView(){
         val view = layoutInflater.inflate(R.layout.content_category, null)
         linearContainer.addView(view, 0)
+
+        categoryPathInputLayout.visibility = View.GONE
+
+        categoryParentInputLayout.editText?.let{
+            RxTextView.textChanges(it)
+                    .skip(1)
+                    .debounce(300, TimeUnit.MILLISECONDS)
+                    .subscribe {
+                        viewModel.getPossibleCategoryInputName(it)
+                    }
+        }
     }
 
     override fun setupToolbar(){
@@ -44,12 +62,23 @@ class CategoryCreationActivity : BaseContentCreationActivity() {
                 }
             }
         })
+        viewModel.filteredCategory.observe(this, Observer<List<DataModel.Category>>{
+            it?.run {
+                val adapter = ArrayAdapter<String>(applicationContext,
+                        android.R.layout.simple_dropdown_item_1line,
+                        this.filter { it.name.contains(parentCategoryText) }.map { it.name.capitalize() })
+                (categoryParentInputLayout.editText as AutoCompleteTextView).run {
+                    setAdapter(adapter)
+                    showDropDown()
+                }
+            }
+        })
     }
 
     override fun submitValue() {
-        val name = categoryNameInputLayout.editText?.text.toString()
-        val desc = categoryDescInputLayout.editText?.text.toString()
-        val parent = categoryParentInputLayout.editText?.text.toString()
+        val name = categoryNameInputLayout.editText?.text.toString().toLowerCase()
+        val desc = categoryDescInputLayout.editText?.text.toString().toLowerCase()
+        val parent = categoryParentInputLayout.editText?.text.toString().toLowerCase()
 
         viewModel.storeData(DataModel.Category(name, desc, parent))
     }

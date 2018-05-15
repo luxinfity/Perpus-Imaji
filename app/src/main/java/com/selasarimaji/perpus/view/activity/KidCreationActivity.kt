@@ -5,6 +5,7 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.view.View
+import android.widget.AutoCompleteTextView
 import android.widget.EditText
 import android.widget.Toast
 import com.selasarimaji.perpus.R
@@ -13,6 +14,9 @@ import com.selasarimaji.perpus.viewmodel.EditKidVM
 import kotlinx.android.synthetic.main.activity_content_creation.*
 import kotlinx.android.synthetic.main.content_kid.*
 import java.util.*
+import android.widget.ArrayAdapter
+
+
 
 
 class KidCreationActivity : BaseContentCreationActivity() {
@@ -26,6 +30,18 @@ class KidCreationActivity : BaseContentCreationActivity() {
         linearContainer.addView(view, 0)
 
         kidBirthDateInputLayout.editText?.run { showDatePickerOnClick(this) }
+        val gender = arrayOf("Cowok", "Cewek")
+        val adapter = ArrayAdapter<String>(this,
+                android.R.layout.simple_dropdown_item_1line,
+                gender)
+        (kidGenderInputLayout.editText as AutoCompleteTextView).run {
+            setAdapter(adapter)
+            setOnFocusChangeListener { _, hasFocus ->
+                if(hasFocus){
+                    (kidGenderInputLayout.editText as AutoCompleteTextView).showDropDown()
+                }
+            }
+        }
     }
 
     override fun setupToolbar(){

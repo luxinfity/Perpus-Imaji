@@ -9,17 +9,18 @@ import android.view.inputmethod.EditorInfo
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
-
 import kotlinx.android.synthetic.main.activity_login.*
 import android.view.inputmethod.InputMethodManager
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.selasarimaji.perpus.R
-
 
 class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+        setupOffileFirebaseSource()
 
         if (checkLoginStatus()) return
 
@@ -90,4 +91,10 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupOffileFirebaseSource(){
+        val settings = FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true)
+                .build()
+        FirebaseFirestore.getInstance().firestoreSettings = settings
+    }
 }

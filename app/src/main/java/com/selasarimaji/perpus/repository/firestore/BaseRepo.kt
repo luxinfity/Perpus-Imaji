@@ -13,17 +13,17 @@ abstract class BaseRepo <T:DataModel>{
         FirebaseFirestore.getInstance().collection(collectionName)
     }
 
-    fun getRemoteTotalCount(listener : (documentSnapshot:DocumentSnapshot?, exception:FirebaseFirestoreException?) -> Unit){
-        db.document(collectionName).addSnapshotListener { documentSnapshot, exception ->
-            listener(documentSnapshot, exception)
+    fun getRemoteTotalCount(listener : (documentSnapshot: DocumentSnapshot) -> Unit){
+        db.document(collectionName).get().addOnSuccessListener {
+            listener(it)
         }
     }
 
     open fun loadRange(startPosition: Int, loadCount: Int, orderBy: String = "name",
-                           listener : (querySnapshot:QuerySnapshot?, exception:FirebaseFirestoreException?) -> Unit){
+                           listener : (querySnapshot:QuerySnapshot) -> Unit){
         db.orderBy(orderBy).startAt(startPosition).limit(loadCount.toLong())
-                .addSnapshotListener { querySnapshot, exception ->
-                    listener(querySnapshot, exception)
+                .get().addOnSuccessListener {
+                    listener(it)
                 }
     }
 
@@ -70,5 +70,11 @@ abstract class BaseRepo <T:DataModel>{
             }
         }
         return false
+    }
+
+    fun getContentWith(field: String, query: String, listener : (querySnapshot:QuerySnapshot, query: String) -> Unit){
+        db.orderBy(field).whereGreaterThanOrEqualTo(field, query).get().addOnSuccessListener {
+            listener(it, query)
+        }
     }
 }

@@ -37,19 +37,11 @@ class EditBorrowVM : BaseContentVM<DataModel.Borrow>() {
         }
     }
 
-    private fun handleFirebaseQueryCallback(querySnapshot: QuerySnapshot?, exception: FirebaseFirestoreException?){
-        if (exception != null) {
-            Log.w(TAG, "listen:error", exception)
-        } else {
-            querySnapshot!!.documentChanges.map {
-                when (it.type) {
-                    DocumentChange.Type.ADDED -> repo.addLocalItem(DataModel.Borrow.turnDocumentToObject(it.document))
-                    DocumentChange.Type.MODIFIED -> repo.editLocalItem(DataModel.Borrow.turnDocumentToObject(it.document))
-                    DocumentChange.Type.REMOVED -> repo.deleteLocalItem(DataModel.Borrow.turnDocumentToObject(it.document))
-                }
-            }
-            lastIndex.value = lastIndex.value!! + 10
+    private fun handleFirebaseQueryCallback(querySnapshot: QuerySnapshot){
+        querySnapshot.documents.map {
+            repo.addLocalItem(DataModel.Borrow.turnDocumentToObject(it))
         }
+        lastIndex.value = lastIndex.value!! + 10
         isLoading.value = false
     }
 }

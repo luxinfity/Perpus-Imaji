@@ -11,6 +11,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -22,6 +23,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:multidex:1.0.3'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.1.0'
@@ -32,14 +34,15 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     // Android Architecture Component
     implementation "android.arch.lifecycle:extensions:1.1.1"
-    implementation "android.arch.paging:runtime:1.0.0-rc1"
     // custom views
     implementation 'com.github.clans:fab:1.6.4'
     implementation "com.hootsuite.android:nachos:1.1.1"
     // FireBase Libs
-    implementation 'com.google.firebase:firebase-core:15.0.0'
-    implementation 'com.google.firebase:firebase-auth:15.0.0'
-    implementation 'com.google.firebase:firebase-firestore:15.0.0'
+    implementation 'com.google.firebase:firebase-core:15.0.2'
+    implementation 'com.google.firebase:firebase-auth:15.1.0'
+    implementation 'com.google.firebase:firebase-firestore:16.0.0'
+    // RxBinding
+    implementation 'com.jakewharton.rxbinding2:rxbinding-appcompat-v7:2.1.1'
 }
 
 

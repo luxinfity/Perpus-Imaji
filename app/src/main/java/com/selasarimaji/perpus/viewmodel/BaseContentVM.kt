@@ -21,13 +21,11 @@ abstract class BaseContentVM <T: DataModel> : BaseLoadingVM() {
     }
 
     open fun loadInitial(){
-        repo?.getRemoteTotalCount { documentSnapshot, _ ->
-            documentSnapshot?.let {
-                if (it.contains("count")){
-                    totalRemoteCount.value = it["count"].toString().toInt()
-                }else{
-                    totalRemoteCount.value = 0
-                }
+        repo?.getRemoteTotalCount { documentSnapshot ->
+            if (documentSnapshot.contains("count")){
+                totalRemoteCount.value = documentSnapshot["count"].toString().toInt()
+            }else{
+                totalRemoteCount.value = 0
             }
         }
     }

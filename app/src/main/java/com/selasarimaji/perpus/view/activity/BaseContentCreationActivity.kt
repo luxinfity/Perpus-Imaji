@@ -9,8 +9,8 @@ abstract class BaseContentCreationActivity : BaseNavigationActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_content_creation)
-        setupToolbar()
         setupView()
+        setupToolbar()
         setupObserver()
 
         addButton.setOnClickListener {

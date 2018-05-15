@@ -1,5 +1,6 @@
 package com.selasarimaji.perpus.viewmodel
 
+import android.arch.lifecycle.MutableLiveData
 import android.util.Log
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestoreException
@@ -7,6 +8,7 @@ import com.google.firebase.firestore.QuerySnapshot
 import com.selasarimaji.perpus.model.DataModel
 import com.selasarimaji.perpus.repository.firestore.BaseRepo
 import com.selasarimaji.perpus.repository.firestore.BookRepo
+import com.selasarimaji.perpus.repository.firestore.CategoryRepo
 
 class EditBookVM : BaseContentVM<DataModel.Book>() {
     override val TAG: String
@@ -15,8 +17,14 @@ class EditBookVM : BaseContentVM<DataModel.Book>() {
     private val repoVal by lazy {
         BookRepo()
     }
+    private val repoCategoryVal by lazy {
+        CategoryRepo()
+    }
     override val repo: BaseRepo<DataModel.Book>
         get() = repoVal
+
+    private var categoryQuery : String = ""
+    val filteredCategory = MutableLiveData<List<DataModel.Category>>()
 
     override fun loadInitial(){
         super.loadInitial()
@@ -36,19 +44,25 @@ class EditBookVM : BaseContentVM<DataModel.Book>() {
         }
     }
 
-    private fun handleFirebaseQueryCallback(querySnapshot: QuerySnapshot?, exception: FirebaseFirestoreException?){
-        if (exception != null) {
-            Log.w(TAG, "listen:error", exception)
-        }else {
-            querySnapshot!!.documentChanges.map {
-                when(it.type){
-                    DocumentChange.Type.ADDED -> repo.addLocalItem(DataModel.Book.turnDocumentToObject(it.document))
-                    DocumentChange.Type.MODIFIED -> repo.editLocalItem(DataModel.Book.turnDocumentToObject(it.document))
-                    DocumentChange.Type.REMOVED -> repo.deleteLocalItem(DataModel.Book.turnDocumentToObject(it.document))
+    private fun handleFirebaseQueryCallback(querySnapshot: QuerySnapshot){
+        querySnapshot.documents.map {
+            repo.addLocalItem(DataModel.Book.turnDocumentToObject(it))
+        }
+        lastIndex.value = lastIndex.value!! + 10
+        isLoading.value = false
+    }
+
+    fun getPossibleCategoryInputName(charSequence: CharSequence){
+        if (charSequence.toString() != categoryQuery) { // blocking un needed response
+            categoryQuery = charSequence.toString()
+            repoCategoryVal.getContentWith("name", categoryQuery) { querySnapshot, query ->
+                if (query == categoryQuery) { // blocking un needed response
+                    val list = querySnapshot.documents.map {
+                        DataModel.Category.turnDocumentToObject(it)
+                    }
+                    filteredCategory.value = list
                 }
             }
-            lastIndex.value = lastIndex.value!! + 10
         }
-        isLoading.value = false
     }
 }

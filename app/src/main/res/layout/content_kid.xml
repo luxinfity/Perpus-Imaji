@@ -36,7 +36,8 @@
         <android.support.v7.widget.AppCompatAutoCompleteTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:completionHint="Jenis Kelamin 2"
+            android:inputType="textAutoComplete"
+            android:completionThreshold="1"
             android:hint="Jenis Kelamin"
             android:imeOptions="actionDone"
             android:singleLine="true"/>
