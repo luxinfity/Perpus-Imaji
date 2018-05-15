@@ -21,7 +21,7 @@ class EditBorrowVM : BaseContentVM<DataModel.Borrow>() {
 
     override fun loadInitial(){
         super.loadInitial()
-        if (isInitialLoaded.value == null || !isInitialLoaded.value!!){
+        if (isInitialLoaded.value == null){
             lastIndex.value = 0
             isInitialLoaded.value = true
             repo.loadRange(0, 10, listener = this@EditBorrowVM::handleFirebaseQueryCallback)

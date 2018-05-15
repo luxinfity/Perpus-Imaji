@@ -1,9 +1,6 @@
 package com.selasarimaji.perpus.viewmodel
 
 import android.arch.lifecycle.MutableLiveData
-import android.util.Log
-import com.google.firebase.firestore.DocumentChange
-import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.QuerySnapshot
 import com.selasarimaji.perpus.model.DataModel
 import com.selasarimaji.perpus.repository.firestore.BaseRepo
@@ -28,7 +25,7 @@ class EditBookVM : BaseContentVM<DataModel.Book>() {
 
     override fun loadInitial(){
         super.loadInitial()
-        if (isInitialLoaded.value == null || !isInitialLoaded.value!!){
+        if (isInitialLoaded.value == null){
             lastIndex.value = 0
             isInitialLoaded.value = true
             repo.loadRange(0, 10, listener = this@EditBookVM::handleFirebaseQueryCallback)

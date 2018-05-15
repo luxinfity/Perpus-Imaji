@@ -19,6 +19,10 @@ abstract class BaseRepo <T:DataModel>{
         }
     }
 
+    fun clearLocalData(){
+        fetchedData.value = fetchedData.value?.toMutableList().apply { this?.clear() }
+    }
+
     open fun loadRange(startPosition: Int, loadCount: Int, orderBy: String = "name",
                            listener : (querySnapshot:QuerySnapshot) -> Unit){
         db.orderBy(orderBy).startAt(startPosition).limit(loadCount.toLong())

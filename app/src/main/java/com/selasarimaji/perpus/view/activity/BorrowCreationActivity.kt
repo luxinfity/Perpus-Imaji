@@ -1,5 +1,6 @@
 package com.selasarimaji.perpus.view.activity
 
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
@@ -46,6 +47,7 @@ class BorrowCreationActivity : BaseContentCreationActivity() {
                     Toast.makeText(applicationContext,
                             "Penambahan Berhasil",
                             Toast.LENGTH_SHORT).show()
+                    setResult(Activity.RESULT_OK)
                     finish()
                 }
             }
@@ -53,10 +55,10 @@ class BorrowCreationActivity : BaseContentCreationActivity() {
     }
 
     override fun submitValue() {
-        val bookName = borrowBookInputLayout.editText?.text.toString()
-        val borrower = borrowNameInputLayout.editText?.text.toString()
-        val startDate = borrowStartDateInputLayout.editText?.text.toString()
-        val endDate = borrowEndDateInputLayout.editText?.text.toString()
+        val bookName = borrowBookInputLayout.editText?.text.toString().toLowerCase()
+        val borrower = borrowNameInputLayout.editText?.text.toString().toLowerCase()
+        val startDate = borrowStartDateInputLayout.editText?.text.toString().toLowerCase()
+        val endDate = borrowEndDateInputLayout.editText?.text.toString().toLowerCase()
 
         viewModel.storeData(DataModel.Borrow(bookName, borrower, startDate, endDate))
     }

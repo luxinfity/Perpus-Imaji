@@ -1,5 +1,6 @@
 package com.selasarimaji.perpus.view.activity
 
+import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.support.design.widget.TextInputLayout
@@ -59,6 +60,7 @@ class BookCreationActivity : BaseContentCreationActivity() {
                     Toast.makeText(applicationContext,
                             "Penambahan Berhasil",
                             Toast.LENGTH_SHORT).show()
+                    setResult(Activity.RESULT_OK)
                     finish()
                 }
             }
@@ -78,10 +80,12 @@ class BookCreationActivity : BaseContentCreationActivity() {
 
     override fun submitValue() {
         val editTextList = arrayListOf<TextInputLayout>(bookNameInputLayout,
-                bookAuthorInputLayout, yearInputLayout, publisherInputLayout, categoryListChipInput)
-        editTextList.map {
-            it.error = null
-            it.isErrorEnabled = false
+                bookAuthorInputLayout, yearInputLayout,
+                publisherInputLayout, categoryListChipInput).apply {
+            this.map {
+                it.error = null
+                it.isErrorEnabled = false
+            }
         }
 
         val name = bookNameInputLayout.editText?.text.toString().toLowerCase().also {

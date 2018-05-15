@@ -1,7 +1,9 @@
 package com.selasarimaji.perpus.view.activity
 
+import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.support.design.widget.TextInputLayout
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
@@ -13,7 +15,6 @@ import com.selasarimaji.perpus.viewmodel.EditCategoryVM
 import kotlinx.android.synthetic.main.activity_content_creation.*
 import kotlinx.android.synthetic.main.content_category.*
 import java.util.concurrent.TimeUnit
-
 
 class CategoryCreationActivity : BaseContentCreationActivity() {
 
@@ -58,6 +59,7 @@ class CategoryCreationActivity : BaseContentCreationActivity() {
                     Toast.makeText(applicationContext,
                             "Penambahan Berhasil",
                             Toast.LENGTH_SHORT).show()
+                    setResult(Activity.RESULT_OK)
                     finish()
                 }
             }
@@ -76,10 +78,32 @@ class CategoryCreationActivity : BaseContentCreationActivity() {
     }
 
     override fun submitValue() {
-        val name = categoryNameInputLayout.editText?.text.toString().toLowerCase()
-        val desc = categoryDescInputLayout.editText?.text.toString().toLowerCase()
+        val editTextList = arrayListOf<TextInputLayout>(categoryNameInputLayout,
+                categoryDescInputLayout).apply {
+            this.map {
+                it.error = null
+                it.isErrorEnabled = false
+            }
+        }
+
+        val name = categoryNameInputLayout.editText?.text.toString().toLowerCase().also {
+            if (it.isNotEmpty()) {
+                editTextList.remove(categoryNameInputLayout)
+            }
+        }
+        val desc = categoryDescInputLayout.editText?.text.toString().toLowerCase().also {
+            if (it.isNotEmpty()) {
+                editTextList.remove(categoryDescInputLayout)
+            }
+        }
         val parent = categoryParentInputLayout.editText?.text.toString().toLowerCase()
 
-        viewModel.storeData(DataModel.Category(name, desc, parent))
+        editTextList.map {
+            it.error = "Silahkan diisi"
+        }
+
+        if(editTextList.isEmpty()) {
+            viewModel.storeData(DataModel.Category(name, desc, parent))
+        }
     }
 }

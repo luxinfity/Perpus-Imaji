@@ -1,9 +1,9 @@
 package com.selasarimaji.perpus.view.activity
 
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
-import android.os.Bundle
 import android.view.View
 import android.widget.AutoCompleteTextView
 import android.widget.EditText
@@ -15,9 +15,6 @@ import kotlinx.android.synthetic.main.activity_content_creation.*
 import kotlinx.android.synthetic.main.content_kid.*
 import java.util.*
 import android.widget.ArrayAdapter
-
-
-
 
 class KidCreationActivity : BaseContentCreationActivity() {
 
@@ -62,6 +59,7 @@ class KidCreationActivity : BaseContentCreationActivity() {
                     Toast.makeText(applicationContext,
                             "Penambahan Berhasil",
                             Toast.LENGTH_SHORT).show()
+                    setResult(Activity.RESULT_OK)
                     finish()
                 }
             }
@@ -69,10 +67,10 @@ class KidCreationActivity : BaseContentCreationActivity() {
     }
 
     override fun submitValue() {
-        val name = kidNameInputLayout.editText?.text.toString()
-        val address = kidAddressInputLayout.editText?.text.toString()
+        val name = kidNameInputLayout.editText?.text.toString().toLowerCase()
+        val address = kidAddressInputLayout.editText?.text.toString().toLowerCase()
         val gender = kidGenderInputLayout.editText?.text.toString() == "Cowok"
-        val dateOfBirth = kidBirthDateInputLayout.editText?.text.toString()
+        val dateOfBirth = kidBirthDateInputLayout.editText?.text.toString().toLowerCase()
 
         viewModel.storeData(DataModel.Kid(name, address, gender, dateOfBirth))
     }

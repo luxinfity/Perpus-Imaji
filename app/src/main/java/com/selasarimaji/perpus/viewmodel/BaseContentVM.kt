@@ -20,6 +20,12 @@ abstract class BaseContentVM <T: DataModel> : BaseLoadingVM() {
         repo?.storeNewRemoteData(category, uploadingFlag, uploadingSuccessFlag)
     }
 
+    open fun reload(){
+        isInitialLoaded.value = null
+        repo?.clearLocalData()
+        loadInitial()
+    }
+
     open fun loadInitial(){
         repo?.getRemoteTotalCount { documentSnapshot ->
             if (documentSnapshot.contains("count")){

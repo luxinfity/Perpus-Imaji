@@ -1,5 +1,6 @@
 package com.selasarimaji.perpus.view.fragment
 
+import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
@@ -33,7 +34,7 @@ class CategoryRecyclerFragment : BaseRecyclerFragment() {
 
         view.fabButton.setOnClickListener {
             val intent = Intent(context, CategoryCreationActivity::class.java)
-            startActivity(intent)
+            startActivityForResult(intent, CREATION_REQUEST_CODE)
         }
     }
 
@@ -59,8 +60,21 @@ class CategoryRecyclerFragment : BaseRecyclerFragment() {
         viewModel.repo.fetchedData.observe(this, Observer {
             it?.let {
                 adapter.setupNewData(it)
+                if (it.isNotEmpty()) dismissLoading()
             }
         })
         viewModel.loadInitial()
+    }
+
+    override fun refresh(){
+        super.refresh()
+        viewModel.reload()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == CREATION_REQUEST_CODE && resultCode == Activity.RESULT_OK){
+            refresh()
+        }
     }
 }

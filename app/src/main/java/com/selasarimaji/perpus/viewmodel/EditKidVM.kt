@@ -20,7 +20,7 @@ class EditKidVM : BaseContentVM<DataModel.Kid>() {
 
     override fun loadInitial(){
         super.loadInitial()
-        if (isInitialLoaded.value == null || !isInitialLoaded.value!!){
+        if (isInitialLoaded.value == null){
             lastIndex.value = 0
             isInitialLoaded.value = true
             repo.loadRange(0, 10, listener = this@EditKidVM::handleFirebaseQueryCallback)
