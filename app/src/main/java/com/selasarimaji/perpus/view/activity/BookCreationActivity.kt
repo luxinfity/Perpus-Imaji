@@ -2,6 +2,7 @@ package com.selasarimaji.perpus.view.activity
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.support.design.widget.TextInputLayout
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -76,12 +77,50 @@ class BookCreationActivity : BaseContentCreationActivity() {
     }
 
     override fun submitValue() {
-        val name = bookNameInputLayout.editText?.text.toString().toLowerCase()
-        val author = bookAuthorInputLayout.editText?.text.toString().toLowerCase()
-        val year = yearInputLayout.editText?.text.toString().toInt()
-        val publisher = publisherInputLayout.editText?.text.toString().toLowerCase()
-        val category = categoryListChipInput.editText?.text.toString().toLowerCase()
+        val editTextList = arrayListOf<TextInputLayout>(bookNameInputLayout,
+                bookAuthorInputLayout, yearInputLayout, publisherInputLayout, categoryListChipInput)
+        editTextList.map {
+            it.error = null
+            it.isErrorEnabled = false
+        }
 
-        viewModel.storeData(DataModel.Book(name, author, year, publisher, category))
+        val name = bookNameInputLayout.editText?.text.toString().toLowerCase().also {
+            if (it.isNotEmpty()) {
+                editTextList.remove(bookNameInputLayout)
+            }
+        }
+        val author = bookAuthorInputLayout.editText?.text.toString().toLowerCase().also {
+            if (it.isNotEmpty()) {
+                editTextList.remove(bookAuthorInputLayout)
+            }
+        }
+        val year = yearInputLayout.editText?.text.toString().also {
+            if (it.isNotEmpty()) {
+                editTextList.remove(yearInputLayout)
+            }
+        }
+        val publisher = publisherInputLayout.editText?.text.toString().toLowerCase().also {
+            if (it.isNotEmpty()) {
+                editTextList.remove(publisherInputLayout)
+            }
+        }
+        val category = (categoryListChipInput.editText as NachoTextView).chipValues.map {
+            val value = it
+            viewModel.filteredCategory.value?.
+                    find { it.name == value.toLowerCase() }?.id
+                    ?: ""
+        }.also {
+            if (it.isNotEmpty()) {
+                editTextList.remove(categoryListChipInput)
+            }
+        }
+
+        editTextList.map {
+            it.error = "Silahkan diisi"
+        }
+
+        if(editTextList.isEmpty()){
+            viewModel.storeData(DataModel.Book(name, author, year.toInt(), publisher, category))
+        }
     }
 }

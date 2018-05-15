@@ -27,7 +27,7 @@ abstract class DataModel {
         }
     }
     data class Book (val name: String, val author: String, val year: Int, val publisher: String,
-                     val idCategory: String? = "") : DataModel(){
+                     val idCategoryList: List<String>) : DataModel(){
         @get:Exclude override val collectionName: String
             get() = "Book"
 
@@ -38,8 +38,11 @@ abstract class DataModel {
                     val author = it["author"].toString()
                     val year = it["year"].toString().toInt()
                     val publisher = it["publisher"].toString()
-                    val idCategory = it["idCategory"]?.toString()
-                    return Book(name, author, year, publisher, idCategory).apply {
+                    val idCategoryList = it["idCategoryList"]?.let {
+                        (it as Iterable<*>).map{ it.toString() }
+                    } ?: listOf()
+
+                    return Book(name, author, year, publisher, idCategoryList).apply {
                         id = documentSnapshot.id
                     }
                 }
@@ -50,6 +53,7 @@ abstract class DataModel {
                        val startDate: String, val endDate: String) : DataModel(){
         @get:Exclude override val collectionName: String
             get() = "Borrow"
+
 
         companion object {
             fun turnDocumentToObject(documentSnapshot: DocumentSnapshot) : Borrow {
