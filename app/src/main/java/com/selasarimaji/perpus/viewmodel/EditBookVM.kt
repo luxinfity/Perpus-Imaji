@@ -1,6 +1,7 @@
 package com.selasarimaji.perpus.viewmodel
 
 import android.arch.lifecycle.MutableLiveData
+import com.esafirm.imagepicker.model.Image
 import com.google.firebase.firestore.QuerySnapshot
 import com.selasarimaji.perpus.model.DataModel
 import com.selasarimaji.perpus.repository.firestore.BaseRepo
@@ -17,13 +18,16 @@ class EditBookVM : BaseContentVM<DataModel.Book>() {
     override val repo: BaseRepo<DataModel.Book>
         get() = repoVal
 
-
     // Auto complete
     private val repoCategoryVal by lazy {
         CategoryRepo()
     }
     private var categoryQuery : String = ""
     val filteredCategory = MutableLiveData<List<DataModel.Category>>()
+
+    // image upload
+    val pickedImage = MutableLiveData<Image>()
+    val uploadingProgress = MutableLiveData<Double>()
 
     override fun loadInitial(){
         super.loadInitial()
@@ -64,4 +68,15 @@ class EditBookVM : BaseContentVM<DataModel.Book>() {
             }
         }
     }
+
+    fun imagePickActivityResult(image: Image){
+        pickedImage.value = image
+    }
+
+    fun storeImage(){
+        repoVal.storeImage(pickedImage.value!!.path, documentResultRef.value!!.id,
+                uploadingFlag, uploadingSuccessFlag, uploadingProgress)
+    }
+
+    fun shouldWaitImageUpload() : Boolean = pickedImage.value != null && uploadingProgress.value == null
 }

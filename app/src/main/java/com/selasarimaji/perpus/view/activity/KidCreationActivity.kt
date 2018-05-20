@@ -22,7 +22,6 @@ import com.esafirm.imagepicker.features.ImagePicker
 import com.selasarimaji.perpus.getStringVal
 import com.selasarimaji.perpus.parseDateString
 import com.selasarimaji.perpus.storeStringVal
-import kotlin.math.roundToInt
 
 class KidCreationActivity : BaseContentCreationActivity() {
 
@@ -38,7 +37,22 @@ class KidCreationActivity : BaseContentCreationActivity() {
         val view = layoutInflater.inflate(R.layout.content_kid, null)
         linearContainer.addView(view, 0)
 
-        image_button.setOnClickListener {
+        kidBirthDateInputLayout.editText?.run { showDatePickerOnClick(this) }
+        val gender = arrayOf("Cowok", "Cewek")
+        val adapter = ArrayAdapter<String>(this,
+                android.R.layout.simple_dropdown_item_1line,
+                gender)
+
+        (kidGenderInputLayout.editText as AutoCompleteTextView).run {
+            setAdapter(adapter)
+            setOnFocusChangeListener { _, hasFocus ->
+                if(hasFocus){
+                    (kidGenderInputLayout.editText as AutoCompleteTextView).showDropDown()
+                }
+            }
+        }
+
+        kidImageButton.setOnClickListener {
             ImagePicker.create(this) // Activity or Fragment
                     .folderMode(true) // folder mode (false by default)
                     .toolbarFolderTitle("Folder") // folder selection title
@@ -47,20 +61,6 @@ class KidCreationActivity : BaseContentCreationActivity() {
                     .theme(R.style.CustomImagePickerTheme) // must inherit ef_BaseTheme. please refer to sample
                     .showCamera(true) // show camera or not (true by default)
                     .start() // start image picker activity with request code
-        }
-
-        kidBirthDateInputLayout.editText?.run { showDatePickerOnClick(this) }
-        val gender = arrayOf("Cowok", "Cewek")
-        val adapter = ArrayAdapter<String>(this,
-                android.R.layout.simple_dropdown_item_1line,
-                gender)
-        (kidGenderInputLayout.editText as AutoCompleteTextView).run {
-            setAdapter(adapter)
-            setOnFocusChangeListener { _, hasFocus ->
-                if(hasFocus){
-                    (kidGenderInputLayout.editText as AutoCompleteTextView).showDropDown()
-                }
-            }
         }
     }
 
@@ -97,7 +97,7 @@ class KidCreationActivity : BaseContentCreationActivity() {
         })
         viewModel.pickedImage.observe(this, Observer {
             it?.run {
-                Glide.with(applicationContext).load(it.path).into(image_button)
+                Glide.with(applicationContext).load(it.path).into(kidImageButton)
             }
         })
     }

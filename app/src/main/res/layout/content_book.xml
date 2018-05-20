@@ -65,4 +65,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </android.support.design.widget.TextInputLayout>
+    <android.support.v7.widget.AppCompatTextView
+        android:text="Foto Buku"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="6dp"
+        android:layout_marginStart="6dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <android.support.v7.widget.AppCompatImageButton
+        android:id="@+id/bookImageButton"
+        android:padding="16dp"
+        android:src="@drawable/ef_ic_camera_white"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </LinearLayout>

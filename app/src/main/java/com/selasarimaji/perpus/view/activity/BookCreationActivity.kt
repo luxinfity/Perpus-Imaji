@@ -3,10 +3,13 @@ package com.selasarimaji.perpus.view.activity
 import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Intent
 import android.support.design.widget.TextInputLayout
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import com.bumptech.glide.Glide
+import com.esafirm.imagepicker.features.ImagePicker
 import com.hootsuite.nachos.NachoTextView
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.selasarimaji.perpus.R
@@ -40,6 +43,17 @@ class BookCreationActivity : BaseContentCreationActivity() {
                     .subscribe {
                         viewModel.getPossibleCategoryInputName(parentCategoryText)
                     }
+        }
+
+        bookImageButton.setOnClickListener {
+            ImagePicker.create(this) // Activity or Fragment
+                    .folderMode(true) // folder mode (false by default)
+                    .toolbarFolderTitle("Folder") // folder selection title
+                    .toolbarImageTitle("Tap to select") // image selection title
+                    .single() // single mode
+                    .theme(R.style.CustomImagePickerTheme) // must inherit ef_BaseTheme. please refer to sample
+                    .showCamera(true) // show camera or not (true by default)
+                    .start() // start image picker activity with request code
         }
     }
 
@@ -75,6 +89,11 @@ class BookCreationActivity : BaseContentCreationActivity() {
                     setAdapter(adapter)
                     showDropDown()
                 }
+            }
+        })
+        viewModel.pickedImage.observe(this, Observer {
+            it?.run {
+                Glide.with(applicationContext).load(it.path).into(bookImageButton)
             }
         })
     }
@@ -127,5 +146,14 @@ class BookCreationActivity : BaseContentCreationActivity() {
         if(editTextList.isEmpty()){
             viewModel.storeData(DataModel.Book(name, author, year.toInt(), publisher, category))
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
+            ImagePicker.getFirstImageOrNull(data)?.let {
+                viewModel.imagePickActivityResult(it)
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 }

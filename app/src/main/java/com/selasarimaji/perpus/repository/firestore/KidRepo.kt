@@ -10,14 +10,16 @@ class KidRepo : BaseRepo<DataModel.Kid>() {
     companion object {
         const val IMAGE_PATH = "content/kid/"
     }
+
+    private val imageFolderRef by lazy {
+        FirebaseStorage.getInstance().getReference(IMAGE_PATH)
+    }
+
     override val collectionName: String
         get() = "content/kid/list"
 
     private val liveData by lazy {
         MutableLiveData<List<DataModel.Kid>>()
-    }
-    private val imageFolderRef by lazy {
-        FirebaseStorage.getInstance().getReference(IMAGE_PATH)
     }
 
     override val fetchedData: MutableLiveData<List<DataModel.Kid>>
