@@ -14,12 +14,14 @@ class EditBookVM : BaseContentVM<DataModel.Book>() {
     private val repoVal by lazy {
         BookRepo()
     }
-    private val repoCategoryVal by lazy {
-        CategoryRepo()
-    }
     override val repo: BaseRepo<DataModel.Book>
         get() = repoVal
 
+
+    // Auto complete
+    private val repoCategoryVal by lazy {
+        CategoryRepo()
+    }
     private var categoryQuery : String = ""
     val filteredCategory = MutableLiveData<List<DataModel.Category>>()
 

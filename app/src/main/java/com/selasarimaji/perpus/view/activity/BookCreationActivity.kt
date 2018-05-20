@@ -120,7 +120,7 @@ class BookCreationActivity : BaseContentCreationActivity() {
         }
 
         editTextList.map {
-            it.error = "Silahkan diisi"
+            if (it.error.isNullOrEmpty()) it.error = "Silahkan diisi"
         }
 
         if(editTextList.isEmpty()){

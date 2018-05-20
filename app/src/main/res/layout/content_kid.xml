@@ -39,6 +39,7 @@
             android:inputType="textAutoComplete"
             android:completionThreshold="1"
             android:hint="Jenis Kelamin"
+            android:text="Cowok"
             android:imeOptions="actionDone"
             android:singleLine="true"/>
     </android.support.design.widget.TextInputLayout>

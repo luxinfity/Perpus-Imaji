@@ -79,7 +79,7 @@ class CategoryCreationActivity : BaseContentCreationActivity() {
 
     override fun submitValue() {
         val editTextList = arrayListOf<TextInputLayout>(categoryNameInputLayout,
-                categoryDescInputLayout).apply {
+                categoryDescInputLayout, categoryParentInputLayout).apply {
             this.map {
                 it.error = null
                 it.isErrorEnabled = false
@@ -96,10 +96,17 @@ class CategoryCreationActivity : BaseContentCreationActivity() {
                 editTextList.remove(categoryDescInputLayout)
             }
         }
-        val parent = categoryParentInputLayout.editText?.text.toString().toLowerCase()
+
+        val parent = viewModel.filteredCategory.value?.find {
+            it.name == parentCategoryText.toLowerCase()
+        }?.id.also {
+            if (!it.isNullOrEmpty()) {
+                editTextList.remove(categoryParentInputLayout)
+            }
+        }
 
         editTextList.map {
-            it.error = "Silahkan diisi"
+            if (it.error.isNullOrEmpty()) it.error = "Silahkan diisi"
         }
 
         if(editTextList.isEmpty()) {
