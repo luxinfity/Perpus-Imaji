@@ -32,11 +32,12 @@ abstract class BaseRepo <T:DataModel>{
     }
 
     fun storeNewRemoteData(dataModel: T, loadingFlag: MutableLiveData<Boolean>,
-                           successFlag: MutableLiveData<Boolean>){
+                           successFlag: MutableLiveData<Boolean>, docRef: MutableLiveData<DocumentReference>){
         loadingFlag.value = true
         db.add(dataModel).addOnCompleteListener {
             loadingFlag.value = false
             successFlag.value = it.isSuccessful
+            docRef.value = it.result
         }
     }
 

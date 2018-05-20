@@ -1,6 +1,7 @@
 package com.selasarimaji.perpus.viewmodel
 
 import android.arch.lifecycle.MutableLiveData
+import com.google.firebase.firestore.DocumentReference
 import com.selasarimaji.perpus.model.DataModel
 import com.selasarimaji.perpus.repository.firestore.BaseRepo
 
@@ -14,10 +15,11 @@ abstract class BaseContentVM <T: DataModel> : BaseLoadingVM() {
     var totalRemoteCount = MutableLiveData<Int>()
     protected var isInitialLoaded = MutableLiveData<Boolean>()
     protected var lastIndex = MutableLiveData<Int>()
-    protected var isLoading = MutableLiveData<Boolean>()
+    protected var isContentLoading = MutableLiveData<Boolean>()
+    protected var documentResultRef = MutableLiveData<DocumentReference>()
 
     open fun storeData(category: T){
-        repo?.storeNewRemoteData(category, uploadingFlag, uploadingSuccessFlag)
+        repo?.storeNewRemoteData(category, uploadingFlag, uploadingSuccessFlag, documentResultRef)
     }
 
     open fun reload(){

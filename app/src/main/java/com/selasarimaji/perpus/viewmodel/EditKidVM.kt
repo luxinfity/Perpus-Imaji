@@ -1,8 +1,7 @@
 package com.selasarimaji.perpus.viewmodel
 
-import android.util.Log
-import com.google.firebase.firestore.DocumentChange
-import com.google.firebase.firestore.FirebaseFirestoreException
+import android.arch.lifecycle.MutableLiveData
+import com.esafirm.imagepicker.model.Image
 import com.google.firebase.firestore.QuerySnapshot
 import com.selasarimaji.perpus.model.DataModel
 import com.selasarimaji.perpus.repository.firestore.BaseRepo
@@ -18,6 +17,9 @@ class EditKidVM : BaseContentVM<DataModel.Kid>() {
     override val TAG: String
         get() = EditKidVM::class.java.name
 
+    val pickedImage = MutableLiveData<Image>()
+    val uploadingProgress = MutableLiveData<Double>()
+
     override fun loadInitial(){
         super.loadInitial()
         if (isInitialLoaded.value == null){
@@ -28,9 +30,9 @@ class EditKidVM : BaseContentVM<DataModel.Kid>() {
     }
 
     override fun loadMore() {
-        isLoading.value?.run {
+        isContentLoading.value?.run {
             if (!this){
-                isLoading.value = true
+                isContentLoading.value = true
                 repo.loadRange(lastIndex.value!!, 10, listener = this@EditKidVM::handleFirebaseQueryCallback)
             }
         }
@@ -41,6 +43,17 @@ class EditKidVM : BaseContentVM<DataModel.Kid>() {
             repo.addLocalItem(DataModel.Kid.turnDocumentToObject(it))
         }
         lastIndex.value = lastIndex.value!! + 10
-        isLoading.value = false
+        isContentLoading.value = false
     }
+
+    fun imagePickActivityResult(image: Image){
+        pickedImage.value = image
+    }
+
+    fun storeImage(){
+        repoVal.storeImage(pickedImage.value!!.path, documentResultRef.value!!.id,
+                uploadingFlag, uploadingSuccessFlag, uploadingProgress)
+    }
+
+    fun shouldWaitImageUpload() : Boolean = pickedImage.value != null && uploadingProgress.value == null
 }

@@ -48,13 +48,13 @@ class BookCreationActivity : BaseContentCreationActivity() {
     }
 
     override fun setupObserver(){
-        viewModel.uploadingFlag.observe(this, Observer<Boolean> {
+        viewModel.uploadingFlag.observe(this, Observer {
             it?.run {
                 progressBar.visibility = if (this) View.VISIBLE else View.GONE
                 addButton.isEnabled = !this
             }
         })
-        viewModel.uploadingSuccessFlag.observe(this, Observer<Boolean> {
+        viewModel.uploadingSuccessFlag.observe(this, Observer {
             it?.run {
                 if(this) {
                     Toast.makeText(applicationContext,
@@ -65,7 +65,7 @@ class BookCreationActivity : BaseContentCreationActivity() {
                 }
             }
         })
-        viewModel.filteredCategory.observe(this, Observer<List<DataModel.Category>>{
+        viewModel.filteredCategory.observe(this, Observer {
             it?.run {
                 val adapter = ArrayAdapter<String>(applicationContext,
                         android.R.layout.simple_dropdown_item_1line,

@@ -7,8 +7,6 @@ import com.selasarimaji.perpus.repository.firestore.BaseRepo
 import com.selasarimaji.perpus.repository.firestore.BookRepo
 import com.selasarimaji.perpus.repository.firestore.BorrowRepo
 import com.selasarimaji.perpus.repository.firestore.KidRepo
-import java.text.SimpleDateFormat
-import java.util.*
 
 class EditBorrowVM : BaseContentVM<DataModel.Borrow>() {
 
@@ -46,9 +44,9 @@ class EditBorrowVM : BaseContentVM<DataModel.Borrow>() {
     }
 
     override fun loadMore() {
-        isLoading.value?.run {
+        isContentLoading.value?.run {
             if (!this){
-                isLoading.value = true
+                isContentLoading.value = true
                 repo.loadRange(lastIndex.value!!, 10, listener = this@EditBorrowVM::handleFirebaseQueryCallback)
             }
         }
@@ -59,7 +57,7 @@ class EditBorrowVM : BaseContentVM<DataModel.Borrow>() {
             repo.addLocalItem(DataModel.Borrow.turnDocumentToObject(it))
         }
         lastIndex.value = lastIndex.value!! + 10
-        isLoading.value = false
+        isContentLoading.value = false
     }
 
     fun getPossibleKidName(charSequence: CharSequence){

@@ -35,9 +35,9 @@ class EditBookVM : BaseContentVM<DataModel.Book>() {
     }
 
     override fun loadMore() {
-        isLoading.value?.run {
+        isContentLoading.value?.run {
             if (!this){
-                isLoading.value = true
+                isContentLoading.value = true
                 repo.loadRange(lastIndex.value!!, 10, listener = this@EditBookVM::handleFirebaseQueryCallback)
             }
         }
@@ -48,7 +48,7 @@ class EditBookVM : BaseContentVM<DataModel.Book>() {
             repo.addLocalItem(DataModel.Book.turnDocumentToObject(it))
         }
         lastIndex.value = lastIndex.value!! + 10
-        isLoading.value = false
+        isContentLoading.value = false
     }
 
     fun getPossibleCategoryInputName(charSequence: CharSequence){

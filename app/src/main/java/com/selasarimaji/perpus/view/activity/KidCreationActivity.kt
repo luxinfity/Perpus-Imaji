@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.DatePickerDialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Intent
 import android.support.design.widget.TextInputLayout
 import android.view.View
 import android.widget.AutoCompleteTextView
@@ -16,9 +17,12 @@ import kotlinx.android.synthetic.main.activity_content_creation.*
 import kotlinx.android.synthetic.main.content_kid.*
 import java.util.*
 import android.widget.ArrayAdapter
+import com.bumptech.glide.Glide
+import com.esafirm.imagepicker.features.ImagePicker
 import com.selasarimaji.perpus.getStringVal
 import com.selasarimaji.perpus.parseDateString
 import com.selasarimaji.perpus.storeStringVal
+import kotlin.math.roundToInt
 
 class KidCreationActivity : BaseContentCreationActivity() {
 
@@ -33,6 +37,17 @@ class KidCreationActivity : BaseContentCreationActivity() {
     override fun setupView(){
         val view = layoutInflater.inflate(R.layout.content_kid, null)
         linearContainer.addView(view, 0)
+
+        image_button.setOnClickListener {
+            ImagePicker.create(this) // Activity or Fragment
+                    .folderMode(true) // folder mode (false by default)
+                    .toolbarFolderTitle("Folder") // folder selection title
+                    .toolbarImageTitle("Tap to select") // image selection title
+                    .single() // single mode
+                    .theme(R.style.CustomImagePickerTheme) // must inherit ef_BaseTheme. please refer to sample
+                    .showCamera(true) // show camera or not (true by default)
+                    .start() // start image picker activity with request code
+        }
 
         kidBirthDateInputLayout.editText?.run { showDatePickerOnClick(this) }
         val gender = arrayOf("Cowok", "Cewek")
@@ -55,28 +70,41 @@ class KidCreationActivity : BaseContentCreationActivity() {
     }
 
     override fun setupObserver(){
-        viewModel.uploadingFlag.observe(this, Observer<Boolean> {
+        viewModel.uploadingFlag.observe(this, Observer {
             it?.run {
                 progressBar.visibility = if (this) View.VISIBLE else View.GONE
                 addButton.isEnabled = !this
             }
         })
-        viewModel.uploadingSuccessFlag.observe(this, Observer<Boolean> {
+        viewModel.uploadingProgress.observe(this, Observer {
             it?.run {
-                if(this) {
+                progressBar.isIndeterminate = false
+                progressBar.progress = it.roundToInt()
+            }
+        })
+        viewModel.uploadingSuccessFlag.observe(this, Observer {
+            it?.run {
+                if(this && !viewModel.shouldWaitImageUpload()) {
                     Toast.makeText(applicationContext,
                             "Penambahan Berhasil",
                             Toast.LENGTH_SHORT).show()
                     setResult(Activity.RESULT_OK)
                     finish()
+                }else if (this) {
+                    viewModel.storeImage()
                 }
+            }
+        })
+        viewModel.pickedImage.observe(this, Observer {
+            it?.run {
+                Glide.with(applicationContext).load(it.path).into(image_button)
             }
         })
     }
 
     override fun submitValue() {
         val editTextList = arrayListOf<TextInputLayout>(kidNameInputLayout, kidAddressInputLayout,
-                kidGenderInputLayout, kidBirthDateInputLayout).apply {
+                kidBirthDateInputLayout).apply {
             this.map {
                 it.error = null
                 it.isErrorEnabled = false
@@ -96,7 +124,7 @@ class KidCreationActivity : BaseContentCreationActivity() {
         val gender = kidGenderInputLayout.editText?.text.toString() == "Cowok"
         val dateOfBirth = kidBirthDateInputLayout.editText?.text.toString().toLowerCase().also {
             if (it.isNotEmpty()) {
-                editTextList.remove(kidAddressInputLayout)
+                editTextList.remove(kidBirthDateInputLayout)
                 storeStringVal(DoBKey, it)
             }
         }
@@ -126,5 +154,14 @@ class KidCreationActivity : BaseContentCreationActivity() {
                     },
                     year, month, day).show()
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
+            ImagePicker.getFirstImageOrNull(data)?.let {
+                viewModel.imagePickActivityResult(it)
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 }
