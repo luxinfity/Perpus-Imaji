@@ -76,12 +76,12 @@ class KidCreationActivity : BaseContentCreationActivity() {
                 addButton.isEnabled = !this
             }
         })
-        viewModel.uploadingProgress.observe(this, Observer {
-            it?.run {
-                progressBar.isIndeterminate = false
-                progressBar.progress = it.roundToInt()
-            }
-        })
+//        viewModel.uploadingProgress.observe(this, Observer {
+//            it?.run {
+//                progressBar.isIndeterminate = false
+//                progressBar.progress = it.roundToInt()
+//            }
+//        })
         viewModel.uploadingSuccessFlag.observe(this, Observer {
             it?.run {
                 if(this && !viewModel.shouldWaitImageUpload()) {
