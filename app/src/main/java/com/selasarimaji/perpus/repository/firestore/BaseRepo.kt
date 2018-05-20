@@ -35,9 +35,9 @@ abstract class BaseRepo <T:DataModel>{
                            successFlag: MutableLiveData<Boolean>, docRef: MutableLiveData<DocumentReference>){
         loadingFlag.value = true
         db.add(dataModel).addOnCompleteListener {
+            docRef.value = it.result
             loadingFlag.value = false
             successFlag.value = it.isSuccessful
-            docRef.value = it.result
         }
     }
 
