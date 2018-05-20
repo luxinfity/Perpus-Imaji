@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.selasarimaji.perpus.ContentType
 import com.selasarimaji.perpus.R
+import com.selasarimaji.perpus.capitalizeWords
 import com.selasarimaji.perpus.model.DataModel
 import kotlinx.android.synthetic.main.layout_book.view.*
 import kotlinx.android.synthetic.main.layout_category.view.*
@@ -15,14 +16,14 @@ abstract class BaseContentViewHolder(val view: View) : RecyclerView.ViewHolder(v
 
 class CategoryViewHolder(view: View) : BaseContentViewHolder(view){
     fun setupView(item: DataModel.Category) {
-        view.categoryNameText.text = item.name.capitalize()
-        view.categoryDesc.text = item.description.capitalize()
+        view.categoryNameText.text = item.name.capitalizeWords()
+        view.categoryDesc.text = item.description.capitalizeWords()
     }
 }
 class BookViewHolder(view: View) : BaseContentViewHolder(view){
     fun setupView(item: DataModel.Book) {
-        view.bookNameText.text = item.name.capitalize()
-        view.bookDesc.text = item.author.capitalize()
+        view.bookNameText.text = item.name.capitalizeWords()
+        view.bookDesc.text = item.author.capitalizeWords()
     }
 }
 class BorrowViewHolder(view: View) : BaseContentViewHolder(view){
@@ -32,7 +33,7 @@ class BorrowViewHolder(view: View) : BaseContentViewHolder(view){
 }
 class KidViewHolder(view: View) : BaseContentViewHolder(view){
     fun setupView(item:DataModel.Kid) {
-        view.kidNameText.text = item.name.capitalize()
+        view.kidNameText.text = item.name.capitalizeWords()
         view.kidDesc.text = "DoB: ${item.birthDate} Blok: ${item.address} " +
                 "Gender: ${if(item.isMale) "Cowok" else "Cewek"}"
     }

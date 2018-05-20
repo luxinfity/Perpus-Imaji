@@ -12,6 +12,7 @@ import android.widget.EditText
 import android.widget.Toast
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.selasarimaji.perpus.R
+import com.selasarimaji.perpus.capitalizeWords
 import com.selasarimaji.perpus.getCurrentDateString
 import com.selasarimaji.perpus.model.DataModel
 import com.selasarimaji.perpus.viewmodel.EditBorrowVM
@@ -91,7 +92,7 @@ class BorrowCreationActivity : BaseContentCreationActivity() {
             it?.run {
                 val adapter = ArrayAdapter<String>(applicationContext,
                         android.R.layout.simple_dropdown_item_1line,
-                        this.filter { it.name.contains(kidText) }.map { it.name.capitalize() })
+                        this.filter { it.name.contains(kidText) }.map { it.name.capitalizeWords() })
                 (borrowNameInputLayout.editText as AutoCompleteTextView).run {
                     setAdapter(adapter)
                     showDropDown()
@@ -102,7 +103,7 @@ class BorrowCreationActivity : BaseContentCreationActivity() {
             it?.run {
                 val adapter = ArrayAdapter<String>(applicationContext,
                         android.R.layout.simple_dropdown_item_1line,
-                        this.filter { it.name.contains(bookText) }.map { it.name.capitalize() })
+                        this.filter { it.name.contains(bookText) }.map { it.name.capitalizeWords() })
                 (borrowBookInputLayout.editText as AutoCompleteTextView).run {
                     setAdapter(adapter)
                     showDropDown()

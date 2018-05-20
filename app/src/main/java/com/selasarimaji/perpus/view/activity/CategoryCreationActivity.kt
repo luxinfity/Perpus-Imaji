@@ -10,6 +10,7 @@ import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.selasarimaji.perpus.R
+import com.selasarimaji.perpus.capitalizeWords
 import com.selasarimaji.perpus.model.DataModel
 import com.selasarimaji.perpus.viewmodel.EditCategoryVM
 import kotlinx.android.synthetic.main.activity_content_creation.*
@@ -68,7 +69,7 @@ class CategoryCreationActivity : BaseContentCreationActivity() {
             it?.run {
                 val adapter = ArrayAdapter<String>(applicationContext,
                         android.R.layout.simple_dropdown_item_1line,
-                        this.filter { it.name.contains(parentCategoryText) }.map { it.name.capitalize() })
+                        this.filter { it.name.contains(parentCategoryText) }.map { it.name.capitalizeWords() })
                 (categoryParentInputLayout.editText as AutoCompleteTextView).run {
                     setAdapter(adapter)
                     showDropDown()

@@ -33,3 +33,7 @@ fun parseDateString(dateString : String) : Calendar{
     cal.time = sdf.parse(dateString)// all done
     return cal
 }
+
+fun String.capitalizeWords() =
+    split(" ").map { it.capitalize() }.reduce { acc, s -> "$acc $s" }
+

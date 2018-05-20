@@ -10,6 +10,7 @@ import android.widget.Toast
 import com.hootsuite.nachos.NachoTextView
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.selasarimaji.perpus.R
+import com.selasarimaji.perpus.capitalizeWords
 import com.selasarimaji.perpus.model.DataModel
 import com.selasarimaji.perpus.viewmodel.EditBookVM
 import kotlinx.android.synthetic.main.activity_content_creation.*
@@ -69,7 +70,7 @@ class BookCreationActivity : BaseContentCreationActivity() {
             it?.run {
                 val adapter = ArrayAdapter<String>(applicationContext,
                         android.R.layout.simple_dropdown_item_1line,
-                        this.filter { it.name.contains(parentCategoryText) }.map { it.name.capitalize() })
+                        this.filter { it.name.contains(parentCategoryText) }.map { it.name.capitalizeWords() })
                 (categoryListChipInput.editText as NachoTextView).run {
                     setAdapter(adapter)
                     showDropDown()
