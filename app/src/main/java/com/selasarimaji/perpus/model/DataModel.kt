@@ -1,12 +1,19 @@
 package com.selasarimaji.perpus.model
 
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Exclude
-import com.google.firebase.firestore.QueryDocumentSnapshot
+import java.util.*
 
 abstract class DataModel {
     @get:Exclude var id: String? = ""
     @get:Exclude open val collectionName = ""
+
+    val editor : String
+        get() = FirebaseAuth.getInstance().currentUser?.email ?: ""
+
+    val lastEdit : String
+        get() = Calendar.getInstance().time.time.toString()
 
     data class Category (val name: String, val description: String,
                          val idParent: String? = "") : DataModel() {
