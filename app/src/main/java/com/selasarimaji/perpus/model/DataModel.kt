@@ -6,19 +6,18 @@ import com.google.firebase.firestore.Exclude
 import java.util.*
 
 abstract class DataModel {
-    @get:Exclude var id: String? = ""
-    @get:Exclude open val collectionName = ""
+    @get:Exclude var id: String = ""
+    @get:Exclude abstract val collectionName : String
 
     val editor : String
         get() = FirebaseAuth.getInstance().currentUser?.email ?: ""
 
-    val lastEdit : String
-        get() = Calendar.getInstance().time.time.toString()
+    val lastEdit : Long
+        get() = Calendar.getInstance().time.time
 
     data class Category (val name: String, val description: String,
                          val idParent: String? = "") : DataModel() {
-        @get:Exclude override val collectionName: String
-            get() = "Category"
+        @get:Exclude override val collectionName = "Category"
 
         companion object {
             fun turnDocumentToObject(documentSnapshot: DocumentSnapshot) : Category {
@@ -35,8 +34,7 @@ abstract class DataModel {
     }
     data class Book (val name: String, val author: String, val year: Int, val publisher: String,
                      val idCategoryList: List<String>) : DataModel(){
-        @get:Exclude override val collectionName: String
-            get() = "Book"
+        @get:Exclude override val collectionName = "Book"
 
         companion object {
             fun turnDocumentToObject(documentSnapshot: DocumentSnapshot) : Book {
@@ -58,9 +56,7 @@ abstract class DataModel {
     }
     data class Borrow (val idBook: String, val idChild: String,
                        val startDate: String, val endDate: String) : DataModel(){
-        @get:Exclude override val collectionName: String
-            get() = "Borrow"
-
+        @get:Exclude override val collectionName = "Borrow"
 
         companion object {
             fun turnDocumentToObject(documentSnapshot: DocumentSnapshot) : Borrow {
@@ -78,8 +74,7 @@ abstract class DataModel {
     }
     data class Kid (val name: String, val address: String, val isMale: Boolean,
                        val birthDate: String) : DataModel(){
-        @get:Exclude override val collectionName: String
-            get() = "Kid"
+        @get:Exclude override val collectionName = "Kid"
 
         companion object {
             fun turnDocumentToObject(documentSnapshot: DocumentSnapshot) : Kid {

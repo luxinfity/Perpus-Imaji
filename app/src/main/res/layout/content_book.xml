@@ -22,10 +22,10 @@
         android:layout_height="wrap_content"
         android:scrollbars = "vertical"
         android:layout_marginTop="8dp">
-        <android.support.design.widget.TextInputEditText
+        <com.hootsuite.nachos.NachoTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Nama Penulis (pisahkan dengan  )"
+            android:hint="Nama Penulis (pisahkan dengan ; )"
             android:imeOptions="actionNext"
             android:maxLines="3"/>
     </android.support.design.widget.TextInputLayout>

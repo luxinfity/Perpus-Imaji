@@ -1,45 +1,35 @@
-package com.selasarimaji.perpus.view.fragment
+package com.selasarimaji.perpus.view.fragment.recycler
 
 import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
-import android.os.Bundle
 import android.view.*
 import kotlinx.android.synthetic.main.fragment_recycler.view.*
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import com.selasarimaji.perpus.ContentType
 import com.selasarimaji.perpus.model.DataModel
-import com.selasarimaji.perpus.view.activity.CategoryCreationActivity
+import com.selasarimaji.perpus.view.activity.ContentCreationActivity
 import com.selasarimaji.perpus.view.adapter.ContentRecyclerAdapter
-import com.selasarimaji.perpus.viewmodel.EditCategoryVM
+import com.selasarimaji.perpus.viewmodel.EditBookVM
 
-class CategoryRecyclerFragment : BaseRecyclerFragment() {
+class BookRecyclerFragment : BaseRecyclerFragment() {
     private val viewModel by lazy {
-        ViewModelProviders.of(activity!!).get(EditCategoryVM::class.java)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
-        return super.onCreateView(inflater, container, savedInstanceState).apply {
-            viewModel.title.value = "Daftar Kategori"
-        }
+        ViewModelProviders.of(activity!!).get(EditBookVM::class.java)
     }
 
     override fun setupButton(view: View){
-        view.fabButton.visibility = View.VISIBLE
-        view.fabMenu.visibility = View.GONE
-
         view.fabButton.setOnClickListener {
-            val intent = Intent(context, CategoryCreationActivity::class.java)
-            startActivityForResult(intent, CREATION_REQUEST_CODE)
+            context?.let {
+                val intent = ContentCreationActivity.createIntentToHere(it, ContentCreationActivity.ViewType.Book)
+                startActivityForResult(intent, CREATION_REQUEST_CODE)
+            }
         }
     }
 
     override fun setupRecycler(view: View){
-        val adapter = ContentRecyclerAdapter<DataModel.Category>(ContentType.Category)
+        val adapter = ContentRecyclerAdapter<DataModel.Book>(ContentType.Book)
         val layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         view.recyclerView.layoutManager = layoutManager
         view.recyclerView.adapter = adapter

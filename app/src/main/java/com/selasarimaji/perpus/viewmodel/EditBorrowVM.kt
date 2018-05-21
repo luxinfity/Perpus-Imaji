@@ -9,16 +9,10 @@ import com.selasarimaji.perpus.repository.firestore.BorrowRepo
 import com.selasarimaji.perpus.repository.firestore.KidRepo
 
 class EditBorrowVM : BaseContentVM<DataModel.Borrow>() {
-
     override val TAG: String
         get() = EditBorrowVM::class.java.name
 
-    private val repoVal by lazy {
-        BorrowRepo()
-    }
-    override val repo: BaseRepo<DataModel.Borrow>
-        get() = repoVal
-
+    override val repo = BorrowRepo()
 
     // auto complete
     private val repoKidVal by lazy {

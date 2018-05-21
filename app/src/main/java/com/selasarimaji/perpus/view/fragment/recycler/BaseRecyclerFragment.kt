@@ -1,4 +1,4 @@
-package com.selasarimaji.perpus.view.fragment
+package com.selasarimaji.perpus.view.fragment.recycler
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -30,6 +30,11 @@ abstract class BaseRecyclerFragment : Fragment() {
                 refresh()
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.content_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
     private fun showLoading(){

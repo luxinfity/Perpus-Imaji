@@ -8,8 +8,7 @@ import com.selasarimaji.perpus.repository.firestore.BaseRepo
 abstract class BaseContentVM <T: DataModel> : BaseLoadingVM() {
 
     abstract val TAG : String
-
-    open val repo: BaseRepo<T>? = null
+    abstract val repo: BaseRepo<T>
 
     var title = MutableLiveData<String>()
     var totalRemoteCount = MutableLiveData<Int>()
@@ -24,12 +23,12 @@ abstract class BaseContentVM <T: DataModel> : BaseLoadingVM() {
 
     open fun reload(){
         isInitialLoaded.value = null
-        repo?.clearLocalData()
+        repo.clearLocalData()
         loadInitial()
     }
 
     open fun loadInitial(){
-        repo?.getRemoteTotalCount { documentSnapshot ->
+        repo.getRemoteTotalCount { documentSnapshot ->
             if (documentSnapshot.contains("count")){
                 totalRemoteCount.value = documentSnapshot["count"].toString().toInt()
             }else{

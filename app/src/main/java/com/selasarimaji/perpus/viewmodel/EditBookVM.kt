@@ -12,11 +12,7 @@ class EditBookVM : BaseContentVM<DataModel.Book>() {
     override val TAG: String
         get() = EditBookVM::class.java.name
 
-    private val repoVal by lazy {
-        BookRepo()
-    }
-    override val repo: BaseRepo<DataModel.Book>
-        get() = repoVal
+    override val repo = BookRepo()
 
     // Auto complete
     private val repoCategoryVal by lazy {
@@ -74,7 +70,7 @@ class EditBookVM : BaseContentVM<DataModel.Book>() {
     }
 
     fun storeImage(){
-        repoVal.storeImage(pickedImage.value!!.path, documentResultRef.value!!.id,
+        repo.storeImage(pickedImage.value!!.path, documentResultRef.value!!.id,
                 uploadingFlag, uploadingSuccessFlag, uploadingProgress)
     }
 

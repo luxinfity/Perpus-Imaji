@@ -3,16 +3,10 @@ package com.selasarimaji.perpus.viewmodel
 import android.arch.lifecycle.MutableLiveData
 import com.google.firebase.firestore.QuerySnapshot
 import com.selasarimaji.perpus.model.DataModel
-import com.selasarimaji.perpus.repository.firestore.BaseRepo
 import com.selasarimaji.perpus.repository.firestore.CategoryRepo
 
 class EditCategoryVM : BaseContentVM<DataModel.Category>() {
-    private val repoVal by lazy {
-        CategoryRepo()
-    }
-
-    override val repo: BaseRepo<DataModel.Category>
-        get() = repoVal
+    override val repo = CategoryRepo()
 
     override val TAG: String
         get() = EditCategoryVM::class.java.name

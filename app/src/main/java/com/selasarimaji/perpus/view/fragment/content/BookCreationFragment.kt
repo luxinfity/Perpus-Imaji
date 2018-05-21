@@ -1,28 +1,28 @@
-package com.selasarimaji.perpus.view.activity
+package com.selasarimaji.perpus.view.fragment.content
 
 import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.support.design.widget.TextInputLayout
-import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.esafirm.imagepicker.features.ImagePicker
 import com.hootsuite.nachos.NachoTextView
+import com.hootsuite.nachos.terminator.ChipTerminatorHandler
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.selasarimaji.perpus.R
 import com.selasarimaji.perpus.capitalizeWords
 import com.selasarimaji.perpus.model.DataModel
 import com.selasarimaji.perpus.viewmodel.EditBookVM
-import kotlinx.android.synthetic.main.activity_content_creation.*
+import kotlinx.android.synthetic.main.activity_base_content_creation.*
 import kotlinx.android.synthetic.main.content_book.*
 import java.util.concurrent.TimeUnit
 
-class BookCreationActivity : BaseContentCreationActivity() {
+class BookCreationFragment : BaseCreationFragment() {
 
-    private val viewModel by lazy {
+    override val viewModel by lazy {
         ViewModelProviders.of(this).get(EditBookVM::class.java)
     }
 
@@ -35,6 +35,10 @@ class BookCreationActivity : BaseContentCreationActivity() {
     override fun setupView(){
         val view = layoutInflater.inflate(R.layout.content_book, null)
         linearContainer.addView(view, 0)
+        (bookAuthorInputLayout.editText as NachoTextView).also {
+            it.addChipTerminator(';', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_ALL)
+            it.enableEditChipOnTouch(false, false)
+        }
 
         categoryListChipInput.editText?.let{
             RxTextView.textChanges(it)
@@ -58,33 +62,34 @@ class BookCreationActivity : BaseContentCreationActivity() {
     }
 
     override fun setupToolbar(){
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Buku"
+        viewModel.title.value = "Buku"
     }
 
     override fun setupObserver(){
         viewModel.uploadingFlag.observe(this, Observer {
             it?.run {
-                progressBar.visibility = if (this) View.VISIBLE else View.GONE
                 addButton.isEnabled = !this
             }
         })
         viewModel.uploadingSuccessFlag.observe(this, Observer {
             it?.run {
                 if(this) {
-                    Toast.makeText(applicationContext,
+                    Toast.makeText(context,
                             "Penambahan Berhasil",
                             Toast.LENGTH_SHORT).show()
-                    setResult(Activity.RESULT_OK)
-                    finish()
+                    activity?.let {
+                        it.setResult(Activity.RESULT_OK)
+                        it.finish()
+                    }
                 }
             }
         })
         viewModel.filteredCategory.observe(this, Observer {
             it?.run {
-                val adapter = ArrayAdapter<String>(applicationContext,
+                val adapter = ArrayAdapter<String>(context,
                         android.R.layout.simple_dropdown_item_1line,
-                        this.filter { it.name.contains(parentCategoryText) }.map { it.name.capitalizeWords() })
+                        this.filter { it.name.contains(parentCategoryText) }
+                                .map { it.name.capitalizeWords() })
                 (categoryListChipInput.editText as NachoTextView).run {
                     setAdapter(adapter)
                     showDropDown()
@@ -93,7 +98,9 @@ class BookCreationActivity : BaseContentCreationActivity() {
         })
         viewModel.pickedImage.observe(this, Observer {
             it?.run {
-                Glide.with(applicationContext).load(it.path).into(bookImageButton)
+                context?.let {
+                    Glide.with(it).load(this.path).into(bookImageButton)
+                }
             }
         })
     }

@@ -1,4 +1,4 @@
-package com.selasarimaji.perpus.view.activity
+package com.selasarimaji.perpus.view.fragment.content
 
 import android.app.Activity
 import android.app.DatePickerDialog
@@ -6,14 +6,13 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.support.design.widget.TextInputLayout
-import android.view.View
 import android.widget.AutoCompleteTextView
 import android.widget.EditText
 import android.widget.Toast
 import com.selasarimaji.perpus.R
 import com.selasarimaji.perpus.model.DataModel
 import com.selasarimaji.perpus.viewmodel.EditKidVM
-import kotlinx.android.synthetic.main.activity_content_creation.*
+import kotlinx.android.synthetic.main.activity_base_content_creation.*
 import kotlinx.android.synthetic.main.content_kid.*
 import java.util.*
 import android.widget.ArrayAdapter
@@ -23,13 +22,13 @@ import com.selasarimaji.perpus.getStringVal
 import com.selasarimaji.perpus.parseDateString
 import com.selasarimaji.perpus.storeStringVal
 
-class KidCreationActivity : BaseContentCreationActivity() {
+class KidCreationFragment : BaseCreationFragment() {
 
     companion object {
         const val DoBKey = "KidCreationActivity-DoB"
     }
 
-    private val viewModel by lazy {
+    override val viewModel by lazy {
         ViewModelProviders.of(this).get(EditKidVM::class.java)
     }
 
@@ -39,7 +38,7 @@ class KidCreationActivity : BaseContentCreationActivity() {
 
         kidBirthDateInputLayout.editText?.run { showDatePickerOnClick(this) }
         val gender = arrayOf("Cowok", "Cewek")
-        val adapter = ArrayAdapter<String>(this,
+        val adapter = ArrayAdapter<String>(context,
                 android.R.layout.simple_dropdown_item_1line,
                 gender)
 
@@ -65,14 +64,13 @@ class KidCreationActivity : BaseContentCreationActivity() {
     }
 
     override fun setupToolbar(){
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Anak"
+        viewModel.title.value = "Anak"
     }
 
     override fun setupObserver(){
         viewModel.uploadingFlag.observe(this, Observer {
             it?.run {
-                progressBar.visibility = if (this) View.VISIBLE else View.GONE
+//                progressBar.visibility = if (this) View.VISIBLE else View.GONE
                 addButton.isEnabled = !this
             }
         })
@@ -85,19 +83,24 @@ class KidCreationActivity : BaseContentCreationActivity() {
         viewModel.uploadingSuccessFlag.observe(this, Observer {
             it?.run {
                 if(this && !viewModel.shouldWaitImageUpload()) {
-                    Toast.makeText(applicationContext,
+                    Toast.makeText(context,
                             "Penambahan Berhasil",
                             Toast.LENGTH_SHORT).show()
-                    setResult(Activity.RESULT_OK)
-                    finish()
+                    activity?.let {
+                        it.setResult(Activity.RESULT_OK)
+                        it.finish()
+                    }
                 }else if (this) {
                     viewModel.storeImage()
                 }
+                true
             }
         })
         viewModel.pickedImage.observe(this, Observer {
             it?.run {
-                Glide.with(applicationContext).load(it.path).into(kidImageButton)
+                context?.let {
+                    Glide.with(it).load(this.path).into(kidImageButton)
+                }
             }
         })
     }
@@ -125,7 +128,7 @@ class KidCreationActivity : BaseContentCreationActivity() {
         val dateOfBirth = kidBirthDateInputLayout.editText?.text.toString().toLowerCase().also {
             if (it.isNotEmpty()) {
                 editTextList.remove(kidBirthDateInputLayout)
-                storeStringVal(DoBKey, it)
+                context?.storeStringVal(DoBKey, it)
             }
         }
 
@@ -139,7 +142,7 @@ class KidCreationActivity : BaseContentCreationActivity() {
     }
 
     private fun showDatePickerOnClick(editText: EditText){
-        val savedString = getStringVal(DoBKey, "")
+        val savedString = context?.getStringVal(DoBKey, "") ?: ""
         var c = Calendar.getInstance()
         if (savedString.isNotEmpty()){
            c = parseDateString(savedString)
@@ -148,7 +151,7 @@ class KidCreationActivity : BaseContentCreationActivity() {
         val month = c.get(Calendar.MONTH)
         val day = c.get(Calendar.DAY_OF_MONTH)
         editText.setOnClickListener {
-            DatePickerDialog(this,
+            DatePickerDialog(context,
                     DatePickerDialog.OnDateSetListener { _, year, month, day ->
                         editText.setText("$month/$day/$year")
                     },

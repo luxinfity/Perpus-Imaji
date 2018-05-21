@@ -1,7 +1,8 @@
-package com.selasarimaji.perpus.view.activity
+package com.selasarimaji.perpus.view.activity.content
 
 import android.os.Bundle
 import com.selasarimaji.perpus.R
+import com.selasarimaji.perpus.view.activity.BaseNavigationActivity
 import kotlinx.android.synthetic.main.activity_content_creation.*
 
 abstract class BaseContentCreationActivity : BaseNavigationActivity() {

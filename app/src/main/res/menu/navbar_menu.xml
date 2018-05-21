@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
-
+    <item android:title="Category"
+        android:id="@+id/menu_category"
+        android:icon="@drawable/ic_category" />
     <item android:title="Buku"
         android:id="@+id/menu_book"
-        android:icon="@drawable/ic_book_2" />
+        android:icon="@drawable/ic_book" />
     <item android:title="Anak"
         android:id="@+id/menu_anak"
         android:icon="@drawable/ic_people" />
+    <item android:title="Peminjaman"
+        android:id="@+id/menu_borrow"
+        android:icon="@drawable/ic_borrow" />
     <item android:title="Info"
         android:id="@+id/menu_info"
         android:icon="@drawable/ic_info" />

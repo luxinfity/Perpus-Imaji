@@ -8,11 +8,7 @@ import com.selasarimaji.perpus.repository.firestore.BaseRepo
 import com.selasarimaji.perpus.repository.firestore.KidRepo
 
 class EditKidVM : BaseContentVM<DataModel.Kid>() {
-    private val repoVal by lazy {
-        KidRepo()
-    }
-    override val repo: BaseRepo<DataModel.Kid>
-        get() = repoVal
+    override val repo = KidRepo()
 
     override val TAG: String
         get() = EditKidVM::class.java.name
@@ -51,7 +47,7 @@ class EditKidVM : BaseContentVM<DataModel.Kid>() {
     }
 
     fun storeImage(){
-        repoVal.storeImage(pickedImage.value!!.path, documentResultRef.value!!.id,
+        repo.storeImage(pickedImage.value!!.path, documentResultRef.value!!.id,
                 uploadingFlag, uploadingSuccessFlag, uploadingProgress)
     }
 
