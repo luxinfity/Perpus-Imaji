@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
 class BorrowCreationFragment : BaseCreationFragment() {
 
     override val viewModel by lazy {
-        ViewModelProviders.of(this).get(EditBorrowVM::class.java)
+        ViewModelProviders.of(activity!!).get(EditBorrowVM::class.java)
     }
 
     private val kidText : String

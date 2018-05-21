@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit
 
 class CategoryCreationFragment : BaseCreationFragment() {
     override val viewModel by lazy {
-        ViewModelProviders.of(this).get(EditCategoryVM::class.java)
+        ViewModelProviders.of(activity!!).get(EditCategoryVM::class.java)
     }
 
     private val parentCategoryText : String

@@ -33,7 +33,7 @@ class EditBorrowVM : BaseContentVM<DataModel.Borrow>() {
         if (isInitialLoaded.value == null){
             lastIndex.value = 0
             isInitialLoaded.value = true
-            repo.loadRange(0, 10, listener = this@EditBorrowVM::handleFirebaseQueryCallback)
+            repo.loadRange(0, 10, "startDate", listener = this@EditBorrowVM::handleFirebaseQueryCallback)
         }
     }
 
@@ -41,7 +41,7 @@ class EditBorrowVM : BaseContentVM<DataModel.Borrow>() {
         isContentLoading.value?.run {
             if (!this){
                 isContentLoading.value = true
-                repo.loadRange(lastIndex.value!!, 10, listener = this@EditBorrowVM::handleFirebaseQueryCallback)
+                repo.loadRange(lastIndex.value!!, 10, "startDate", listener = this@EditBorrowVM::handleFirebaseQueryCallback)
             }
         }
     }

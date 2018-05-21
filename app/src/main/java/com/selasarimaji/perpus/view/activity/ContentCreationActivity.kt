@@ -42,8 +42,8 @@ class ContentCreationActivity : BaseNavigationActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.layout_content_creation)
         setupToolbar()
-        setupFragmentContent(viewType)
         setupObservers(viewType)
+        setupFragmentContent(viewType)
     }
 
     private fun setupToolbar(){

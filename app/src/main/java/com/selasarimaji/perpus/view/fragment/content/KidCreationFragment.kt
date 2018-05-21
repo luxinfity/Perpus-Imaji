@@ -29,7 +29,7 @@ class KidCreationFragment : BaseCreationFragment() {
     }
 
     override val viewModel by lazy {
-        ViewModelProviders.of(this).get(EditKidVM::class.java)
+        ViewModelProviders.of(activity!!).get(EditKidVM::class.java)
     }
 
     override fun setupView(){

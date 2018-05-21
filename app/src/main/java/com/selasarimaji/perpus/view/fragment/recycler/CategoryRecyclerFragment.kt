@@ -20,14 +20,6 @@ class CategoryRecyclerFragment : BaseRecyclerFragment() {
         ViewModelProviders.of(activity!!).get(EditCategoryVM::class.java)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
-        return super.onCreateView(inflater, container, savedInstanceState).apply {
-            viewModel.title.value = "Daftar Kategori"
-        }
-    }
-
     override fun setupButton(view: View){
         view.fabButton.setOnClickListener {
             context?.let {

@@ -9,6 +9,7 @@ import com.selasarimaji.perpus.R
 import com.selasarimaji.perpus.capitalizeWords
 import com.selasarimaji.perpus.model.DataModel
 import kotlinx.android.synthetic.main.layout_book.view.*
+import kotlinx.android.synthetic.main.layout_borrow.view.*
 import kotlinx.android.synthetic.main.layout_category.view.*
 import kotlinx.android.synthetic.main.layout_kid.view.*
 
@@ -28,7 +29,8 @@ class BookViewHolder(view: View) : BaseContentViewHolder(view){
 }
 class BorrowViewHolder(view: View) : BaseContentViewHolder(view){
     fun setupView(item: DataModel.Borrow) {
-
+        view.borrowIdText.text = item.id.toUpperCase()
+        view.borrowDescText.text = "Anak : ${item.idChild} \nBuku : ${item.idBook}"
     }
 }
 class KidViewHolder(view: View) : BaseContentViewHolder(view){

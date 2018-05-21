@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
 class BookCreationFragment : BaseCreationFragment() {
 
     override val viewModel by lazy {
-        ViewModelProviders.of(this).get(EditBookVM::class.java)
+        ViewModelProviders.of(activity!!).get(EditBookVM::class.java)
     }
 
     private val parentCategoryText : String
