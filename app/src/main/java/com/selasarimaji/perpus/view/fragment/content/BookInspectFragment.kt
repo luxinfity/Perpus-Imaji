@@ -3,10 +3,12 @@ package com.selasarimaji.perpus.view.fragment.content
 import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.Intent
 import android.support.design.widget.TextInputLayout
 import android.text.InputType
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import com.bumptech.glide.Glide
@@ -20,17 +22,9 @@ import com.selasarimaji.perpus.model.DataModel
 import com.selasarimaji.perpus.startImagePicker
 import com.selasarimaji.perpus.tryToRemoveFromList
 import com.selasarimaji.perpus.viewmodel.BookVM
-import kotlinx.android.synthetic.main.layout_content_creation.*
 import kotlinx.android.synthetic.main.content_book.*
+import kotlinx.android.synthetic.main.layout_content_creation.*
 import java.util.concurrent.TimeUnit
-import android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT
-import com.google.android.gms.common.util.InputMethodUtils.showSoftInput
-import android.content.Context.INPUT_METHOD_SERVICE
-import android.view.inputmethod.InputMethodManager
-import android.content.Context.INPUT_METHOD_SERVICE
-
-
-
 
 class BookInspectFragment : BaseInspectFragment() {
 
