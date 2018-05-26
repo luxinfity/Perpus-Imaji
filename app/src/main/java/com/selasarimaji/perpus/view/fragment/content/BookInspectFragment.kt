@@ -1,10 +1,12 @@
-package com.selasarimaji.perpus.view.fragment.content.create
+package com.selasarimaji.perpus.view.fragment.content
 
 import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.support.design.widget.TextInputLayout
+import android.text.InputType
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import com.bumptech.glide.Glide
@@ -15,12 +17,22 @@ import com.jakewharton.rxbinding2.widget.RxTextView
 import com.selasarimaji.perpus.R
 import com.selasarimaji.perpus.capitalizeWords
 import com.selasarimaji.perpus.model.DataModel
+import com.selasarimaji.perpus.startImagePicker
+import com.selasarimaji.perpus.tryToRemoveFromList
 import com.selasarimaji.perpus.viewmodel.BookVM
 import kotlinx.android.synthetic.main.layout_content_creation.*
 import kotlinx.android.synthetic.main.content_book.*
 import java.util.concurrent.TimeUnit
+import android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT
+import com.google.android.gms.common.util.InputMethodUtils.showSoftInput
+import android.content.Context.INPUT_METHOD_SERVICE
+import android.view.inputmethod.InputMethodManager
+import android.content.Context.INPUT_METHOD_SERVICE
 
-class BookCreationFragment : BaseCreationFragment() {
+
+
+
+class BookInspectFragment : BaseInspectFragment() {
 
     override val viewModel by lazy {
         ViewModelProviders.of(activity!!).get(BookVM::class.java)
@@ -50,24 +62,58 @@ class BookCreationFragment : BaseCreationFragment() {
         }
 
         bookImageButton.setOnClickListener {
-            ImagePicker.create(this) // Activity or Fragment
-                    .folderMode(true) // folder mode (false by default)
-                    .toolbarFolderTitle("Folder") // folder selection title
-                    .toolbarImageTitle("Tap to select") // image selection title
-                    .single() // single mode
-                    .theme(R.style.CustomImagePickerTheme) // must inherit ef_BaseTheme. please refer to sample
-                    .showCamera(true) // show camera or not (true by default)
-                    .start() // start image picker activity with request code
+            ImagePicker.create(this).startImagePicker()
         }
     }
 
     override fun setupToolbar(){
-        viewModel.title.value = "Buku"
+        viewModelInspect.getSelectedItemLiveData().observe(this, Observer {
+            (it as DataModel.Book?)?.let {
+                viewModel.title.value = it.name.toUpperCase()
+            } ?: also {
+                viewModel.title.value = "Buku"
+            }
+        })
     }
 
     override fun setupObserver(){
+        viewModelInspect.getSelectedItemLiveData().observe(this, Observer {
+            (it as DataModel.Book?)?.let {
+                bookNameInputLayout.editText?.setText(it.name)
+                bookAuthorInputLayout.editText?.setText(it.author)
+                yearInputLayout.editText?.setText(it.year.toString())
+                publisherInputLayout.editText?.setText(it.publisher)
+                categoryListChipInput.editText?.setText(it.idCategoryList.toString())
+            }
+        })
+
+        viewModelInspect.editOrCreateMode.observe(this, Observer {
+            addButton.visibility = if (it?.second != true) View.GONE else View.VISIBLE
+        })
+
+        viewModelInspect.editOrCreateMode.observe(this, Observer {
+            arrayListOf<TextInputLayout>(bookNameInputLayout,
+                    bookAuthorInputLayout,
+                    yearInputLayout,
+                    publisherInputLayout,
+                    categoryListChipInput)
+                    .apply {
+                        if (it?.first != true) {
+                            this.map {
+                                it.editText?.inputType = InputType.TYPE_NULL
+                            }
+                        } else {
+                            this.map {
+                                it.editText?.inputType = InputType.TYPE_CLASS_TEXT
+                            }
+                        }
+                        this[2].editText?.inputType = InputType.TYPE_CLASS_NUMBER // year input
+                    }
+        })
+
         viewModel.uploadingFlag.observe(this, Observer {
             it?.run {
+                progressBar.visibility = if (this) View.VISIBLE else View.GONE
                 addButton.isEnabled = !this
             }
         })
@@ -117,26 +163,10 @@ class BookCreationFragment : BaseCreationFragment() {
             }
         }
 
-        val name = bookNameInputLayout.editText?.text.toString().toLowerCase().also {
-            if (it.isNotEmpty()) {
-                editTextList.remove(bookNameInputLayout)
-            }
-        }
-        val author = bookAuthorInputLayout.editText?.text.toString().toLowerCase().also {
-            if (it.isNotEmpty()) {
-                editTextList.remove(bookAuthorInputLayout)
-            }
-        }
-        val year = yearInputLayout.editText?.text.toString().also {
-            if (it.isNotEmpty()) {
-                editTextList.remove(yearInputLayout)
-            }
-        }
-        val publisher = publisherInputLayout.editText?.text.toString().toLowerCase().also {
-            if (it.isNotEmpty()) {
-                editTextList.remove(publisherInputLayout)
-            }
-        }
+        val name = bookNameInputLayout.tryToRemoveFromList(editTextList)
+        val author = bookAuthorInputLayout.tryToRemoveFromList(editTextList)
+        val year = yearInputLayout.tryToRemoveFromList(editTextList)
+        val publisher = publisherInputLayout.tryToRemoveFromList(editTextList)
         val category = (categoryListChipInput.editText as NachoTextView).chipValues.map {
             val value = it
             viewModel.filteredCategory.value?.
@@ -155,6 +185,17 @@ class BookCreationFragment : BaseCreationFragment() {
         if(editTextList.isEmpty()){
             viewModel.storeData(DataModel.Book(name, author, year.toInt(), publisher, category))
         }
+    }
+
+    override fun focusFirstText() {
+        bookNameInputLayout.requestFocus()
+        (context?.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager?)?.
+                toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY)
+    }
+
+    override fun clearFocus() {
+        (context?.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager?)?.
+                hideSoftInputFromWindow(linearContainer.windowToken, 0)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

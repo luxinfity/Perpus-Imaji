@@ -6,6 +6,7 @@ import com.selasarimaji.perpus.model.DataModel
 
 class InspectVM : ViewModel(){
     private var selectedItem = MutableLiveData<DataModel>()
+    var editOrCreateMode = MutableLiveData<Pair<Boolean, Boolean>>()
     var title = MutableLiveData<String>()
 
     fun setSelectedItem(item: DataModel?){

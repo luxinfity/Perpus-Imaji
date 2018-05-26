@@ -11,22 +11,21 @@ import android.view.MenuItem
 import com.selasarimaji.perpus.CONTENT_TYPE_KEY
 import com.selasarimaji.perpus.ContentType
 import com.selasarimaji.perpus.model.DataModel
-import com.selasarimaji.perpus.view.fragment.content.inspect.BookInspectFragment
-import com.selasarimaji.perpus.view.fragment.content.inspect.BorrowInspectFragment
-import com.selasarimaji.perpus.view.fragment.content.inspect.CategoryInspectFragment
-import com.selasarimaji.perpus.view.fragment.content.inspect.KidInspectFragment
+import com.selasarimaji.perpus.view.fragment.content.*
 import com.selasarimaji.perpus.viewmodel.*
 import kotlinx.android.synthetic.main.activity_content_inspect.*
 
 class ContentInspectActivity : BaseNavigationActivity() {
     companion object {
         private const val DATA_CONTENT_KEY = "DATA_CONTENT_KEY"
-        fun createIntentToHere(context: Context, contentType: ContentType, data: DataModel) =
+        fun createIntentToHere(context: Context, contentType: ContentType, data: DataModel? = null) =
                 Intent(context, ContentInspectActivity::class.java).apply {
                     putExtra(CONTENT_TYPE_KEY, contentType)
                     putExtra(DATA_CONTENT_KEY, data)
                 }
     }
+
+    private lateinit var fragmentInfo: BaseInspectFragment
 
     val viewModel by lazy {
         ViewModelProviders.of(this).get(InspectVM::class.java)
@@ -42,10 +41,9 @@ class ContentInspectActivity : BaseNavigationActivity() {
     }
 
     private val data by lazy {
-        if (intent.hasExtra(DATA_CONTENT_KEY)) {
-            intent.getSerializableExtra(DATA_CONTENT_KEY) as DataModel
-        } else {
-            null
+        (intent.getSerializableExtra(DATA_CONTENT_KEY) as DataModel?).also {
+            // pair <isEdit, isCreate>
+            viewModel.editOrCreateMode.value = Pair(it == null, it == null)
         }
     }
 
@@ -70,7 +68,7 @@ class ContentInspectActivity : BaseNavigationActivity() {
     }
 
     private fun setupFragmentContent(contentType: ContentType){
-        val fragmentInfo = when(contentType){
+        fragmentInfo = when(contentType){
             ContentType.Category -> CategoryInspectFragment()
             ContentType.Book -> BookInspectFragment()
             ContentType.Kid -> KidInspectFragment()
@@ -116,14 +114,24 @@ class ContentInspectActivity : BaseNavigationActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.edit_menu, menu)
-        menu.findItem(R.id.app_bar_save).isVisible = false
+        viewModel.editOrCreateMode.observe(this, Observer {
+            it?.let {
+                menu.findItem(R.id.app_bar_save).isVisible = it.first && !it.second
+                menu.findItem(R.id.app_bar_edit).isVisible = !it.first && !it.second
+            }
+        })
         return super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.app_bar_edit -> {
-
+                viewModel.editOrCreateMode.value = Pair(true, false)
+                fragmentInfo.focusFirstText()
+            }
+            R.id.app_bar_save-> {
+                viewModel.editOrCreateMode.value = Pair(false, false)
+                fragmentInfo.clearFocus()
             }
         }
         return super.onOptionsItemSelected(item)

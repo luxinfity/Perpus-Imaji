@@ -1,15 +1,18 @@
-package com.selasarimaji.perpus.view.fragment.content.create
+package com.selasarimaji.perpus.view.fragment.content
 
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Context
 import android.content.Intent
 import android.support.design.widget.TextInputLayout
+import android.text.InputType
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.AutoCompleteTextView
 import android.widget.EditText
 import android.widget.Toast
-import com.selasarimaji.perpus.R
 import com.selasarimaji.perpus.model.DataModel
 import com.selasarimaji.perpus.viewmodel.KidVM
 import kotlinx.android.synthetic.main.layout_content_creation.*
@@ -18,11 +21,9 @@ import java.util.*
 import android.widget.ArrayAdapter
 import com.bumptech.glide.Glide
 import com.esafirm.imagepicker.features.ImagePicker
-import com.selasarimaji.perpus.getStringVal
-import com.selasarimaji.perpus.parseDateString
-import com.selasarimaji.perpus.storeStringVal
+import com.selasarimaji.perpus.*
 
-class KidCreationFragment : BaseCreationFragment() {
+class KidInspectFragment : BaseInspectFragment() {
 
     companion object {
         const val DoBKey = "KidCreationActivity-DoB"
@@ -52,25 +53,53 @@ class KidCreationFragment : BaseCreationFragment() {
         }
 
         kidImageButton.setOnClickListener {
-            ImagePicker.create(this) // Activity or Fragment
-                    .folderMode(true) // folder mode (false by default)
-                    .toolbarFolderTitle("Folder") // folder selection title
-                    .toolbarImageTitle("Tap to select") // image selection title
-                    .single() // single mode
-                    .theme(R.style.CustomImagePickerTheme) // must inherit ef_BaseTheme. please refer to sample
-                    .showCamera(true) // show camera or not (true by default)
-                    .start() // start image picker activity with request code
+            ImagePicker.create(this).startImagePicker()
         }
     }
 
     override fun setupToolbar(){
-        viewModel.title.value = "Anak"
+        viewModelInspect.getSelectedItemLiveData().observe(this, Observer {
+            (it as DataModel.Kid?)?.let {
+                viewModel.title.value = it.name.toUpperCase()
+            } ?: also {
+                viewModel.title.value = "Anak"
+            }
+        })
     }
 
     override fun setupObserver(){
+        viewModelInspect.getSelectedItemLiveData().observe(this, Observer {
+            (it as DataModel.Kid?)?.let {
+                kidNameInputLayout.editText?.setText(it.name)
+                kidAddressInputLayout.editText?.setText(it.address)
+                kidBirthDateInputLayout.editText?.setText(it.birthDate)
+            }
+        })
+
+        viewModelInspect.editOrCreateMode.observe(this, Observer {
+            addButton.visibility = if (it?.second != true) View.GONE else View.VISIBLE
+        })
+
+        viewModelInspect.editOrCreateMode.observe(this, Observer {
+            arrayListOf<TextInputLayout>(kidNameInputLayout,
+                    kidAddressInputLayout,
+                    kidBirthDateInputLayout)
+                    .apply {
+                        if (it?.first != true) {
+                            this.map {
+                                it.editText?.inputType = InputType.TYPE_NULL
+                            }
+                        } else {
+                            this.map {
+                                it.editText?.inputType = InputType.TYPE_CLASS_TEXT
+                            }
+                        }
+                    }
+        })
+
         viewModel.uploadingFlag.observe(this, Observer {
             it?.run {
-//                progressBar.visibility = if (this) View.VISIBLE else View.GONE
+                progressBar.visibility = if (this) View.VISIBLE else View.GONE
                 addButton.isEnabled = !this
             }
         })
@@ -107,23 +136,10 @@ class KidCreationFragment : BaseCreationFragment() {
             }
         }
 
-        val name = kidNameInputLayout.editText?.text.toString().toLowerCase().also {
-            if (it.isNotEmpty()) {
-                editTextList.remove(kidNameInputLayout)
-            }
-        }
-        val address = kidAddressInputLayout.editText?.text.toString().toLowerCase().also {
-            if (it.isNotEmpty()) {
-                editTextList.remove(kidAddressInputLayout)
-            }
-        }
+        val name = kidNameInputLayout.tryToRemoveFromList(editTextList)
+        val address = kidAddressInputLayout.tryToRemoveFromList(editTextList)
         val gender = kidGenderInputLayout.editText?.text.toString() == "Cowok"
-        val dateOfBirth = kidBirthDateInputLayout.editText?.text.toString().toLowerCase().also {
-            if (it.isNotEmpty()) {
-                editTextList.remove(kidBirthDateInputLayout)
-                context?.storeStringVal(DoBKey, it)
-            }
-        }
+        val dateOfBirth = kidBirthDateInputLayout.tryToRemoveFromList(editTextList)
 
         editTextList.map {
             if (it.error.isNullOrEmpty()) it.error = "Silahkan diisi"
@@ -159,5 +175,16 @@ class KidCreationFragment : BaseCreationFragment() {
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    override fun focusFirstText() {
+        kidNameInputLayout.requestFocus()
+        (context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?)?.
+                toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY)
+    }
+
+    override fun clearFocus() {
+        (context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?)?.
+                hideSoftInputFromWindow(linearContainer.windowToken, 0)
     }
 }

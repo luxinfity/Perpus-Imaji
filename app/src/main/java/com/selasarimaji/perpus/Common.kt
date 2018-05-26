@@ -1,7 +1,11 @@
 package com.selasarimaji.perpus
 
+import android.app.Activity
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
+import android.support.design.widget.TextInputLayout
+import android.support.v4.app.Fragment
+import com.esafirm.imagepicker.features.ImagePicker
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -37,3 +41,18 @@ fun parseDateString(dateString : String) : Calendar{
 fun String.capitalizeWords() =
     split(" ").map { it.capitalize() }.reduce { acc, s -> "$acc $s" }
 
+fun TextInputLayout.tryToRemoveFromList(list: MutableList<TextInputLayout>) =
+    this.editText?.text.toString().toLowerCase().also {
+        if (it.isNotEmpty()) {
+            list.remove(this)
+        }
+    }
+
+fun ImagePicker.startImagePicker() =
+    this.folderMode(true) // folder mode (false by default)
+        .toolbarFolderTitle("Folder") // folder selection title
+        .toolbarImageTitle("Tap to select") // image selection title
+        .single() // single mode
+        .theme(R.style.CustomImagePickerTheme) // must inherit ef_BaseTheme. please refer to sample
+        .showCamera(true) // show camera or not (true by default)
+        .start() // start image picker activity with request code

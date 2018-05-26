@@ -1,10 +1,13 @@
-package com.selasarimaji.perpus.view.fragment.content.create
+package com.selasarimaji.perpus.view.fragment.content
 
 import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.support.design.widget.TextInputLayout
+import android.text.InputType
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Toast
@@ -12,12 +15,13 @@ import com.jakewharton.rxbinding2.widget.RxTextView
 import com.selasarimaji.perpus.R
 import com.selasarimaji.perpus.capitalizeWords
 import com.selasarimaji.perpus.model.DataModel
+import com.selasarimaji.perpus.tryToRemoveFromList
 import com.selasarimaji.perpus.viewmodel.CategoryVM
 import kotlinx.android.synthetic.main.layout_content_creation.*
 import kotlinx.android.synthetic.main.content_category.*
 import java.util.concurrent.TimeUnit
 
-class CategoryCreationFragment : BaseCreationFragment() {
+class CategoryInspectFragment : BaseInspectFragment() {
     override val viewModel by lazy {
         ViewModelProviders.of(activity!!).get(CategoryVM::class.java)
     }
@@ -42,12 +46,54 @@ class CategoryCreationFragment : BaseCreationFragment() {
     }
 
     override fun setupToolbar(){
-        viewModel.title.value = "Kategori"
+        viewModelInspect.getSelectedItemLiveData().observe(this, Observer {
+            (it as DataModel.Category?)?.let {
+                viewModel.title.value = it.name.toUpperCase()
+            } ?: also {
+                viewModel.title.value = "Kategori"
+            }
+        })
     }
 
     override fun setupObserver(){
+        viewModelInspect.getSelectedItemLiveData().observe(this, Observer {
+            (it as DataModel.Category?)?.let {
+                categoryNameInputLayout.editText?.setText(it.name)
+                categoryDescInputLayout.editText?.setText(it.description)
+                categoryParentInputLayout.editText?.setText(it.idParent)
+                categoryPathInputLayout.editText?.setText(it.idParent)
+            }
+        })
+
+        viewModelInspect.editOrCreateMode.observe(this, Observer {
+            addButton.visibility = if (it?.second != true) View.GONE else View.VISIBLE
+        })
+
+        viewModelInspect.editOrCreateMode.observe(this, Observer {
+            arrayListOf<TextInputLayout>(categoryNameInputLayout,
+                    categoryDescInputLayout,
+                    categoryParentInputLayout,
+                    categoryPathInputLayout)
+                    .apply {
+                        this.map {
+                            it.editText?.inputType = InputType.TYPE_NULL
+                        }
+                    }
+                    .apply {
+                        if (it?.first != true) {
+                            this.map {
+                                it.editText?.inputType = InputType.TYPE_NULL
+                            }
+                        } else {
+                            this.map {
+                                it.editText?.inputType = InputType.TYPE_CLASS_TEXT
+                            }
+                        }
+                    }
+        })
         viewModel.uploadingFlag.observe(this, Observer {
             it?.run {
+                progressBar.visibility = if (this) View.VISIBLE else View.GONE
                 addButton.isEnabled = !this
             }
         })
@@ -86,16 +132,8 @@ class CategoryCreationFragment : BaseCreationFragment() {
             }
         }
 
-        val name = categoryNameInputLayout.editText?.text.toString().toLowerCase().also {
-            if (it.isNotEmpty()) {
-                editTextList.remove(categoryNameInputLayout)
-            }
-        }
-        val desc = categoryDescInputLayout.editText?.text.toString().toLowerCase().also {
-            if (it.isNotEmpty()) {
-                editTextList.remove(categoryDescInputLayout)
-            }
-        }
+        val name = categoryNameInputLayout.tryToRemoveFromList(editTextList)
+        val desc = categoryDescInputLayout.tryToRemoveFromList(editTextList)
 
         val parent = viewModel.filteredCategory.value?.find {
             it.name == parentCategoryText.toLowerCase()
@@ -112,5 +150,16 @@ class CategoryCreationFragment : BaseCreationFragment() {
         if(editTextList.isEmpty()) {
             viewModel.storeData(DataModel.Category(name, desc, parent))
         }
+    }
+
+    override fun focusFirstText() {
+        categoryNameInputLayout.requestFocus()
+        (context?.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager?)?.
+                toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY)
+    }
+
+    override fun clearFocus() {
+        (context?.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager?)?.
+                hideSoftInputFromWindow(linearContainer.windowToken, 0)
     }
 }

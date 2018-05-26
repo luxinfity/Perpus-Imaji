@@ -10,7 +10,6 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import com.selasarimaji.perpus.ContentType
 import com.selasarimaji.perpus.model.DataModel
-import com.selasarimaji.perpus.view.activity.ContentCreationActivity
 import com.selasarimaji.perpus.view.activity.ContentInspectActivity
 import com.selasarimaji.perpus.view.adapter.ContentRecyclerAdapter
 import com.selasarimaji.perpus.viewmodel.KidVM
@@ -24,7 +23,7 @@ class KidRecyclerFragment : BaseRecyclerFragment() {
     override fun setupButton(view: View){
         view.fabButton.setOnClickListener {
             context?.let {
-                val intent = ContentCreationActivity.createIntentToHere(it, ContentType.Kid)
+                val intent = ContentInspectActivity.createIntentToHere(it, ContentType.Kid)
                 startActivityForResult(intent, CREATION_REQUEST_CODE)
             }
         }
@@ -60,10 +59,8 @@ class KidRecyclerFragment : BaseRecyclerFragment() {
             }
         })
 
-        viewModel.contentCreationEnabled.observe(this, Observer {
-            it?.let {
-                fabButton.visibility = if (it) View.VISIBLE else View.GONE
-            }
+        viewModelInspect.editOrCreateMode.observe(this, Observer {
+            fabButton.visibility = if (it?.first != true) View.VISIBLE else View.GONE
         })
         viewModel.loadInitial()
     }

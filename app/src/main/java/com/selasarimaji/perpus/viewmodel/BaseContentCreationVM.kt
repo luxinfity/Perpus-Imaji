@@ -12,7 +12,6 @@ abstract class BaseContentCreationVM <T: DataModel> : BaseLoadingVM() {
 
     var title = MutableLiveData<String>()
     var totalRemoteCount = MutableLiveData<Int>()
-    var contentCreationEnabled = MutableLiveData<Boolean>()
     protected var isInitialLoaded = MutableLiveData<Boolean>()
     protected var lastIndex = MutableLiveData<Int>()
     protected var isContentLoading = MutableLiveData<Boolean>()
