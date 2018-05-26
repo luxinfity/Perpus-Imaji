@@ -16,11 +16,8 @@ import com.esafirm.imagepicker.features.ImagePicker
 import com.hootsuite.nachos.NachoTextView
 import com.hootsuite.nachos.terminator.ChipTerminatorHandler
 import com.jakewharton.rxbinding2.widget.RxTextView
-import com.selasarimaji.perpus.R
-import com.selasarimaji.perpus.capitalizeWords
+import com.selasarimaji.perpus.*
 import com.selasarimaji.perpus.model.DataModel
-import com.selasarimaji.perpus.startImagePicker
-import com.selasarimaji.perpus.tryToRemoveFromList
 import com.selasarimaji.perpus.viewmodel.BookVM
 import kotlinx.android.synthetic.main.content_book.*
 import kotlinx.android.synthetic.main.layout_content_creation.*
@@ -78,6 +75,13 @@ class BookInspectFragment : BaseInspectFragment() {
                 yearInputLayout.editText?.setText(it.year.toString())
                 publisherInputLayout.editText?.setText(it.publisher)
                 categoryListChipInput.editText?.setText(it.idCategoryList.toString())
+
+                context?.run {
+                    GlideApp.with(this)
+                            .load(viewModel.repo.getImageFull(it.id))
+                            .placeholder(R.drawable.ic_camera.resDrawable(this))
+                            .into(bookImageButton)
+                }
             }
         })
 

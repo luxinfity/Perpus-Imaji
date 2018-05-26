@@ -40,4 +40,7 @@ class KidRepo : BaseRepo<DataModel.Kid>() {
                     successFlag.value = it.isSuccessful
                 }
     }
+
+    fun getImageFull(docId: String) = imageFolderRef.child("$docId.jpg")
+    fun getImageThumb(docId: String) = imageFolderRef.child("thumb_$docId.jpg")
 }

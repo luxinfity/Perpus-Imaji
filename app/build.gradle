@@ -38,17 +38,20 @@ dependencies {
     implementation 'com.github.clans:fab:1.6.4'
     implementation "com.hootsuite.android:nachos:1.1.1"
     // FireBase Libs
-    implementation 'com.google.firebase:firebase-core:15.0.2'
-    implementation 'com.google.firebase:firebase-auth:15.1.0'
-    implementation 'com.google.firebase:firebase-storage:15.0.2'
-    implementation 'com.google.firebase:firebase-firestore:16.0.0'
+    implementation 'com.google.firebase:firebase-core:16.0.0'
+    implementation 'com.google.firebase:firebase-auth:16.0.1'
+    implementation 'com.google.firebase:firebase-storage:16.0.1'
+    implementation 'com.google.firebase:firebase-firestore:17.0.1'
+    implementation 'com.firebaseui:firebase-ui-storage:4.0.0'
     // RxBinding
     implementation 'com.jakewharton.rxbinding2:rxbinding-appcompat-v7:2.1.1'
     // Glide
     implementation 'com.github.bumptech.glide:glide:4.7.1'
+    kapt 'com.github.bumptech.glide:compiler:4.7.1'
     // Image Picker
     implementation 'com.github.esafirm.android-image-picker:imagepicker:1.13.0'
 }
 
 
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'kotlin-kapt'

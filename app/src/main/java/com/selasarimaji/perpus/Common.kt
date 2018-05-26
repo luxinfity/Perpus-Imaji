@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.support.design.widget.TextInputLayout
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import com.esafirm.imagepicker.features.ImagePicker
 import java.text.SimpleDateFormat
 import java.util.*
@@ -56,3 +57,6 @@ fun ImagePicker.startImagePicker() =
         .theme(R.style.CustomImagePickerTheme) // must inherit ef_BaseTheme. please refer to sample
         .showCamera(true) // show camera or not (true by default)
         .start() // start image picker activity with request code
+
+fun Int.resDrawable(context: Context) =
+    ContextCompat.getDrawable(context, this)

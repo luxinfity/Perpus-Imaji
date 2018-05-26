@@ -26,7 +26,7 @@ class BookRepo : BaseRepo<DataModel.Book>() {
         get() = liveData
 
     fun storeImage(filePath: String, docId: String, loadingFlag: MutableLiveData<Boolean>,
-                   successFlag: MutableLiveData<Boolean>, uploadProgress : MutableLiveData<Double>){
+                   successFlag: MutableLiveData<Boolean>, uploadProgress: MutableLiveData<Double>){
         loadingFlag.value = true
 
         val file = Uri.fromFile(File(filePath))
@@ -40,4 +40,7 @@ class BookRepo : BaseRepo<DataModel.Book>() {
                     successFlag.value = it.isSuccessful
                 }
     }
+
+    fun getImageFull(docId: String) = imageFolderRef.child("$docId.jpg")
+    fun getImageThumb(docId: String) = imageFolderRef.child("thumb_$docId.jpg")
 }
