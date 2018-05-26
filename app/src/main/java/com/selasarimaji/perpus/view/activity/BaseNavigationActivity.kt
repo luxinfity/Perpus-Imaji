@@ -7,6 +7,10 @@ import android.view.MenuItem
 
 abstract class BaseNavigationActivity : AppCompatActivity() {
 
+    enum class ViewType {
+        Category, Book, Kid, Borrow
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
         // Respond to the action bar's Up/Home button

@@ -7,13 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import com.selasarimaji.perpus.R
 import com.selasarimaji.perpus.viewmodel.BaseLoadingVM
-import kotlinx.android.synthetic.main.activity_base_content_creation.*
+import kotlinx.android.synthetic.main.layout_content_creation.*
 
 abstract class BaseCreationFragment : Fragment() {
     abstract val viewModel : BaseLoadingVM
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.activity_base_content_creation, null)
+        return inflater.inflate(R.layout.layout_content_creation, null)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

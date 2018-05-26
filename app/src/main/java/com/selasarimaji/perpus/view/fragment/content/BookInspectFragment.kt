@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.layout_content_creation.*
 import kotlinx.android.synthetic.main.content_book.*
 import java.util.concurrent.TimeUnit
 
-class BookCreationFragment : BaseCreationFragment() {
+class BookInspectFragment : BaseCreationFragment() {
 
     override val viewModel by lazy {
         ViewModelProviders.of(activity!!).get(EditBookVM::class.java)

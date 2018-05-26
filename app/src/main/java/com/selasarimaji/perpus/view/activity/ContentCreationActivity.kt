@@ -15,7 +15,7 @@ import com.selasarimaji.perpus.viewmodel.EditBookVM
 import com.selasarimaji.perpus.viewmodel.EditBorrowVM
 import com.selasarimaji.perpus.viewmodel.EditCategoryVM
 import com.selasarimaji.perpus.viewmodel.EditKidVM
-import kotlinx.android.synthetic.main.layout_content_creation.*
+import kotlinx.android.synthetic.main.activity_content_creation.*
 
 class ContentCreationActivity : BaseNavigationActivity() {
     companion object {
@@ -24,9 +24,6 @@ class ContentCreationActivity : BaseNavigationActivity() {
             Intent(context, ContentCreationActivity::class.java).apply {
                 putExtra(VIEW_TYPE_KEY, viewType)
             }
-    }
-    enum class ViewType {
-        Category, Book, Kid, Borrow
     }
 
     private val viewType by lazy {
@@ -40,7 +37,7 @@ class ContentCreationActivity : BaseNavigationActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.layout_content_creation)
+        setContentView(R.layout.activity_content_creation)
         setupToolbar()
         setupObservers(viewType)
         setupFragmentContent(viewType)

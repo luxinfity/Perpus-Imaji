@@ -17,7 +17,7 @@ import kotlinx.android.synthetic.main.layout_content_creation.*
 import kotlinx.android.synthetic.main.content_category.*
 import java.util.concurrent.TimeUnit
 
-class CategoryCreationFragment : BaseCreationFragment() {
+class CategoryInspectFragment : BaseCreationFragment() {
     override val viewModel by lazy {
         ViewModelProviders.of(activity!!).get(EditCategoryVM::class.java)
     }

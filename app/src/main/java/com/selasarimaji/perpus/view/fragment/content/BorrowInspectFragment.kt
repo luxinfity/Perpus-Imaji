@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.content_borrow.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class BorrowCreationFragment : BaseCreationFragment() {
+class BorrowInspectFragment : BaseCreationFragment() {
 
     override val viewModel by lazy {
         ViewModelProviders.of(activity!!).get(EditBorrowVM::class.java)

@@ -22,7 +22,7 @@ import com.selasarimaji.perpus.getStringVal
 import com.selasarimaji.perpus.parseDateString
 import com.selasarimaji.perpus.storeStringVal
 
-class KidCreationFragment : BaseCreationFragment() {
+class KidInspectFragment : BaseCreationFragment() {
 
     companion object {
         const val DoBKey = "KidCreationActivity-DoB"

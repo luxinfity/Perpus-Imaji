@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import com.selasarimaji.perpus.ContentType
 import com.selasarimaji.perpus.model.DataModel
+import com.selasarimaji.perpus.view.activity.BaseNavigationActivity
 import com.selasarimaji.perpus.view.activity.ContentCreationActivity
 import com.selasarimaji.perpus.view.adapter.ContentRecyclerAdapter
 import com.selasarimaji.perpus.viewmodel.EditBookVM
@@ -22,7 +23,7 @@ class BookRecyclerFragment : BaseRecyclerFragment() {
     override fun setupButton(view: View){
         view.fabButton.setOnClickListener {
             context?.let {
-                val intent = ContentCreationActivity.createIntentToHere(it, ContentCreationActivity.ViewType.Book)
+                val intent = ContentCreationActivity.createIntentToHere(it, BaseNavigationActivity.ViewType.Book)
                 startActivityForResult(intent, CREATION_REQUEST_CODE)
             }
         }
