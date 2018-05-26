@@ -1,12 +1,15 @@
-package com.selasarimaji.perpus.view.fragment.content
+package com.selasarimaji.perpus.view.fragment.content.inspect
 
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.View
-import com.selasarimaji.perpus.viewmodel.BaseLoadingVM
+import com.selasarimaji.perpus.viewmodel.InspectVM
 
 abstract class BaseInspectFragment : Fragment() {
-    abstract val viewModel : BaseLoadingVM
+    val viewModel by lazy {
+        ViewModelProviders.of(activity!!).get(InspectVM::class.java)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

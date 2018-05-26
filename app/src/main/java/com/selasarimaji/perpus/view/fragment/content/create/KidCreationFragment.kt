@@ -1,4 +1,4 @@
-package com.selasarimaji.perpus.view.fragment.content
+package com.selasarimaji.perpus.view.fragment.content.create
 
 import android.app.Activity
 import android.app.DatePickerDialog
@@ -74,15 +74,9 @@ class KidCreationFragment : BaseCreationFragment() {
                 addButton.isEnabled = !this
             }
         })
-//        viewModel.uploadingProgress.observe(this, Observer {
-//            it?.run {
-//                progressBar.isIndeterminate = false
-//                progressBar.progress = it.roundToInt()
-//            }
-//        })
         viewModel.uploadingSuccessFlag.observe(this, Observer {
-            it?.run {
-                if(this && !viewModel.shouldWaitImageUpload()) {
+            it?.also {
+                if(it && !viewModel.shouldWaitImageUpload()) {
                     Toast.makeText(context,
                             "Penambahan Berhasil",
                             Toast.LENGTH_SHORT).show()
@@ -90,10 +84,9 @@ class KidCreationFragment : BaseCreationFragment() {
                         it.setResult(Activity.RESULT_OK)
                         it.finish()
                     }
-                }else if (this) {
+                }else if (it) {
                     viewModel.storeImage()
                 }
-                true
             }
         })
         viewModel.pickedImage.observe(this, Observer {

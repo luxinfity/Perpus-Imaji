@@ -51,7 +51,6 @@
             android:layout_height="wrap_content"
             android:hint="Alur Kategori"
             android:text="My > Name > Is > "
-            android:enabled="false"
             android:scrollbars = "vertical"
             android:maxLines="3"/>
     </android.support.design.widget.TextInputLayout>

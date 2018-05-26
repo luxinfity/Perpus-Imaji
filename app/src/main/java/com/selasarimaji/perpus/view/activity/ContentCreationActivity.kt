@@ -9,10 +9,10 @@ import android.view.View
 import com.selasarimaji.perpus.CONTENT_TYPE_KEY
 import com.selasarimaji.perpus.ContentType
 import com.selasarimaji.perpus.R
-import com.selasarimaji.perpus.view.fragment.content.BookCreationFragment
-import com.selasarimaji.perpus.view.fragment.content.BorrowCreationFragment
-import com.selasarimaji.perpus.view.fragment.content.CategoryCreationFragment
-import com.selasarimaji.perpus.view.fragment.content.KidCreationFragment
+import com.selasarimaji.perpus.view.fragment.content.create.BookCreationFragment
+import com.selasarimaji.perpus.view.fragment.content.create.BorrowCreationFragment
+import com.selasarimaji.perpus.view.fragment.content.create.CategoryCreationFragment
+import com.selasarimaji.perpus.view.fragment.content.create.KidCreationFragment
 import com.selasarimaji.perpus.viewmodel.BookVM
 import com.selasarimaji.perpus.viewmodel.BorrowVM
 import com.selasarimaji.perpus.viewmodel.CategoryVM
@@ -32,7 +32,7 @@ class ContentCreationActivity : BaseNavigationActivity() {
             intent.getSerializableExtra(CONTENT_TYPE_KEY) as ContentType
         }
         else {
-            ContentType.Book
+            null
         }
     }
 
@@ -40,8 +40,10 @@ class ContentCreationActivity : BaseNavigationActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_content_creation)
         setupToolbar()
-        setupObservers(contentType)
-        setupFragmentContent(contentType)
+        contentType?.run {
+            setupObservers(this)
+            setupFragmentContent(this)
+        }
     }
 
     private fun setupToolbar(){

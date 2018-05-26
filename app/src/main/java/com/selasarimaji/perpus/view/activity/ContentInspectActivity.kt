@@ -6,32 +6,44 @@ import android.content.Context
 import android.content.Intent
 import com.selasarimaji.perpus.R
 import android.os.Bundle
+import com.selasarimaji.perpus.CONTENT_TYPE_KEY
 import com.selasarimaji.perpus.ContentType
-import com.selasarimaji.perpus.view.fragment.content.BookInspectFragment
-import com.selasarimaji.perpus.view.fragment.content.BorrowInspectFragment
-import com.selasarimaji.perpus.view.fragment.content.CategoryInspectFragment
-import com.selasarimaji.perpus.view.fragment.content.KidInspectFragment
-import com.selasarimaji.perpus.viewmodel.BookVM
-import com.selasarimaji.perpus.viewmodel.BorrowVM
-import com.selasarimaji.perpus.viewmodel.CategoryVM
-import com.selasarimaji.perpus.viewmodel.KidVM
+import com.selasarimaji.perpus.model.DataModel
+import com.selasarimaji.perpus.view.fragment.content.inspect.BookInspectFragment
+import com.selasarimaji.perpus.view.fragment.content.inspect.BorrowInspectFragment
+import com.selasarimaji.perpus.view.fragment.content.inspect.CategoryInspectFragment
+import com.selasarimaji.perpus.view.fragment.content.inspect.KidInspectFragment
+import com.selasarimaji.perpus.viewmodel.*
 import kotlinx.android.synthetic.main.activity_content_inspect.*
 
 class ContentInspectActivity : BaseNavigationActivity() {
     companion object {
-        const val VIEW_TYPE_KEY = "VIEW_TYPE_KEY"
-        fun createIntentToHere(context: Context, contentType: ContentType) =
+        private const val DATA_CONTENT_KEY = "DATA_CONTENT_KEY"
+        fun createIntentToHere(context: Context, contentType: ContentType, data: DataModel) =
                 Intent(context, ContentInspectActivity::class.java).apply {
-                    putExtra(VIEW_TYPE_KEY, contentType)
+                    putExtra(CONTENT_TYPE_KEY, contentType)
+                    putExtra(DATA_CONTENT_KEY, data)
                 }
     }
 
+    val viewModel by lazy {
+        ViewModelProviders.of(this).get(InspectVM::class.java)
+    }
+
     private val contentType by lazy {
-        if (intent.hasExtra(VIEW_TYPE_KEY)) {
-            intent.getSerializableExtra(VIEW_TYPE_KEY) as ContentType
+        if (intent.hasExtra(CONTENT_TYPE_KEY)) {
+            intent.getSerializableExtra(CONTENT_TYPE_KEY) as ContentType
         }
         else {
-            ContentType.Book
+            null
+        }
+    }
+
+    private val data by lazy {
+        if (intent.hasExtra(DATA_CONTENT_KEY)) {
+            intent.getSerializableExtra(DATA_CONTENT_KEY) as DataModel
+        } else {
+            null
         }
     }
 
@@ -39,13 +51,20 @@ class ContentInspectActivity : BaseNavigationActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_content_inspect)
         setupToolbar()
-        setupObserversInfo(contentType)
-        setupObserversDetail(contentType)
-        setupFragmentContent(contentType)
+        contentType?.run {
+            setupObserversInfo(this)
+            setupObserversDetail(this)
+            setupFragmentContent(this)
+
+            viewModel.setSelectedItem(data)
+        }
     }
 
     private fun setupToolbar(){
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        viewModel.title.observe(this, Observer {
+            supportActionBar?.title = it
+        })
     }
 
     private fun setupFragmentContent(contentType: ContentType){

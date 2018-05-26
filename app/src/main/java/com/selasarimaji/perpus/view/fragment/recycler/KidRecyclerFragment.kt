@@ -10,11 +10,11 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import com.selasarimaji.perpus.ContentType
 import com.selasarimaji.perpus.model.DataModel
-import com.selasarimaji.perpus.view.activity.BaseNavigationActivity
 import com.selasarimaji.perpus.view.activity.ContentCreationActivity
 import com.selasarimaji.perpus.view.activity.ContentInspectActivity
 import com.selasarimaji.perpus.view.adapter.ContentRecyclerAdapter
 import com.selasarimaji.perpus.viewmodel.KidVM
+import kotlinx.android.synthetic.main.fragment_recycler.*
 
 class KidRecyclerFragment : BaseRecyclerFragment() {
     private val viewModel by lazy {
@@ -33,7 +33,7 @@ class KidRecyclerFragment : BaseRecyclerFragment() {
     override fun setupRecycler(view: View){
         val adapter = ContentRecyclerAdapter<DataModel.Kid>(ContentType.Kid){
             context?.run {
-                startActivity(ContentInspectActivity.createIntentToHere(this, ContentType.Kid))
+                startActivity(ContentInspectActivity.createIntentToHere(this, ContentType.Kid, it))
             }
         }
         val layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
@@ -57,6 +57,12 @@ class KidRecyclerFragment : BaseRecyclerFragment() {
             it?.let {
                 adapter.setupNewData(it)
                 if (it.isNotEmpty()) dismissLoading()
+            }
+        })
+
+        viewModel.contentCreationEnabled.observe(this, Observer {
+            it?.let {
+                fabButton.visibility = if (it) View.VISIBLE else View.GONE
             }
         })
         viewModel.loadInitial()

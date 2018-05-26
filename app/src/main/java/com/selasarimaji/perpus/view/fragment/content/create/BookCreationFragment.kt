@@ -1,4 +1,4 @@
-package com.selasarimaji.perpus.view.fragment.content
+package com.selasarimaji.perpus.view.fragment.content.create
 
 import android.app.Activity
 import android.arch.lifecycle.Observer
@@ -72,8 +72,8 @@ class BookCreationFragment : BaseCreationFragment() {
             }
         })
         viewModel.uploadingSuccessFlag.observe(this, Observer {
-            it?.run {
-                if(this) {
+            it?.also {
+                if(it && !viewModel.shouldWaitImageUpload()) {
                     Toast.makeText(context,
                             "Penambahan Berhasil",
                             Toast.LENGTH_SHORT).show()
@@ -81,6 +81,8 @@ class BookCreationFragment : BaseCreationFragment() {
                         it.setResult(Activity.RESULT_OK)
                         it.finish()
                     }
+                }else if (it) {
+                    viewModel.storeImage()
                 }
             }
         })

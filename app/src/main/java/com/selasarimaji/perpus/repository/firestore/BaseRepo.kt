@@ -23,12 +23,24 @@ abstract class BaseRepo <T:DataModel>{
         fetchedData.value = fetchedData.value?.toMutableList().apply { this?.clear() }
     }
 
-    open fun loadRange(startPosition: Int, loadCount: Int, orderBy: String = "name",
-                           listener : (querySnapshot:QuerySnapshot) -> Unit){
-        db.orderBy(orderBy).startAt(startPosition).limit(loadCount.toLong())
-                .get().addOnSuccessListener {
-                    listener(it)
+    open fun load(startPosition: Int = -1, loadCount: Int = -1,
+                  orderBy: String = "name",
+                  filterMap: Map<String, String>? = null,
+                  listener: (querySnapshot: QuerySnapshot) -> Unit){
+        if (filterMap != null && filterMap.size > 1){
+
+        } else {
+            db.orderBy(orderBy).apply {
+                if (loadCount > -1) startAt(startPosition)
+                if (loadCount > -1) limit(loadCount.toLong())
+
+                filterMap?.map {
+                    this.whereGreaterThanOrEqualTo(it.key, it.value)
                 }
+            }.get().addOnSuccessListener {
+                listener(it)
+            }
+        }
     }
 
     fun storeNewRemoteData(dataModel: T, loadingFlag: MutableLiveData<Boolean>,
@@ -78,7 +90,7 @@ abstract class BaseRepo <T:DataModel>{
     }
 
     fun getContentWith(field: String, query: String, listener : (querySnapshot:QuerySnapshot, query: String) -> Unit){
-        db.orderBy(field).whereGreaterThanOrEqualTo(field, query).get().addOnSuccessListener {
+        load(filterMap = mapOf(field to query)){
             listener(it, query)
         }
     }

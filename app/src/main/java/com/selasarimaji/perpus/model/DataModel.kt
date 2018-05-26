@@ -3,9 +3,10 @@ package com.selasarimaji.perpus.model
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Exclude
+import java.io.Serializable
 import java.util.*
 
-abstract class DataModel {
+abstract class DataModel : Serializable {
     @get:Exclude var id: String = ""
     @get:Exclude abstract val collectionName : String
 

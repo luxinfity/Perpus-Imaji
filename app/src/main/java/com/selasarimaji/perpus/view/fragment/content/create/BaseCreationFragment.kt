@@ -1,4 +1,4 @@
-package com.selasarimaji.perpus.view.fragment.content
+package com.selasarimaji.perpus.view.fragment.content.create
 
 import android.os.Bundle
 import android.support.v4.app.Fragment

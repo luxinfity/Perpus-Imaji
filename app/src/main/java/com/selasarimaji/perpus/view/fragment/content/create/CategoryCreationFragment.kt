@@ -1,4 +1,4 @@
-package com.selasarimaji.perpus.view.fragment.content
+package com.selasarimaji.perpus.view.fragment.content.create
 
 import android.app.Activity
 import android.arch.lifecycle.Observer

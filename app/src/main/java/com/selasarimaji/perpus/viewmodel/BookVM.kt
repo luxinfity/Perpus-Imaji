@@ -7,7 +7,7 @@ import com.selasarimaji.perpus.model.DataModel
 import com.selasarimaji.perpus.repository.firestore.BookRepo
 import com.selasarimaji.perpus.repository.firestore.CategoryRepo
 
-class BookVM : BaseContentVM<DataModel.Book>() {
+class BookVM : BaseContentCreationVM<DataModel.Book>() {
     override val TAG: String
         get() = BookVM::class.java.name
 
@@ -24,20 +24,20 @@ class BookVM : BaseContentVM<DataModel.Book>() {
     val pickedImage = MutableLiveData<Image>()
     val uploadingProgress = MutableLiveData<Double>()
 
-    override fun loadInitial(){
-        super.loadInitial()
+    override fun loadInitial(filterMap: Map<String, String>?){
+        super.loadInitial(filterMap)
         if (isInitialLoaded.value == null){
             lastIndex.value = 0
             isInitialLoaded.value = true
-            repo.loadRange(0, 10, listener = this@BookVM::handleFirebaseQueryCallback)
+            repo.load(0, loadCount, filterMap = filterMap, listener = this@BookVM::handleFirebaseQueryCallback)
         }
     }
 
-    override fun loadMore() {
+    override fun loadMore(filterMap: Map<String, String>?) {
         isContentLoading.value?.run {
             if (!this){
                 isContentLoading.value = true
-                repo.loadRange(lastIndex.value!!, 10, listener = this@BookVM::handleFirebaseQueryCallback)
+                repo.load(lastIndex.value!!, loadCount, filterMap = filterMap, listener = this@BookVM::handleFirebaseQueryCallback)
             }
         }
     }
@@ -46,7 +46,7 @@ class BookVM : BaseContentVM<DataModel.Book>() {
         querySnapshot.documents.map {
             repo.addLocalItem(DataModel.Book.turnDocumentToObject(it))
         }
-        lastIndex.value = lastIndex.value!! + 10
+        lastIndex.value = lastIndex.value!! + loadCount
         isContentLoading.value = false
     }
 

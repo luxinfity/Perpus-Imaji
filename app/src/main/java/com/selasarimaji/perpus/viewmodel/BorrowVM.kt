@@ -7,7 +7,7 @@ import com.selasarimaji.perpus.repository.firestore.BookRepo
 import com.selasarimaji.perpus.repository.firestore.BorrowRepo
 import com.selasarimaji.perpus.repository.firestore.KidRepo
 
-class BorrowVM : BaseContentVM<DataModel.Borrow>() {
+class BorrowVM : BaseContentCreationVM<DataModel.Borrow>() {
     override val TAG: String
         get() = BorrowVM::class.java.name
 
@@ -27,20 +27,22 @@ class BorrowVM : BaseContentVM<DataModel.Borrow>() {
     val filteredBook = MutableLiveData<List<DataModel.Book>>()
 
 
-    override fun loadInitial(){
-        super.loadInitial()
+    override fun loadInitial(filterMap: Map<String, String>?){
+        super.loadInitial(filterMap)
         if (isInitialLoaded.value == null){
             lastIndex.value = 0
             isInitialLoaded.value = true
-            repo.loadRange(0, 10, "startDate", listener = this@BorrowVM::handleFirebaseQueryCallback)
+            repo.load(0, loadCount, "startDate", filterMap = filterMap,
+                    listener = this@BorrowVM::handleFirebaseQueryCallback)
         }
     }
 
-    override fun loadMore() {
+    override fun loadMore(filterMap: Map<String, String>?) {
         isContentLoading.value?.run {
             if (!this){
                 isContentLoading.value = true
-                repo.loadRange(lastIndex.value!!, 10, "startDate", listener = this@BorrowVM::handleFirebaseQueryCallback)
+                repo.load(lastIndex.value!!, loadCount, "startDate", filterMap = filterMap,
+                        listener = this@BorrowVM::handleFirebaseQueryCallback)
             }
         }
     }
@@ -49,7 +51,7 @@ class BorrowVM : BaseContentVM<DataModel.Borrow>() {
         querySnapshot.documents.map {
             repo.addLocalItem(DataModel.Borrow.turnDocumentToObject(it))
         }
-        lastIndex.value = lastIndex.value!! + 10
+        lastIndex.value = lastIndex.value!! + loadCount
         isContentLoading.value = false
     }
 
