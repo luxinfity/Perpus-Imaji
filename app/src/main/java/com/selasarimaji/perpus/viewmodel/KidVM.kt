@@ -4,14 +4,13 @@ import android.arch.lifecycle.MutableLiveData
 import com.esafirm.imagepicker.model.Image
 import com.google.firebase.firestore.QuerySnapshot
 import com.selasarimaji.perpus.model.DataModel
-import com.selasarimaji.perpus.repository.firestore.BaseRepo
 import com.selasarimaji.perpus.repository.firestore.KidRepo
 
-class EditKidVM : BaseContentVM<DataModel.Kid>() {
+class KidVM : BaseContentVM<DataModel.Kid>() {
     override val repo = KidRepo()
 
     override val TAG: String
-        get() = EditKidVM::class.java.name
+        get() = KidVM::class.java.name
 
     val pickedImage = MutableLiveData<Image>()
     val uploadingProgress = MutableLiveData<Double>()
@@ -21,7 +20,7 @@ class EditKidVM : BaseContentVM<DataModel.Kid>() {
         if (isInitialLoaded.value == null){
             lastIndex.value = 0
             isInitialLoaded.value = true
-            repo.loadRange(0, 10, listener = this@EditKidVM::handleFirebaseQueryCallback)
+            repo.loadRange(0, 10, listener = this@KidVM::handleFirebaseQueryCallback)
         }
     }
 
@@ -29,7 +28,7 @@ class EditKidVM : BaseContentVM<DataModel.Kid>() {
         isContentLoading.value?.run {
             if (!this){
                 isContentLoading.value = true
-                repo.loadRange(lastIndex.value!!, 10, listener = this@EditKidVM::handleFirebaseQueryCallback)
+                repo.loadRange(lastIndex.value!!, 10, listener = this@KidVM::handleFirebaseQueryCallback)
             }
         }
     }

@@ -6,32 +6,33 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import com.selasarimaji.perpus.CONTENT_TYPE_KEY
+import com.selasarimaji.perpus.ContentType
 import com.selasarimaji.perpus.R
 import com.selasarimaji.perpus.view.fragment.content.BookCreationFragment
 import com.selasarimaji.perpus.view.fragment.content.BorrowCreationFragment
 import com.selasarimaji.perpus.view.fragment.content.CategoryCreationFragment
 import com.selasarimaji.perpus.view.fragment.content.KidCreationFragment
-import com.selasarimaji.perpus.viewmodel.EditBookVM
-import com.selasarimaji.perpus.viewmodel.EditBorrowVM
-import com.selasarimaji.perpus.viewmodel.EditCategoryVM
-import com.selasarimaji.perpus.viewmodel.EditKidVM
+import com.selasarimaji.perpus.viewmodel.BookVM
+import com.selasarimaji.perpus.viewmodel.BorrowVM
+import com.selasarimaji.perpus.viewmodel.CategoryVM
+import com.selasarimaji.perpus.viewmodel.KidVM
 import kotlinx.android.synthetic.main.activity_content_creation.*
 
 class ContentCreationActivity : BaseNavigationActivity() {
     companion object {
-        const val VIEW_TYPE_KEY = "VIEW_TYPE_KEY"
-        fun createIntentToHere(context: Context, viewType: ViewType) =
+        fun createIntentToHere(context: Context, contentType: ContentType) =
             Intent(context, ContentCreationActivity::class.java).apply {
-                putExtra(VIEW_TYPE_KEY, viewType)
+                putExtra(CONTENT_TYPE_KEY, contentType)
             }
     }
 
-    private val viewType by lazy {
-        if (intent.hasExtra(VIEW_TYPE_KEY)) {
-            intent.getSerializableExtra(VIEW_TYPE_KEY) as ViewType
+    private val contentType by lazy {
+        if (intent.hasExtra(CONTENT_TYPE_KEY)) {
+            intent.getSerializableExtra(CONTENT_TYPE_KEY) as ContentType
         }
         else {
-            ViewType.Book
+            ContentType.Book
         }
     }
 
@@ -39,31 +40,31 @@ class ContentCreationActivity : BaseNavigationActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_content_creation)
         setupToolbar()
-        setupObservers(viewType)
-        setupFragmentContent(viewType)
+        setupObservers(contentType)
+        setupFragmentContent(contentType)
     }
 
     private fun setupToolbar(){
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
-    private fun setupFragmentContent(viewType: ViewType){
-        val fragment = when(viewType){
-            ViewType.Category -> CategoryCreationFragment()
-            ViewType.Book -> BookCreationFragment()
-            ViewType.Kid -> KidCreationFragment()
-            ViewType.Borrow -> BorrowCreationFragment()
+    private fun setupFragmentContent(contentType: ContentType){
+        val fragment = when(contentType){
+            ContentType.Category -> CategoryCreationFragment()
+            ContentType.Book -> BookCreationFragment()
+            ContentType.Kid -> KidCreationFragment()
+            ContentType.Borrow -> BorrowCreationFragment()
         }
 
         supportFragmentManager.beginTransaction().replace(frameContainer.id, fragment).commit()
     }
 
-    private fun setupObservers(viewType: ViewType){
-        val viewModel = when(viewType){
-            ViewType.Category -> ViewModelProviders.of(this).get(EditCategoryVM::class.java)
-            ViewType.Book -> ViewModelProviders.of(this).get(EditBookVM::class.java)
-            ViewType.Kid -> ViewModelProviders.of(this).get(EditKidVM::class.java)
-            ViewType.Borrow -> ViewModelProviders.of(this).get(EditBorrowVM::class.java)
+    private fun setupObservers(contentType: ContentType){
+        val viewModel = when(contentType){
+            ContentType.Category -> ViewModelProviders.of(this).get(CategoryVM::class.java)
+            ContentType.Book -> ViewModelProviders.of(this).get(BookVM::class.java)
+            ContentType.Kid -> ViewModelProviders.of(this).get(KidVM::class.java)
+            ContentType.Borrow -> ViewModelProviders.of(this).get(BorrowVM::class.java)
         }
 
         viewModel.uploadingFlag.observe(this, Observer {

@@ -14,7 +14,7 @@ import com.selasarimaji.perpus.R
 import com.selasarimaji.perpus.capitalizeWords
 import com.selasarimaji.perpus.getCurrentDateString
 import com.selasarimaji.perpus.model.DataModel
-import com.selasarimaji.perpus.viewmodel.EditBorrowVM
+import com.selasarimaji.perpus.viewmodel.BorrowVM
 import kotlinx.android.synthetic.main.layout_content_creation.*
 import kotlinx.android.synthetic.main.content_borrow.*
 import java.util.*
@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
 class BorrowCreationFragment : BaseCreationFragment() {
 
     override val viewModel by lazy {
-        ViewModelProviders.of(activity!!).get(EditBorrowVM::class.java)
+        ViewModelProviders.of(activity!!).get(BorrowVM::class.java)
     }
 
     private val kidText : String

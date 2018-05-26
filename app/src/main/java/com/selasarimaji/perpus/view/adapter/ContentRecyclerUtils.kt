@@ -41,7 +41,8 @@ class KidViewHolder(view: View) : BaseContentViewHolder(view){
     }
 }
 
-class ContentRecyclerAdapter <T: DataModel> (private val contentType: ContentType)
+class ContentRecyclerAdapter <T: DataModel> (private val contentType: ContentType,
+                                             private val onClickListener: (T) -> Unit)
     : RecyclerView.Adapter<BaseContentViewHolder>(){
 
     private val items = mutableListOf<T>()
@@ -71,6 +72,10 @@ class ContentRecyclerAdapter <T: DataModel> (private val contentType: ContentTyp
             ContentType.Book -> (holder as BookViewHolder).setupView(items[position] as DataModel.Book)
             ContentType.Kid -> (holder as KidViewHolder).setupView(items[position] as DataModel.Kid)
             ContentType.Borrow -> (holder as BorrowViewHolder).setupView(items[position] as DataModel.Borrow)
+        }
+
+        holder.view.setOnClickListener {
+            onClickListener(items[position])
         }
     }
 

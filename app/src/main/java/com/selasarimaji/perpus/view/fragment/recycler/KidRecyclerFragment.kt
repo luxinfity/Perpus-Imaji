@@ -10,26 +10,32 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import com.selasarimaji.perpus.ContentType
 import com.selasarimaji.perpus.model.DataModel
+import com.selasarimaji.perpus.view.activity.BaseNavigationActivity
 import com.selasarimaji.perpus.view.activity.ContentCreationActivity
+import com.selasarimaji.perpus.view.activity.ContentInspectActivity
 import com.selasarimaji.perpus.view.adapter.ContentRecyclerAdapter
-import com.selasarimaji.perpus.viewmodel.EditKidVM
+import com.selasarimaji.perpus.viewmodel.KidVM
 
 class KidRecyclerFragment : BaseRecyclerFragment() {
     private val viewModel by lazy {
-        ViewModelProviders.of(activity!!).get(EditKidVM::class.java)
+        ViewModelProviders.of(activity!!).get(KidVM::class.java)
     }
 
     override fun setupButton(view: View){
         view.fabButton.setOnClickListener {
             context?.let {
-                val intent = ContentCreationActivity.createIntentToHere(it, ContentCreationActivity.ViewType.Kid)
+                val intent = ContentCreationActivity.createIntentToHere(it, ContentType.Kid)
                 startActivityForResult(intent, CREATION_REQUEST_CODE)
             }
         }
     }
 
     override fun setupRecycler(view: View){
-        val adapter = ContentRecyclerAdapter<DataModel.Kid>(ContentType.Kid)
+        val adapter = ContentRecyclerAdapter<DataModel.Kid>(ContentType.Kid){
+            context?.run {
+                startActivity(ContentInspectActivity.createIntentToHere(this, ContentType.Kid))
+            }
+        }
         val layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         view.recyclerView.layoutManager = layoutManager
         view.recyclerView.adapter = adapter

@@ -5,11 +5,11 @@ import com.google.firebase.firestore.QuerySnapshot
 import com.selasarimaji.perpus.model.DataModel
 import com.selasarimaji.perpus.repository.firestore.CategoryRepo
 
-class EditCategoryVM : BaseContentVM<DataModel.Category>() {
+class CategoryVM : BaseContentVM<DataModel.Category>() {
     override val repo = CategoryRepo()
 
     override val TAG: String
-        get() = EditCategoryVM::class.java.name
+        get() = CategoryVM::class.java.name
 
     private var categoryQuery : String = ""
     val filteredCategory = MutableLiveData<List<DataModel.Category>>()
@@ -19,7 +19,7 @@ class EditCategoryVM : BaseContentVM<DataModel.Category>() {
         if (isInitialLoaded.value == null){
             lastIndex.value = 0
             isInitialLoaded.value = true
-            repo.loadRange(0, 10, listener = this@EditCategoryVM::handleFirebaseQueryCallback)
+            repo.loadRange(0, 10, listener = this@CategoryVM::handleFirebaseQueryCallback)
         }
     }
 
@@ -27,7 +27,7 @@ class EditCategoryVM : BaseContentVM<DataModel.Category>() {
         isContentLoading.value?.run {
             if (!this){
                 isContentLoading.value = true
-                repo.loadRange(lastIndex.value!!, 10, listener = this@EditCategoryVM::handleFirebaseQueryCallback)
+                repo.loadRange(lastIndex.value!!, 10, listener = this@CategoryVM::handleFirebaseQueryCallback)
             }
         }
     }

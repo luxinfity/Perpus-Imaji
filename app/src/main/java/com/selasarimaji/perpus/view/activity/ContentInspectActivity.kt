@@ -6,35 +6,32 @@ import android.content.Context
 import android.content.Intent
 import com.selasarimaji.perpus.R
 import android.os.Bundle
+import com.selasarimaji.perpus.ContentType
 import com.selasarimaji.perpus.view.fragment.content.BookInspectFragment
 import com.selasarimaji.perpus.view.fragment.content.BorrowInspectFragment
 import com.selasarimaji.perpus.view.fragment.content.CategoryInspectFragment
 import com.selasarimaji.perpus.view.fragment.content.KidInspectFragment
-import com.selasarimaji.perpus.view.fragment.recycler.BookRecyclerFragment
-import com.selasarimaji.perpus.view.fragment.recycler.BorrowRecyclerFragment
-import com.selasarimaji.perpus.view.fragment.recycler.CategoryRecyclerFragment
-import com.selasarimaji.perpus.view.fragment.recycler.KidRecyclerFragment
-import com.selasarimaji.perpus.viewmodel.EditBookVM
-import com.selasarimaji.perpus.viewmodel.EditBorrowVM
-import com.selasarimaji.perpus.viewmodel.EditCategoryVM
-import com.selasarimaji.perpus.viewmodel.EditKidVM
+import com.selasarimaji.perpus.viewmodel.BookVM
+import com.selasarimaji.perpus.viewmodel.BorrowVM
+import com.selasarimaji.perpus.viewmodel.CategoryVM
+import com.selasarimaji.perpus.viewmodel.KidVM
 import kotlinx.android.synthetic.main.activity_content_inspect.*
 
 class ContentInspectActivity : BaseNavigationActivity() {
     companion object {
         const val VIEW_TYPE_KEY = "VIEW_TYPE_KEY"
-        fun createIntentToHere(context: Context, viewType: BaseNavigationActivity.ViewType) =
-                Intent(context, ContentCreationActivity::class.java).apply {
-                    putExtra(VIEW_TYPE_KEY, viewType)
+        fun createIntentToHere(context: Context, contentType: ContentType) =
+                Intent(context, ContentInspectActivity::class.java).apply {
+                    putExtra(VIEW_TYPE_KEY, contentType)
                 }
     }
 
-    private val viewType by lazy {
+    private val contentType by lazy {
         if (intent.hasExtra(VIEW_TYPE_KEY)) {
-            intent.getSerializableExtra(VIEW_TYPE_KEY) as BaseNavigationActivity.ViewType
+            intent.getSerializableExtra(VIEW_TYPE_KEY) as ContentType
         }
         else {
-            BaseNavigationActivity.ViewType.Book
+            ContentType.Book
         }
     }
 
@@ -42,28 +39,28 @@ class ContentInspectActivity : BaseNavigationActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_content_inspect)
         setupToolbar()
-        setupObserversInfo(viewType)
-        setupObserversDetail(viewType)
-        setupFragmentContent(viewType)
+        setupObserversInfo(contentType)
+        setupObserversDetail(contentType)
+        setupFragmentContent(contentType)
     }
 
     private fun setupToolbar(){
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
-    private fun setupFragmentContent(viewType: ViewType){
-        val fragmentInfo = when(viewType){
-            ViewType.Category -> CategoryInspectFragment()
-            ViewType.Book -> BookInspectFragment()
-            ViewType.Kid -> KidInspectFragment()
-            ViewType.Borrow -> BorrowInspectFragment()
+    private fun setupFragmentContent(contentType: ContentType){
+        val fragmentInfo = when(contentType){
+            ContentType.Category -> CategoryInspectFragment()
+            ContentType.Book -> BookInspectFragment()
+            ContentType.Kid -> KidInspectFragment()
+            ContentType.Borrow -> BorrowInspectFragment()
         }
 
-//        val fragmentDetail = when(viewType){
-//            ViewType.Category -> BookRecyclerFragment()
-//            ViewType.Book -> KidRecyclerFragment()
-//            ViewType.Kid -> BorrowRecyclerFragment()
-//            ViewType.Borrow -> null
+//        val fragmentDetail = when(contentType){
+//            ContentType.Category -> BookRecyclerFragment()
+//            ContentType.Book -> KidRecyclerFragment()
+//            ContentType.Kid -> BorrowRecyclerFragment()
+//            ContentType.Borrow -> null
 //        }
 
         supportFragmentManager.beginTransaction().replace(frameContentInfo.id, fragmentInfo).commit()
@@ -72,12 +69,12 @@ class ContentInspectActivity : BaseNavigationActivity() {
 //        }
     }
 
-    private fun setupObserversInfo(viewType: ViewType){
-        val viewModel = when(viewType){
-            ViewType.Category -> ViewModelProviders.of(this).get(EditCategoryVM::class.java)
-            ViewType.Book -> ViewModelProviders.of(this).get(EditBookVM::class.java)
-            ViewType.Kid -> ViewModelProviders.of(this).get(EditKidVM::class.java)
-            ViewType.Borrow -> ViewModelProviders.of(this).get(EditBorrowVM::class.java)
+    private fun setupObserversInfo(contentType: ContentType){
+        val viewModel = when(contentType){
+            ContentType.Category -> ViewModelProviders.of(this).get(CategoryVM::class.java)
+            ContentType.Book -> ViewModelProviders.of(this).get(BookVM::class.java)
+            ContentType.Kid -> ViewModelProviders.of(this).get(KidVM::class.java)
+            ContentType.Borrow -> ViewModelProviders.of(this).get(BorrowVM::class.java)
         }
 
         viewModel.title.observe(this, Observer {
@@ -87,12 +84,12 @@ class ContentInspectActivity : BaseNavigationActivity() {
         })
     }
 
-    private fun setupObserversDetail(viewType: ViewType){
-        val viewModel = when(viewType){
-            ViewType.Category -> ViewModelProviders.of(this).get(EditCategoryVM::class.java)
-            ViewType.Book -> ViewModelProviders.of(this).get(EditBookVM::class.java)
-            ViewType.Kid -> ViewModelProviders.of(this).get(EditKidVM::class.java)
-            ViewType.Borrow -> ViewModelProviders.of(this).get(EditBorrowVM::class.java)
+    private fun setupObserversDetail(contentType: ContentType){
+        val viewModel = when(contentType){
+            ContentType.Category -> ViewModelProviders.of(this).get(CategoryVM::class.java)
+            ContentType.Book -> ViewModelProviders.of(this).get(BookVM::class.java)
+            ContentType.Kid -> ViewModelProviders.of(this).get(KidVM::class.java)
+            ContentType.Borrow -> ViewModelProviders.of(this).get(BorrowVM::class.java)
         }
     }
 }

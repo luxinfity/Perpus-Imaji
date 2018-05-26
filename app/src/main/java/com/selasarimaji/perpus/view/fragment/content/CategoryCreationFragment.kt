@@ -12,14 +12,14 @@ import com.jakewharton.rxbinding2.widget.RxTextView
 import com.selasarimaji.perpus.R
 import com.selasarimaji.perpus.capitalizeWords
 import com.selasarimaji.perpus.model.DataModel
-import com.selasarimaji.perpus.viewmodel.EditCategoryVM
+import com.selasarimaji.perpus.viewmodel.CategoryVM
 import kotlinx.android.synthetic.main.layout_content_creation.*
 import kotlinx.android.synthetic.main.content_category.*
 import java.util.concurrent.TimeUnit
 
 class CategoryCreationFragment : BaseCreationFragment() {
     override val viewModel by lazy {
-        ViewModelProviders.of(activity!!).get(EditCategoryVM::class.java)
+        ViewModelProviders.of(activity!!).get(CategoryVM::class.java)
     }
 
     private val parentCategoryText : String

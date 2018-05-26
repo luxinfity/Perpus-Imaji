@@ -15,7 +15,7 @@ import com.jakewharton.rxbinding2.widget.RxTextView
 import com.selasarimaji.perpus.R
 import com.selasarimaji.perpus.capitalizeWords
 import com.selasarimaji.perpus.model.DataModel
-import com.selasarimaji.perpus.viewmodel.EditBookVM
+import com.selasarimaji.perpus.viewmodel.BookVM
 import kotlinx.android.synthetic.main.layout_content_creation.*
 import kotlinx.android.synthetic.main.content_book.*
 import java.util.concurrent.TimeUnit
@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
 class BookCreationFragment : BaseCreationFragment() {
 
     override val viewModel by lazy {
-        ViewModelProviders.of(activity!!).get(EditBookVM::class.java)
+        ViewModelProviders.of(activity!!).get(BookVM::class.java)
     }
 
     private val parentCategoryText : String

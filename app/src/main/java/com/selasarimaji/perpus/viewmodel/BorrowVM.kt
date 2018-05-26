@@ -3,14 +3,13 @@ package com.selasarimaji.perpus.viewmodel
 import android.arch.lifecycle.MutableLiveData
 import com.google.firebase.firestore.QuerySnapshot
 import com.selasarimaji.perpus.model.DataModel
-import com.selasarimaji.perpus.repository.firestore.BaseRepo
 import com.selasarimaji.perpus.repository.firestore.BookRepo
 import com.selasarimaji.perpus.repository.firestore.BorrowRepo
 import com.selasarimaji.perpus.repository.firestore.KidRepo
 
-class EditBorrowVM : BaseContentVM<DataModel.Borrow>() {
+class BorrowVM : BaseContentVM<DataModel.Borrow>() {
     override val TAG: String
-        get() = EditBorrowVM::class.java.name
+        get() = BorrowVM::class.java.name
 
     override val repo = BorrowRepo()
 
@@ -33,7 +32,7 @@ class EditBorrowVM : BaseContentVM<DataModel.Borrow>() {
         if (isInitialLoaded.value == null){
             lastIndex.value = 0
             isInitialLoaded.value = true
-            repo.loadRange(0, 10, "startDate", listener = this@EditBorrowVM::handleFirebaseQueryCallback)
+            repo.loadRange(0, 10, "startDate", listener = this@BorrowVM::handleFirebaseQueryCallback)
         }
     }
 
@@ -41,7 +40,7 @@ class EditBorrowVM : BaseContentVM<DataModel.Borrow>() {
         isContentLoading.value?.run {
             if (!this){
                 isContentLoading.value = true
-                repo.loadRange(lastIndex.value!!, 10, "startDate", listener = this@EditBorrowVM::handleFirebaseQueryCallback)
+                repo.loadRange(lastIndex.value!!, 10, "startDate", listener = this@BorrowVM::handleFirebaseQueryCallback)
             }
         }
     }

@@ -11,7 +11,7 @@ import android.widget.EditText
 import android.widget.Toast
 import com.selasarimaji.perpus.R
 import com.selasarimaji.perpus.model.DataModel
-import com.selasarimaji.perpus.viewmodel.EditKidVM
+import com.selasarimaji.perpus.viewmodel.KidVM
 import kotlinx.android.synthetic.main.layout_content_creation.*
 import kotlinx.android.synthetic.main.content_kid.*
 import java.util.*
@@ -29,7 +29,7 @@ class KidCreationFragment : BaseCreationFragment() {
     }
 
     override val viewModel by lazy {
-        ViewModelProviders.of(activity!!).get(EditKidVM::class.java)
+        ViewModelProviders.of(activity!!).get(KidVM::class.java)
     }
 
     override fun setupView(){

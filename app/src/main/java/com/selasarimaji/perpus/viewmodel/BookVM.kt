@@ -4,13 +4,12 @@ import android.arch.lifecycle.MutableLiveData
 import com.esafirm.imagepicker.model.Image
 import com.google.firebase.firestore.QuerySnapshot
 import com.selasarimaji.perpus.model.DataModel
-import com.selasarimaji.perpus.repository.firestore.BaseRepo
 import com.selasarimaji.perpus.repository.firestore.BookRepo
 import com.selasarimaji.perpus.repository.firestore.CategoryRepo
 
-class EditBookVM : BaseContentVM<DataModel.Book>() {
+class BookVM : BaseContentVM<DataModel.Book>() {
     override val TAG: String
-        get() = EditBookVM::class.java.name
+        get() = BookVM::class.java.name
 
     override val repo = BookRepo()
 
@@ -30,7 +29,7 @@ class EditBookVM : BaseContentVM<DataModel.Book>() {
         if (isInitialLoaded.value == null){
             lastIndex.value = 0
             isInitialLoaded.value = true
-            repo.loadRange(0, 10, listener = this@EditBookVM::handleFirebaseQueryCallback)
+            repo.loadRange(0, 10, listener = this@BookVM::handleFirebaseQueryCallback)
         }
     }
 
@@ -38,7 +37,7 @@ class EditBookVM : BaseContentVM<DataModel.Book>() {
         isContentLoading.value?.run {
             if (!this){
                 isContentLoading.value = true
-                repo.loadRange(lastIndex.value!!, 10, listener = this@EditBookVM::handleFirebaseQueryCallback)
+                repo.loadRange(lastIndex.value!!, 10, listener = this@BookVM::handleFirebaseQueryCallback)
             }
         }
     }
