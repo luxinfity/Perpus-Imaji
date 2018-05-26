@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import com.selasarimaji.perpus.R
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import com.selasarimaji.perpus.CONTENT_TYPE_KEY
 import com.selasarimaji.perpus.ContentType
 import com.selasarimaji.perpus.model.DataModel
@@ -110,5 +112,20 @@ class ContentInspectActivity : BaseNavigationActivity() {
             ContentType.Kid -> ViewModelProviders.of(this).get(KidVM::class.java)
             ContentType.Borrow -> ViewModelProviders.of(this).get(BorrowVM::class.java)
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.edit_menu, menu)
+        menu.findItem(R.id.app_bar_save).isVisible = false
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.app_bar_edit -> {
+
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 }

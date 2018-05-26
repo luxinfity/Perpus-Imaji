@@ -5,6 +5,8 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import com.selasarimaji.perpus.CONTENT_TYPE_KEY
 import com.selasarimaji.perpus.ContentType
@@ -80,5 +82,20 @@ class ContentCreationActivity : BaseNavigationActivity() {
                 supportActionBar!!.title = it
             }
         })
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.edit_menu, menu)
+        menu.findItem(R.id.app_bar_edit).isVisible = false
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.app_bar_save -> {
+
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 }
