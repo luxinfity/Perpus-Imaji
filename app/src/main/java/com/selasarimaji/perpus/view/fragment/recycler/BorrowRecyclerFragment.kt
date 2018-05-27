@@ -32,7 +32,8 @@ class BorrowRecyclerFragment : BaseRecyclerFragment() {
     override fun setupRecycler(view: View){
         val adapter = ContentRecyclerAdapter<DataModel.Borrow>(ContentType.Borrow){
             context?.run {
-                startActivity(ContentInspectActivity.createIntentToHere(this, ContentType.Borrow, it))
+                startActivityForResult(ContentInspectActivity
+                        .createIntentToHere(this, ContentType.Borrow, it), CREATION_REQUEST_CODE)
             }
         }
         val layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)

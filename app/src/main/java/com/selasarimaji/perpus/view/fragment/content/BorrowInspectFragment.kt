@@ -1,6 +1,7 @@
 package com.selasarimaji.perpus.view.fragment.content
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
@@ -112,7 +113,7 @@ class BorrowInspectFragment : BaseInspectFragment() {
         })
         viewModel.uploadingFlag.observe(this, Observer {
             it?.run {
-                progressBar.visibility = if (this) View.VISIBLE else View.GONE
+                viewModelInspect.shouldShowProgressBar.value = this
                 addButton.isEnabled = !this
             }
         })
@@ -214,5 +215,25 @@ class BorrowInspectFragment : BaseInspectFragment() {
     override fun clearFocus() {
         (context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?)?.
                 hideSoftInputFromWindow(linearContainer.windowToken, 0)
+    }
+
+    override fun tryDeleteCurrentItem() {
+        AlertDialog.Builder(context).setTitle("Are you sure want to delete")
+                .setPositiveButton("Yes"){ dialog, _ ->
+                    super.tryDeleteCurrentItem()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("No"){ dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
+    }
+
+    override fun deleteCurrentItem() {
+        viewModel.uploadingFlag.value = true
+        viewModelInspect.getSelectedItemLiveData().value?.let {
+            viewModel.deleteCurrent(it)
+            viewModel.uploadingFlag.value = false
+        }
     }
 }

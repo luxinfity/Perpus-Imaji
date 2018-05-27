@@ -8,6 +8,7 @@ class InspectVM : ViewModel(){
     private var selectedItem = MutableLiveData<DataModel>()
     var editOrCreateMode = MutableLiveData<Pair<Boolean, Boolean>>()
     var title = MutableLiveData<String>()
+    var shouldShowProgressBar = MutableLiveData<Boolean>()
 
     fun setSelectedItem(item: DataModel?){
         item?.let {

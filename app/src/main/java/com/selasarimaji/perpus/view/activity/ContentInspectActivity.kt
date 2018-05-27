@@ -8,6 +8,7 @@ import com.selasarimaji.perpus.R
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import com.selasarimaji.perpus.CONTENT_TYPE_KEY
 import com.selasarimaji.perpus.ContentType
 import com.selasarimaji.perpus.model.DataModel
@@ -50,6 +51,13 @@ class ContentInspectActivity : BaseNavigationActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_content_inspect)
+
+        viewModel.shouldShowProgressBar.observe(this, Observer {
+            it?.run {
+                progressBar.visibility = if (this) View.VISIBLE else View.GONE
+            }
+        })
+
         setupToolbar()
         contentType?.run {
             setupObserversInfo(this)
@@ -118,6 +126,7 @@ class ContentInspectActivity : BaseNavigationActivity() {
             it?.let {
                 menu.findItem(R.id.app_bar_save).isVisible = it.first && !it.second
                 menu.findItem(R.id.app_bar_edit).isVisible = !it.first && !it.second
+                menu.findItem(R.id.app_bar_delete).isVisible = !it.first && !it.second
             }
         })
         return super.onCreateOptionsMenu(menu)
@@ -132,6 +141,10 @@ class ContentInspectActivity : BaseNavigationActivity() {
             R.id.app_bar_save-> {
                 viewModel.editOrCreateMode.value = Pair(false, false)
                 fragmentInfo.clearFocus()
+            }
+            R.id.app_bar_delete-> {
+                viewModel.editOrCreateMode.value = Pair(false, false)
+                fragmentInfo.tryDeleteCurrentItem()
             }
         }
         return super.onOptionsItemSelected(item)

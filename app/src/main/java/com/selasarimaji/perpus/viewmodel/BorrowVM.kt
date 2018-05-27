@@ -32,7 +32,7 @@ class BorrowVM : BaseContentCreationVM<DataModel.Borrow>() {
         if (isInitialLoaded.value == null){
             lastIndex.value = 0
             isInitialLoaded.value = true
-            repo.load(0, loadCount, "startDate", filterMap = filterMap,
+            repo.loadFromRemote(0, loadCount, "startDate", filterMap = filterMap,
                     listener = this@BorrowVM::handleFirebaseQueryCallback)
         }
     }
@@ -41,7 +41,7 @@ class BorrowVM : BaseContentCreationVM<DataModel.Borrow>() {
         isContentLoading.value?.run {
             if (!this){
                 isContentLoading.value = true
-                repo.load(lastIndex.value!!, loadCount, "startDate", filterMap = filterMap,
+                repo.loadFromRemote(lastIndex.value!!, loadCount, "startDate", filterMap = filterMap,
                         listener = this@BorrowVM::handleFirebaseQueryCallback)
             }
         }

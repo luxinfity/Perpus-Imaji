@@ -19,7 +19,7 @@ class CategoryVM : BaseContentCreationVM<DataModel.Category>() {
         if (isInitialLoaded.value == null){
             lastIndex.value = 0
             isInitialLoaded.value = true
-            repo.load(0, loadCount, filterMap = filterMap,
+            repo.loadFromRemote(0, loadCount, filterMap = filterMap,
                     listener = this@CategoryVM::handleFirebaseQueryCallback)
         }
     }
@@ -28,7 +28,7 @@ class CategoryVM : BaseContentCreationVM<DataModel.Category>() {
         isContentLoading.value?.run {
             if (!this){
                 isContentLoading.value = true
-                repo.load(lastIndex.value!!, loadCount, filterMap = filterMap,
+                repo.loadFromRemote(lastIndex.value!!, loadCount, filterMap = filterMap,
                         listener = this@CategoryVM::handleFirebaseQueryCallback)
             }
         }

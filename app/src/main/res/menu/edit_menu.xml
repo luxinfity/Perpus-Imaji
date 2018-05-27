@@ -9,4 +9,8 @@
         android:id="@+id/app_bar_save"
         app:showAsAction="always"
         android:title="Save" />
+    <item
+        android:id="@+id/app_bar_delete"
+        app:showAsAction="always"
+        android:title="Delete" />
 </menu>

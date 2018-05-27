@@ -23,10 +23,10 @@ abstract class BaseRepo <T:DataModel>{
         fetchedData.value = fetchedData.value?.toMutableList().apply { this?.clear() }
     }
 
-    open fun load(startPosition: Int = -1, loadCount: Int = -1,
-                  orderBy: String = "name",
-                  filterMap: Map<String, String>? = null,
-                  listener: (querySnapshot: QuerySnapshot) -> Unit){
+    open fun loadFromRemote(startPosition: Int = -1, loadCount: Int = -1,
+                            orderBy: String = "name",
+                            filterMap: Map<String, String>? = null,
+                            listener: (querySnapshot: QuerySnapshot) -> Unit){
         if (filterMap != null && filterMap.size > 1){
 
         } else {
@@ -40,6 +40,12 @@ abstract class BaseRepo <T:DataModel>{
             }.get().addOnSuccessListener {
                 listener(it)
             }
+        }
+    }
+
+    fun deleteFromRemote(id: String, complete: () -> Unit){
+        db.document(id).delete().addOnSuccessListener {
+            complete()
         }
     }
 
@@ -90,7 +96,7 @@ abstract class BaseRepo <T:DataModel>{
     }
 
     fun getContentWith(field: String, query: String, listener : (querySnapshot:QuerySnapshot, query: String) -> Unit){
-        load(filterMap = mapOf(field to query)){
+        loadFromRemote(filterMap = mapOf(field to query)){
             listener(it, query)
         }
     }

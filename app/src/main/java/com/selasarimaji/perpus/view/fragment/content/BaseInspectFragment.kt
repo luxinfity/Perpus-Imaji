@@ -41,4 +41,9 @@ abstract class BaseInspectFragment : Fragment() {
 
     abstract fun focusFirstText()
     abstract fun clearFocus()
+
+    open fun tryDeleteCurrentItem(){
+        deleteCurrentItem()
+    }
+    abstract fun deleteCurrentItem()
 }

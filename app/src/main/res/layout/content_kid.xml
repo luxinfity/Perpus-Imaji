@@ -56,7 +56,6 @@
             android:focusable="false"
             android:imeOptions="actionDone"/>
     </android.support.design.widget.TextInputLayout>
-
     <android.support.v7.widget.AppCompatTextView
         android:text="Foto Anak"
         android:layout_marginTop="8dp"
@@ -67,6 +66,7 @@
     <android.support.v7.widget.AppCompatImageButton
         android:id="@+id/kidImageButton"
         android:padding="16dp"
+        android:layout_marginBottom="16dp"
         android:src="@drawable/ef_ic_camera_white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

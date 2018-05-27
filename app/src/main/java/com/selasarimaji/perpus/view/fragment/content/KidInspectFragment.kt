@@ -1,6 +1,7 @@
 package com.selasarimaji.perpus.view.fragment.content
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
@@ -19,9 +20,9 @@ import kotlinx.android.synthetic.main.layout_content_creation.*
 import kotlinx.android.synthetic.main.content_kid.*
 import java.util.*
 import android.widget.ArrayAdapter
-import com.bumptech.glide.Glide
 import com.esafirm.imagepicker.features.ImagePicker
 import com.selasarimaji.perpus.*
+import com.selasarimaji.perpus.model.MyImage
 
 class KidInspectFragment : BaseInspectFragment() {
 
@@ -73,6 +74,11 @@ class KidInspectFragment : BaseInspectFragment() {
                 kidNameInputLayout.editText?.setText(it.name)
                 kidAddressInputLayout.editText?.setText(it.address)
                 kidBirthDateInputLayout.editText?.setText(it.birthDate)
+                kidGenderInputLayout.editText?.setText(if (it.isMale) "Cowok" else "Cewek")
+
+                viewModel.pickedImage.value = MyImage().apply {
+                    remoteImage = it.id
+                }
             }
         })
 
@@ -83,7 +89,8 @@ class KidInspectFragment : BaseInspectFragment() {
         viewModelInspect.editOrCreateMode.observe(this, Observer {
             arrayListOf<TextInputLayout>(kidNameInputLayout,
                     kidAddressInputLayout,
-                    kidBirthDateInputLayout)
+                    kidBirthDateInputLayout,
+                    kidGenderInputLayout)
                     .apply {
                         if (it?.first != true) {
                             this.map {
@@ -99,7 +106,7 @@ class KidInspectFragment : BaseInspectFragment() {
 
         viewModel.uploadingFlag.observe(this, Observer {
             it?.run {
-                progressBar.visibility = if (this) View.VISIBLE else View.GONE
+                viewModelInspect.shouldShowProgressBar.value = this
                 addButton.isEnabled = !this
             }
         })
@@ -121,7 +128,18 @@ class KidInspectFragment : BaseInspectFragment() {
         viewModel.pickedImage.observe(this, Observer {
             it?.run {
                 context?.let {
-                    Glide.with(it).load(this.path).into(kidImageButton)
+                    if (this.localImage != null) {
+                        GlideApp.with(it)
+                                .load(this.localImage!!.path)
+                                .placeholder(R.drawable.ic_camera.resDrawable(it))
+                                .into(kidImageButton)
+                    } else if (this.remoteImage != null) {
+                        GlideApp.with(it)
+                                .load(viewModel.repo.getImageFull(this.remoteImage!!))
+                                .placeholder(R.drawable.ic_camera.resDrawable(it))
+                                .into(kidImageButton)
+                    }
+                    true
                 }
             }
         })
@@ -171,7 +189,9 @@ class KidInspectFragment : BaseInspectFragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
             ImagePicker.getFirstImageOrNull(data)?.let {
-                viewModel.imagePickActivityResult(it)
+                viewModel.imagePickActivityResult(MyImage().apply {
+                    localImage = it
+                })
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
@@ -186,5 +206,25 @@ class KidInspectFragment : BaseInspectFragment() {
     override fun clearFocus() {
         (context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?)?.
                 hideSoftInputFromWindow(linearContainer.windowToken, 0)
+    }
+
+    override fun tryDeleteCurrentItem() {
+        AlertDialog.Builder(context).setTitle("Are you sure want to delete")
+                .setPositiveButton("Yes"){ dialog, _ ->
+                    super.tryDeleteCurrentItem()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("No"){ dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
+    }
+
+    override fun deleteCurrentItem() {
+        viewModel.uploadingFlag.value = true
+        viewModelInspect.getSelectedItemLiveData().value?.let {
+            viewModel.deleteCurrent(it)
+            viewModel.uploadingFlag.value = false
+        }
     }
 }

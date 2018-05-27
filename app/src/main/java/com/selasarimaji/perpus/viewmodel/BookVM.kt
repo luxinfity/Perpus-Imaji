@@ -4,6 +4,7 @@ import android.arch.lifecycle.MutableLiveData
 import com.esafirm.imagepicker.model.Image
 import com.google.firebase.firestore.QuerySnapshot
 import com.selasarimaji.perpus.model.DataModel
+import com.selasarimaji.perpus.model.MyImage
 import com.selasarimaji.perpus.repository.firestore.BookRepo
 import com.selasarimaji.perpus.repository.firestore.CategoryRepo
 
@@ -21,7 +22,7 @@ class BookVM : BaseContentCreationVM<DataModel.Book>() {
     val filteredCategory = MutableLiveData<List<DataModel.Category>>()
 
     // image upload
-    val pickedImage = MutableLiveData<Image>()
+    val pickedImage = MutableLiveData<MyImage>()
     val uploadingProgress = MutableLiveData<Double>()
 
     override fun loadInitial(filterMap: Map<String, String>?){
@@ -29,7 +30,7 @@ class BookVM : BaseContentCreationVM<DataModel.Book>() {
         if (isInitialLoaded.value == null){
             lastIndex.value = 0
             isInitialLoaded.value = true
-            repo.load(0, loadCount, filterMap = filterMap, listener = this@BookVM::handleFirebaseQueryCallback)
+            repo.loadFromRemote(0, loadCount, filterMap = filterMap, listener = this@BookVM::handleFirebaseQueryCallback)
         }
     }
 
@@ -37,7 +38,7 @@ class BookVM : BaseContentCreationVM<DataModel.Book>() {
         isContentLoading.value?.run {
             if (!this){
                 isContentLoading.value = true
-                repo.load(lastIndex.value!!, loadCount, filterMap = filterMap, listener = this@BookVM::handleFirebaseQueryCallback)
+                repo.loadFromRemote(lastIndex.value!!, loadCount, filterMap = filterMap, listener = this@BookVM::handleFirebaseQueryCallback)
             }
         }
     }
@@ -64,12 +65,12 @@ class BookVM : BaseContentCreationVM<DataModel.Book>() {
         }
     }
 
-    fun imagePickActivityResult(image: Image){
+    fun imagePickActivityResult(image: MyImage){
         pickedImage.value = image
     }
 
     fun storeImage(){
-        repo.storeImage(pickedImage.value!!.path, documentResultRef.value!!.id,
+        repo.storeImage(pickedImage.value!!.localImage!!.path, documentResultRef.value!!.id,
                 uploadingFlag, uploadingSuccessFlag, uploadingProgress)
     }
 

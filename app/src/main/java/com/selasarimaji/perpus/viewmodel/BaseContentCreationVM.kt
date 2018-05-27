@@ -38,4 +38,10 @@ abstract class BaseContentCreationVM <T: DataModel> : BaseLoadingVM() {
     }
 
     abstract fun loadMore(filterMap: Map<String, String>? = null)
+
+    fun deleteCurrent(item: DataModel){
+        repo.deleteFromRemote(item.id){
+            uploadingSuccessFlag.value = true
+        }
+    }
 }

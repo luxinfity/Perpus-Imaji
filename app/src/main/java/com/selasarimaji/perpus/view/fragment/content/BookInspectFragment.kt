@@ -1,6 +1,7 @@
 package com.selasarimaji.perpus.view.fragment.content
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context.INPUT_METHOD_SERVICE
@@ -11,13 +12,13 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import com.bumptech.glide.Glide
 import com.esafirm.imagepicker.features.ImagePicker
 import com.hootsuite.nachos.NachoTextView
 import com.hootsuite.nachos.terminator.ChipTerminatorHandler
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.selasarimaji.perpus.*
 import com.selasarimaji.perpus.model.DataModel
+import com.selasarimaji.perpus.model.MyImage
 import com.selasarimaji.perpus.viewmodel.BookVM
 import kotlinx.android.synthetic.main.content_book.*
 import kotlinx.android.synthetic.main.layout_content_creation.*
@@ -76,11 +77,8 @@ class BookInspectFragment : BaseInspectFragment() {
                 publisherInputLayout.editText?.setText(it.publisher)
                 categoryListChipInput.editText?.setText(it.idCategoryList.toString())
 
-                context?.run {
-                    GlideApp.with(this)
-                            .load(viewModel.repo.getImageFull(it.id))
-                            .placeholder(R.drawable.ic_camera.resDrawable(this))
-                            .into(bookImageButton)
+                viewModel.pickedImage.value = MyImage().apply {
+                    remoteImage = it.id
                 }
             }
         })
@@ -111,7 +109,7 @@ class BookInspectFragment : BaseInspectFragment() {
 
         viewModel.uploadingFlag.observe(this, Observer {
             it?.run {
-                progressBar.visibility = if (this) View.VISIBLE else View.GONE
+                viewModelInspect.shouldShowProgressBar.value = this
                 addButton.isEnabled = !this
             }
         })
@@ -145,7 +143,18 @@ class BookInspectFragment : BaseInspectFragment() {
         viewModel.pickedImage.observe(this, Observer {
             it?.run {
                 context?.let {
-                    Glide.with(it).load(this.path).into(bookImageButton)
+                    if (this.localImage != null) {
+                        GlideApp.with(it)
+                                .load(this.localImage!!.path)
+                                .placeholder(R.drawable.ic_camera.resDrawable(it))
+                                .into(bookImageButton)
+                    } else if (this.remoteImage != null) {
+                        GlideApp.with(it)
+                                .load(viewModel.repo.getImageFull(this.remoteImage!!))
+                                .placeholder(R.drawable.ic_camera.resDrawable(it))
+                                .into(bookImageButton)
+                    }
+                    true
                 }
             }
         })
@@ -199,9 +208,31 @@ class BookInspectFragment : BaseInspectFragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
             ImagePicker.getFirstImageOrNull(data)?.let {
-                viewModel.imagePickActivityResult(it)
+                viewModel.imagePickActivityResult(MyImage().apply {
+                    localImage = it
+                })
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    override fun tryDeleteCurrentItem() {
+        AlertDialog.Builder(context).setTitle("Are you sure want to delete")
+                .setPositiveButton("Yes"){ dialog, _ ->
+                    super.tryDeleteCurrentItem()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("No"){ dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
+    }
+
+    override fun deleteCurrentItem() {
+        viewModel.uploadingFlag.value = true
+        viewModelInspect.getSelectedItemLiveData().value?.let {
+            viewModel.deleteCurrent(it)
+            viewModel.uploadingFlag.value = false
+        }
     }
 }

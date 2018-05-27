@@ -4,6 +4,7 @@ import android.arch.lifecycle.MutableLiveData
 import com.esafirm.imagepicker.model.Image
 import com.google.firebase.firestore.QuerySnapshot
 import com.selasarimaji.perpus.model.DataModel
+import com.selasarimaji.perpus.model.MyImage
 import com.selasarimaji.perpus.repository.firestore.KidRepo
 
 class KidVM : BaseContentCreationVM<DataModel.Kid>() {
@@ -12,7 +13,7 @@ class KidVM : BaseContentCreationVM<DataModel.Kid>() {
     override val TAG: String
         get() = KidVM::class.java.name
 
-    val pickedImage = MutableLiveData<Image>()
+    val pickedImage = MutableLiveData<MyImage>()
     val uploadingProgress = MutableLiveData<Double>()
 
     override fun loadInitial(filterMap: Map<String, String>?){
@@ -20,7 +21,7 @@ class KidVM : BaseContentCreationVM<DataModel.Kid>() {
         if (isInitialLoaded.value == null){
             lastIndex.value = 0
             isInitialLoaded.value = true
-            repo.load(0, loadCount, filterMap = filterMap,
+            repo.loadFromRemote(0, loadCount, filterMap = filterMap,
                     listener = this@KidVM::handleFirebaseQueryCallback)
         }
     }
@@ -29,7 +30,7 @@ class KidVM : BaseContentCreationVM<DataModel.Kid>() {
         isContentLoading.value?.run {
             if (!this){
                 isContentLoading.value = true
-                repo.load(lastIndex.value!!, loadCount, filterMap = filterMap,
+                repo.loadFromRemote(lastIndex.value!!, loadCount, filterMap = filterMap,
                         listener = this@KidVM::handleFirebaseQueryCallback)
             }
         }
@@ -43,12 +44,12 @@ class KidVM : BaseContentCreationVM<DataModel.Kid>() {
         isContentLoading.value = false
     }
 
-    fun imagePickActivityResult(image: Image){
+    fun imagePickActivityResult(image: MyImage){
         pickedImage.value = image
     }
 
     fun storeImage(){
-        repo.storeImage(pickedImage.value!!.path, documentResultRef.value!!.id,
+        repo.storeImage(pickedImage.value!!.localImage!!.path, documentResultRef.value!!.id,
                 uploadingFlag, uploadingSuccessFlag, uploadingProgress)
     }
 
