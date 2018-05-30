@@ -17,8 +17,10 @@ import com.hootsuite.nachos.NachoTextView
 import com.hootsuite.nachos.terminator.ChipTerminatorHandler
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.selasarimaji.perpus.*
-import com.selasarimaji.perpus.model.DataModel
-import com.selasarimaji.perpus.model.MyImage
+import com.selasarimaji.perpus.model.LoadingType
+import com.selasarimaji.perpus.model.RepoDataModel
+import com.selasarimaji.perpus.model.RepoImage
+import com.selasarimaji.perpus.model.getLoadingTypeText
 import com.selasarimaji.perpus.viewmodel.BookVM
 import kotlinx.android.synthetic.main.content_book.*
 import kotlinx.android.synthetic.main.layout_content_creation.*
@@ -60,7 +62,7 @@ class BookInspectFragment : BaseInspectFragment() {
 
     override fun setupToolbar(){
         viewModelInspect.getSelectedItemLiveData().observe(this, Observer {
-            (it as DataModel.Book?)?.let {
+            (it as RepoDataModel.Book?)?.let {
                 viewModel.title.value = it.name.toUpperCase()
             } ?: also {
                 viewModel.title.value = "Buku"
@@ -70,16 +72,14 @@ class BookInspectFragment : BaseInspectFragment() {
 
     override fun setupObserver(){
         viewModelInspect.getSelectedItemLiveData().observe(this, Observer {
-            (it as DataModel.Book?)?.let {
+            (it as RepoDataModel.Book?)?.let {
                 bookNameInputLayout.editText?.setText(it.name)
                 bookAuthorInputLayout.editText?.setText(it.author)
                 yearInputLayout.editText?.setText(it.year.toString())
                 publisherInputLayout.editText?.setText(it.publisher)
                 categoryListChipInput.editText?.setText(it.idCategoryList.toString())
 
-                viewModel.pickedImage.value = MyImage().apply {
-                    remoteImage = it.id
-                }
+                viewModel.pickedImage.value = RepoImage(it.id, true)
             }
         })
 
@@ -106,29 +106,24 @@ class BookInspectFragment : BaseInspectFragment() {
                         this[2].editText?.inputType = InputType.TYPE_CLASS_NUMBER // year input
                     }
         })
-
-        viewModel.uploadingFlag.observe(this, Observer {
+        viewModel.loadingProcess.observe(this, Observer {
             it?.run {
-                viewModelInspect.shouldShowProgressBar.value = this
-                addButton.isEnabled = !this
-            }
-        })
-        viewModel.uploadingSuccessFlag.observe(this, Observer {
-            it?.also {
-                if(it && !viewModel.shouldWaitImageUpload()) {
+                // loading bar
+                addButton.isEnabled = !isLoading
+
+                // loading process
+                if (isSuccess){
                     Toast.makeText(context,
-                            "Penambahan Berhasil",
+                            getLoadingTypeText(loadingType),
                             Toast.LENGTH_SHORT).show()
                     activity?.let {
                         it.setResult(Activity.RESULT_OK)
                         it.finish()
                     }
-                }else if (it) {
-                    viewModel.storeImage()
                 }
             }
         })
-        viewModel.filteredCategory.observe(this, Observer {
+        viewModel.repoCategoryVal.fetchedData.observe(this, Observer {
             it?.run {
                 val adapter = ArrayAdapter<String>(context,
                         android.R.layout.simple_dropdown_item_1line,
@@ -143,18 +138,10 @@ class BookInspectFragment : BaseInspectFragment() {
         viewModel.pickedImage.observe(this, Observer {
             it?.run {
                 context?.let {
-                    if (this.localImage != null) {
-                        GlideApp.with(it)
-                                .load(this.localImage!!.path)
-                                .placeholder(R.drawable.ic_camera.resDrawable(it))
-                                .into(bookImageButton)
-                    } else if (this.remoteImage != null) {
-                        GlideApp.with(it)
-                                .load(viewModel.repo.getImageFull(this.remoteImage!!))
-                                .placeholder(R.drawable.ic_camera.resDrawable(it))
-                                .into(bookImageButton)
-                    }
-                    true
+                    GlideApp.with(it)
+                            .load(this.imagePath)
+                            .placeholder(R.drawable.ic_camera.resDrawable(it))
+                            .into(bookImageButton)
                 }
             }
         })
@@ -176,7 +163,7 @@ class BookInspectFragment : BaseInspectFragment() {
         val publisher = publisherInputLayout.tryToRemoveFromList(editTextList)
         val category = (categoryListChipInput.editText as NachoTextView).chipValues.map {
             val value = it
-            viewModel.filteredCategory.value?.
+            viewModel.repoCategoryVal.fetchedData.value?.
                     find { it.name == value.toLowerCase() }?.id
                     ?: ""
         }.also {
@@ -190,7 +177,7 @@ class BookInspectFragment : BaseInspectFragment() {
         }
 
         if(editTextList.isEmpty()){
-            viewModel.storeData(DataModel.Book(name, author, year.toInt(), publisher, category))
+            viewModel.storeData(RepoDataModel.Book(name, author, year.toInt(), publisher, category))
         }
     }
 
@@ -208,9 +195,7 @@ class BookInspectFragment : BaseInspectFragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
             ImagePicker.getFirstImageOrNull(data)?.let {
-                viewModel.imagePickActivityResult(MyImage().apply {
-                    localImage = it
-                })
+                viewModel.imagePickActivityResult(RepoImage(it.path, false))
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
@@ -229,10 +214,8 @@ class BookInspectFragment : BaseInspectFragment() {
     }
 
     override fun deleteCurrentItem() {
-        viewModel.uploadingFlag.value = true
         viewModelInspect.getSelectedItemLiveData().value?.let {
             viewModel.deleteCurrent(it)
-            viewModel.uploadingFlag.value = false
         }
     }
 }

@@ -9,7 +9,7 @@ import kotlinx.android.synthetic.main.fragment_recycler.view.*
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import com.selasarimaji.perpus.ContentType
-import com.selasarimaji.perpus.model.DataModel
+import com.selasarimaji.perpus.model.RepoDataModel
 import com.selasarimaji.perpus.view.activity.ContentInspectActivity
 import com.selasarimaji.perpus.view.adapter.ContentRecyclerAdapter
 import com.selasarimaji.perpus.viewmodel.BorrowVM
@@ -30,7 +30,7 @@ class BorrowRecyclerFragment : BaseRecyclerFragment() {
     }
 
     override fun setupRecycler(view: View){
-        val adapter = ContentRecyclerAdapter<DataModel.Borrow>(ContentType.Borrow){
+        val adapter = ContentRecyclerAdapter<RepoDataModel.Borrow>(ContentType.Borrow){
             context?.run {
                 startActivityForResult(ContentInspectActivity
                         .createIntentToHere(this, ContentType.Borrow, it), CREATION_REQUEST_CODE)
@@ -52,7 +52,11 @@ class BorrowRecyclerFragment : BaseRecyclerFragment() {
                 }
             }
         })
-
+        viewModel.loadingProcess.observe(this, Observer {
+            it?.let {
+                ptrLayout.isRefreshing = it.isLoading
+            }
+        })
         viewModel.repo.fetchedData.observe(this, Observer {
             it?.let {
                 adapter.setupNewData(it)

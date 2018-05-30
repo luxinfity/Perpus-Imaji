@@ -24,7 +24,7 @@
         <activity android:name=".view.activity.MainActivity" />
         <activity android:name=".view.activity.ContentInspectActivity">
 
-            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <!-- Parent activity meta-repoData to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.selasarimaji.perpus.view.activity.MainActivity" />

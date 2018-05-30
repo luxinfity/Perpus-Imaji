@@ -18,7 +18,8 @@ import com.jakewharton.rxbinding2.widget.RxTextView
 import com.selasarimaji.perpus.R
 import com.selasarimaji.perpus.capitalizeWords
 import com.selasarimaji.perpus.getCurrentDateString
-import com.selasarimaji.perpus.model.DataModel
+import com.selasarimaji.perpus.model.RepoDataModel
+import com.selasarimaji.perpus.model.getLoadingTypeText
 import com.selasarimaji.perpus.tryToRemoveFromList
 import com.selasarimaji.perpus.viewmodel.BorrowVM
 import kotlinx.android.synthetic.main.layout_content_creation.*
@@ -72,7 +73,7 @@ class BorrowInspectFragment : BaseInspectFragment() {
 
     override fun setupToolbar(){
         viewModelInspect.getSelectedItemLiveData().observe(this, Observer {
-            (it as DataModel.Borrow?)?.let {
+            (it as RepoDataModel.Borrow?)?.let {
                 viewModel.title.value = it.id.toUpperCase()
             } ?: also {
                 viewModel.title.value = "Peminjaman"
@@ -82,7 +83,7 @@ class BorrowInspectFragment : BaseInspectFragment() {
 
     override fun setupObserver(){
         viewModelInspect.getSelectedItemLiveData().observe(this, Observer {
-            (it as DataModel.Borrow?)?.let {
+            (it as RepoDataModel.Borrow?)?.let {
                 borrowBookInputLayout.editText?.setText(it.idBook)
                 borrowNameInputLayout.editText?.setText(it.idChild)
                 borrowStartDateInputLayout.editText?.setText(it.startDate)
@@ -111,17 +112,15 @@ class BorrowInspectFragment : BaseInspectFragment() {
                         }
                     }
         })
-        viewModel.uploadingFlag.observe(this, Observer {
+        viewModel.loadingProcess.observe(this, Observer {
             it?.run {
-                viewModelInspect.shouldShowProgressBar.value = this
-                addButton.isEnabled = !this
-            }
-        })
-        viewModel.uploadingSuccessFlag.observe(this, Observer {
-            it?.run {
-                if(this) {
+                // loading bar
+                addButton.isEnabled = !isLoading
+
+                // loading process
+                if (isSuccess){
                     Toast.makeText(context,
-                            "Penambahan Berhasil",
+                            getLoadingTypeText(loadingType),
                             Toast.LENGTH_SHORT).show()
                     activity?.let {
                         it.setResult(Activity.RESULT_OK)
@@ -130,7 +129,7 @@ class BorrowInspectFragment : BaseInspectFragment() {
                 }
             }
         })
-        viewModel.filteredKid.observe(this, Observer {
+        viewModel.repoKidVal.fetchedData.observe(this, Observer {
             it?.run {
                 val adapter = ArrayAdapter<String>(context,
                         android.R.layout.simple_dropdown_item_1line,
@@ -141,7 +140,7 @@ class BorrowInspectFragment : BaseInspectFragment() {
                 }
             }
         })
-        viewModel.filteredBook.observe(this, Observer {
+        viewModel.repoBookVal.fetchedData.observe(this, Observer {
             it?.run {
                 val adapter = ArrayAdapter<String>(context,
                         android.R.layout.simple_dropdown_item_1line,
@@ -163,7 +162,7 @@ class BorrowInspectFragment : BaseInspectFragment() {
                 it.isErrorEnabled = false
             }
         }
-        val bookName = viewModel.filteredBook.value?.find {
+        val bookName = viewModel.repoBookVal.fetchedData.value?.find {
                 it.name == bookText.toLowerCase()
             }?.id.also {
                 if (!it.isNullOrEmpty()) {
@@ -171,7 +170,7 @@ class BorrowInspectFragment : BaseInspectFragment() {
                 }
             }
 
-        val borrower = viewModel.filteredKid.value?.find {
+        val borrower = viewModel.repoKidVal.fetchedData.value?.find {
                 it.name == kidText.toLowerCase()
             }?.id.also {
                 if (!it.isNullOrEmpty()) {
@@ -186,7 +185,7 @@ class BorrowInspectFragment : BaseInspectFragment() {
         }
 
         if(editTextList.isEmpty()) {
-            viewModel.storeData(DataModel.Borrow(bookName!!, borrower!!, startDate, endDate))
+            viewModel.storeData(RepoDataModel.Borrow(bookName!!, borrower!!, startDate, endDate))
         }
     }
 
@@ -230,10 +229,8 @@ class BorrowInspectFragment : BaseInspectFragment() {
     }
 
     override fun deleteCurrentItem() {
-        viewModel.uploadingFlag.value = true
         viewModelInspect.getSelectedItemLiveData().value?.let {
             viewModel.deleteCurrent(it)
-            viewModel.uploadingFlag.value = false
         }
     }
 }

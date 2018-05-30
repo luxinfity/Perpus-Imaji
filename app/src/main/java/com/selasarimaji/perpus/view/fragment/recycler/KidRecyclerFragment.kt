@@ -9,7 +9,7 @@ import kotlinx.android.synthetic.main.fragment_recycler.view.*
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import com.selasarimaji.perpus.ContentType
-import com.selasarimaji.perpus.model.DataModel
+import com.selasarimaji.perpus.model.RepoDataModel
 import com.selasarimaji.perpus.view.activity.ContentInspectActivity
 import com.selasarimaji.perpus.view.adapter.ContentRecyclerAdapter
 import com.selasarimaji.perpus.viewmodel.KidVM
@@ -30,7 +30,7 @@ class KidRecyclerFragment : BaseRecyclerFragment() {
     }
 
     override fun setupRecycler(view: View){
-        val adapter = ContentRecyclerAdapter<DataModel.Kid>(ContentType.Kid){
+        val adapter = ContentRecyclerAdapter<RepoDataModel.Kid>(ContentType.Kid){
             context?.run {
                 startActivity(ContentInspectActivity.createIntentToHere(this, ContentType.Kid, it))
             }
@@ -51,7 +51,11 @@ class KidRecyclerFragment : BaseRecyclerFragment() {
                 }
             }
         })
-
+        viewModel.loadingProcess.observe(this, Observer {
+            it?.let {
+                ptrLayout.isRefreshing = it.isLoading
+            }
+        })
         viewModel.repo.fetchedData.observe(this, Observer {
             it?.let {
                 adapter.setupNewData(it)

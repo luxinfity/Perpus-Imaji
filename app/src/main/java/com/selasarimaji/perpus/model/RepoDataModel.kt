@@ -6,18 +6,20 @@ import com.google.firebase.firestore.Exclude
 import java.io.Serializable
 import java.util.*
 
-abstract class DataModel : Serializable {
+abstract class RepoDataModel : Serializable {
     @get:Exclude var id: String = ""
     @get:Exclude abstract val collectionName : String
 
+    // region data tracker
+    // don't remove, will be used in serializing
     val editor : String
         get() = FirebaseAuth.getInstance().currentUser?.email ?: ""
-
     val lastEdit : Long
         get() = Calendar.getInstance().time.time
+    // endregion
 
     data class Category (val name: String, val description: String,
-                         val idParent: String? = "") : DataModel() {
+                         val idParent: String? = "") : RepoDataModel() {
         @get:Exclude override val collectionName = "Category"
 
         companion object {
@@ -34,7 +36,7 @@ abstract class DataModel : Serializable {
         }
     }
     data class Book (val name: String, val author: String, val year: Int, val publisher: String,
-                     val idCategoryList: List<String>) : DataModel(){
+                     val idCategoryList: List<String>) : RepoDataModel(){
         @get:Exclude override val collectionName = "Book"
 
         companion object {
@@ -56,7 +58,7 @@ abstract class DataModel : Serializable {
         }
     }
     data class Borrow (val idBook: String, val idChild: String,
-                       val startDate: String, val endDate: String) : DataModel(){
+                       val startDate: String, val endDate: String) : RepoDataModel(){
         @get:Exclude override val collectionName = "Borrow"
 
         companion object {
@@ -74,7 +76,7 @@ abstract class DataModel : Serializable {
         }
     }
     data class Kid (val name: String, val address: String, val isMale: Boolean,
-                       val birthDate: String) : DataModel(){
+                       val birthDate: String) : RepoDataModel(){
         @get:Exclude override val collectionName = "Kid"
 
         companion object {

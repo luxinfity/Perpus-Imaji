@@ -9,7 +9,7 @@ import kotlinx.android.synthetic.main.fragment_recycler.view.*
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import com.selasarimaji.perpus.ContentType
-import com.selasarimaji.perpus.model.DataModel
+import com.selasarimaji.perpus.model.RepoDataModel
 import com.selasarimaji.perpus.view.activity.ContentInspectActivity
 import com.selasarimaji.perpus.view.adapter.ContentRecyclerAdapter
 import com.selasarimaji.perpus.viewmodel.CategoryVM
@@ -30,7 +30,7 @@ class CategoryRecyclerFragment : BaseRecyclerFragment() {
     }
 
     override fun setupRecycler(view: View){
-        val adapter = ContentRecyclerAdapter<DataModel.Category>(ContentType.Category){
+        val adapter = ContentRecyclerAdapter<RepoDataModel.Category>(ContentType.Category){
             context?.run {
                 startActivity(ContentInspectActivity.createIntentToHere(this, ContentType.Category, it))
             }
@@ -51,14 +51,17 @@ class CategoryRecyclerFragment : BaseRecyclerFragment() {
                 }
             }
         })
-
+        viewModel.loadingProcess.observe(this, Observer {
+            it?.let {
+                ptrLayout.isRefreshing = it.isLoading
+            }
+        })
         viewModel.repo.fetchedData.observe(this, Observer {
             it?.let {
                 adapter.setupNewData(it)
                 if (it.isNotEmpty()) dismissLoading()
             }
         })
-
         viewModelInspect.editOrCreateMode.observe(this, Observer {
             fabButton.visibility = if (it?.first != true) View.VISIBLE else View.GONE
         })

@@ -11,7 +11,7 @@ import android.view.MenuItem
 import android.view.View
 import com.selasarimaji.perpus.CONTENT_TYPE_KEY
 import com.selasarimaji.perpus.ContentType
-import com.selasarimaji.perpus.model.DataModel
+import com.selasarimaji.perpus.model.RepoDataModel
 import com.selasarimaji.perpus.view.fragment.content.*
 import com.selasarimaji.perpus.viewmodel.*
 import kotlinx.android.synthetic.main.activity_content_inspect.*
@@ -19,10 +19,10 @@ import kotlinx.android.synthetic.main.activity_content_inspect.*
 class ContentInspectActivity : BaseNavigationActivity() {
     companion object {
         private const val DATA_CONTENT_KEY = "DATA_CONTENT_KEY"
-        fun createIntentToHere(context: Context, contentType: ContentType, data: DataModel? = null) =
+        fun createIntentToHere(context: Context, contentType: ContentType, repoData: RepoDataModel? = null) =
                 Intent(context, ContentInspectActivity::class.java).apply {
                     putExtra(CONTENT_TYPE_KEY, contentType)
-                    putExtra(DATA_CONTENT_KEY, data)
+                    putExtra(DATA_CONTENT_KEY, repoData)
                 }
     }
 
@@ -42,7 +42,7 @@ class ContentInspectActivity : BaseNavigationActivity() {
     }
 
     private val data by lazy {
-        (intent.getSerializableExtra(DATA_CONTENT_KEY) as DataModel?).also {
+        (intent.getSerializableExtra(DATA_CONTENT_KEY) as RepoDataModel?).also {
             // pair <isEdit, isCreate>
             viewModel.editOrCreateMode.value = Pair(it == null, it == null)
         }
@@ -108,6 +108,10 @@ class ContentInspectActivity : BaseNavigationActivity() {
             it?.run {
                 supportActionBar!!.title = it
             }
+        })
+
+        viewModel.loadingProcess.observe(this, Observer {
+
         })
     }
 

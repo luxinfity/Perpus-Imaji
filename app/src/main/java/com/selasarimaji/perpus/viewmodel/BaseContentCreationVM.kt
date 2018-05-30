@@ -2,46 +2,60 @@ package com.selasarimaji.perpus.viewmodel
 
 import android.arch.lifecycle.MutableLiveData
 import com.google.firebase.firestore.DocumentReference
-import com.selasarimaji.perpus.model.DataModel
-import com.selasarimaji.perpus.repository.firestore.BaseRepo
+import com.selasarimaji.perpus.model.RepoDataModel
+import com.selasarimaji.perpus.repository.BaseRepo
 
-abstract class BaseContentCreationVM <T: DataModel> : BaseLoadingVM() {
-    abstract val TAG : String
+abstract class BaseContentCreationVM <T: RepoDataModel> : BaseLoadingVM() {
     abstract val repo: BaseRepo<T>
-    open val loadCount = 10
+    open val loadDistance = 10
 
     var title = MutableLiveData<String>()
     var totalRemoteCount = MutableLiveData<Int>()
-    protected var isInitialLoaded = MutableLiveData<Boolean>()
-    protected var lastIndex = MutableLiveData<Int>()
-    protected var isContentLoading = MutableLiveData<Boolean>()
     protected var documentResultRef = MutableLiveData<DocumentReference>()
 
     open fun storeData(category: T){
-        repo.storeNewRemoteData(category, uploadingFlag, uploadingSuccessFlag, documentResultRef)
+        repo.createRemoteData(category, loadingProcess, documentResultRef)
     }
 
     open fun reload(filterMap: Map<String, String>? = null){
-        isInitialLoaded.value = null
         repo.clearLocalData()
         loadInitial(filterMap)
     }
 
+    fun getTotalRemoteCount(){
+        repo.getRemoteTotalCount {
+            totalRemoteCount.value = it
+        }
+    }
+
     open fun loadInitial(filterMap: Map<String, String>? = null){
-        repo.getRemoteTotalCount { documentSnapshot ->
-            if (documentSnapshot.contains("count")){
-                totalRemoteCount.value = documentSnapshot["count"].toString().toInt()
-            }else{
-                totalRemoteCount.value = 0
+        getTotalRemoteCount()
+        loadingProcess.value.let {
+            if (it?.isLoading != true){
+                repo.loadFromRemote(0,
+                        loadDistance,
+                        filterMap = filterMap,
+                        loadingFlag = loadingProcess)
             }
         }
     }
 
-    abstract fun loadMore(filterMap: Map<String, String>? = null)
+    open fun loadMore(filterMap: Map<String, String>? = null){
+        loadingProcess.value.let {
+            if (it?.isLoading != true){
+                repo.loadFromRemote(repo.fetchedData.value!!.size,
+                        loadDistance,
+                        filterMap = filterMap,
+                        loadingFlag = loadingProcess)
+            }
+        }
+    }
 
-    fun deleteCurrent(item: DataModel){
-        repo.deleteFromRemote(item.id){
-            uploadingSuccessFlag.value = true
+    fun deleteCurrent(item: RepoDataModel){
+        loadingProcess.value.let {
+            if (it?.isLoading != true) {
+                repo.deleteFromRemote(item.id, loadingProcess)
+            }
         }
     }
 }

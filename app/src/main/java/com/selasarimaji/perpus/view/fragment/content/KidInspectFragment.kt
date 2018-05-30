@@ -14,7 +14,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.AutoCompleteTextView
 import android.widget.EditText
 import android.widget.Toast
-import com.selasarimaji.perpus.model.DataModel
+import com.selasarimaji.perpus.model.RepoDataModel
 import com.selasarimaji.perpus.viewmodel.KidVM
 import kotlinx.android.synthetic.main.layout_content_creation.*
 import kotlinx.android.synthetic.main.content_kid.*
@@ -22,7 +22,8 @@ import java.util.*
 import android.widget.ArrayAdapter
 import com.esafirm.imagepicker.features.ImagePicker
 import com.selasarimaji.perpus.*
-import com.selasarimaji.perpus.model.MyImage
+import com.selasarimaji.perpus.model.RepoImage
+import com.selasarimaji.perpus.model.getLoadingTypeText
 
 class KidInspectFragment : BaseInspectFragment() {
 
@@ -60,7 +61,7 @@ class KidInspectFragment : BaseInspectFragment() {
 
     override fun setupToolbar(){
         viewModelInspect.getSelectedItemLiveData().observe(this, Observer {
-            (it as DataModel.Kid?)?.let {
+            (it as RepoDataModel.Kid?)?.let {
                 viewModel.title.value = it.name.toUpperCase()
             } ?: also {
                 viewModel.title.value = "Anak"
@@ -70,15 +71,13 @@ class KidInspectFragment : BaseInspectFragment() {
 
     override fun setupObserver(){
         viewModelInspect.getSelectedItemLiveData().observe(this, Observer {
-            (it as DataModel.Kid?)?.let {
+            (it as RepoDataModel.Kid?)?.let {
                 kidNameInputLayout.editText?.setText(it.name)
                 kidAddressInputLayout.editText?.setText(it.address)
                 kidBirthDateInputLayout.editText?.setText(it.birthDate)
                 kidGenderInputLayout.editText?.setText(if (it.isMale) "Cowok" else "Cewek")
 
-                viewModel.pickedImage.value = MyImage().apply {
-                    remoteImage = it.id
-                }
+                viewModel.pickedImage.value = RepoImage(it.id, true)
             }
         })
 
@@ -103,43 +102,30 @@ class KidInspectFragment : BaseInspectFragment() {
                         }
                     }
         })
-
-        viewModel.uploadingFlag.observe(this, Observer {
+        viewModel.loadingProcess.observe(this, Observer {
             it?.run {
-                viewModelInspect.shouldShowProgressBar.value = this
-                addButton.isEnabled = !this
-            }
-        })
-        viewModel.uploadingSuccessFlag.observe(this, Observer {
-            it?.also {
-                if(it && !viewModel.shouldWaitImageUpload()) {
+                // loading bar
+                addButton.isEnabled = !isLoading
+
+                // loading process
+                if (isSuccess){
                     Toast.makeText(context,
-                            "Penambahan Berhasil",
+                            getLoadingTypeText(loadingType),
                             Toast.LENGTH_SHORT).show()
                     activity?.let {
                         it.setResult(Activity.RESULT_OK)
                         it.finish()
                     }
-                }else if (it) {
-                    viewModel.storeImage()
                 }
             }
         })
         viewModel.pickedImage.observe(this, Observer {
             it?.run {
                 context?.let {
-                    if (this.localImage != null) {
-                        GlideApp.with(it)
-                                .load(this.localImage!!.path)
-                                .placeholder(R.drawable.ic_camera.resDrawable(it))
-                                .into(kidImageButton)
-                    } else if (this.remoteImage != null) {
-                        GlideApp.with(it)
-                                .load(viewModel.repo.getImageFull(this.remoteImage!!))
-                                .placeholder(R.drawable.ic_camera.resDrawable(it))
-                                .into(kidImageButton)
-                    }
-                    true
+                    GlideApp.with(it)
+                            .load(imagePath)
+                            .placeholder(R.drawable.ic_camera.resDrawable(it))
+                            .into(kidImageButton)
                 }
             }
         })
@@ -164,7 +150,7 @@ class KidInspectFragment : BaseInspectFragment() {
         }
 
         if(editTextList.isEmpty()) {
-            viewModel.storeData(DataModel.Kid(name, address, gender, dateOfBirth))
+            viewModel.storeData(RepoDataModel.Kid(name, address, gender, dateOfBirth))
         }
     }
 
@@ -189,9 +175,7 @@ class KidInspectFragment : BaseInspectFragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
             ImagePicker.getFirstImageOrNull(data)?.let {
-                viewModel.imagePickActivityResult(MyImage().apply {
-                    localImage = it
-                })
+                viewModel.imagePickActivityResult(RepoImage(it.path, false))
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
@@ -221,10 +205,8 @@ class KidInspectFragment : BaseInspectFragment() {
     }
 
     override fun deleteCurrentItem() {
-        viewModel.uploadingFlag.value = true
         viewModelInspect.getSelectedItemLiveData().value?.let {
             viewModel.deleteCurrent(it)
-            viewModel.uploadingFlag.value = false
         }
     }
 }

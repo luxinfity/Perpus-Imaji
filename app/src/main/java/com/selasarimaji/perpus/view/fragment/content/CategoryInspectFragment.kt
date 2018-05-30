@@ -15,7 +15,8 @@ import android.widget.Toast
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.selasarimaji.perpus.R
 import com.selasarimaji.perpus.capitalizeWords
-import com.selasarimaji.perpus.model.DataModel
+import com.selasarimaji.perpus.model.RepoDataModel
+import com.selasarimaji.perpus.model.getLoadingTypeText
 import com.selasarimaji.perpus.tryToRemoveFromList
 import com.selasarimaji.perpus.viewmodel.CategoryVM
 import kotlinx.android.synthetic.main.layout_content_creation.*
@@ -48,7 +49,7 @@ class CategoryInspectFragment : BaseInspectFragment() {
 
     override fun setupToolbar(){
         viewModelInspect.getSelectedItemLiveData().observe(this, Observer {
-            (it as DataModel.Category?)?.let {
+            (it as RepoDataModel.Category?)?.let {
                 viewModel.title.value = it.name.toUpperCase()
             } ?: also {
                 viewModel.title.value = "Kategori"
@@ -58,7 +59,7 @@ class CategoryInspectFragment : BaseInspectFragment() {
 
     override fun setupObserver(){
         viewModelInspect.getSelectedItemLiveData().observe(this, Observer {
-            (it as DataModel.Category?)?.let {
+            (it as RepoDataModel.Category?)?.let {
                 categoryNameInputLayout.editText?.setText(it.name)
                 categoryDescInputLayout.editText?.setText(it.description)
                 categoryParentInputLayout.editText?.setText(it.idParent)
@@ -92,17 +93,17 @@ class CategoryInspectFragment : BaseInspectFragment() {
                         }
                     }
         })
-        viewModel.uploadingFlag.observe(this, Observer {
+
+        viewModel.loadingProcess.observe(this, Observer {
             it?.run {
-                viewModelInspect.shouldShowProgressBar.value = this
-                addButton.isEnabled = !this
-            }
-        })
-        viewModel.uploadingSuccessFlag.observe(this, Observer {
-            it?.run {
-                if(this) {
+                // loading bar
+                viewModelInspect.shouldShowProgressBar.value = this.isLoading
+                addButton.isEnabled = !isLoading
+
+                // loading process
+                if (isSuccess){
                     Toast.makeText(context,
-                            "Penambahan Berhasil",
+                            getLoadingTypeText(loadingType),
                             Toast.LENGTH_SHORT).show()
                     activity?.let {
                         it.setResult(Activity.RESULT_OK)
@@ -111,7 +112,7 @@ class CategoryInspectFragment : BaseInspectFragment() {
                 }
             }
         })
-        viewModel.filteredCategory.observe(this, Observer {
+        viewModel.repoCategoryVal.fetchedData.observe(this, Observer {
             it?.run {
                 val adapter = ArrayAdapter<String>(context,
                         android.R.layout.simple_dropdown_item_1line,
@@ -136,7 +137,7 @@ class CategoryInspectFragment : BaseInspectFragment() {
         val name = categoryNameInputLayout.tryToRemoveFromList(editTextList)
         val desc = categoryDescInputLayout.tryToRemoveFromList(editTextList)
 
-        val parent = viewModel.filteredCategory.value?.find {
+        val parent = viewModel.repoCategoryVal.fetchedData.value?.find {
             it.name == parentCategoryText.toLowerCase()
         }?.id.also {
             if (!it.isNullOrEmpty()) {
@@ -149,7 +150,7 @@ class CategoryInspectFragment : BaseInspectFragment() {
         }
 
         if(editTextList.isEmpty()) {
-            viewModel.storeData(DataModel.Category(name, desc, parent))
+            viewModel.storeData(RepoDataModel.Category(name, desc, parent))
         }
     }
 
@@ -177,10 +178,8 @@ class CategoryInspectFragment : BaseInspectFragment() {
     }
 
     override fun deleteCurrentItem() {
-        viewModel.uploadingFlag.value = true
         viewModelInspect.getSelectedItemLiveData().value?.let {
             viewModel.deleteCurrent(it)
-            viewModel.uploadingFlag.value = false
         }
     }
 }
