@@ -77,6 +77,7 @@ class BookInspectFragment : BaseInspectFragment() {
                 publisherInputLayout.editText?.setText(it.publisher)
                 categoryListChipInput.editText?.setText(it.idCategoryList.toString())
 
+                viewModel.documentResultRef.value = it.id
                 viewModel.pickedImage.value = RepoImage(it.id, true)
             }
         })
@@ -112,19 +113,25 @@ class BookInspectFragment : BaseInspectFragment() {
                 bookImageButton.isEnabled = !isLoading
 
                 // loading process
-                val userHasLocalImageToUpload = viewModel.pickedImage.value?.isRemoteSource ?: false
                 when {
+                    isSuccess && (viewModel.userHasLocalImage
+                            || viewModel.isUserWantToUpdateRemoteImage(loadingType)) -> {
+                        viewModel.storeImage(viewModel.repo,
+                                viewModel.documentResultRef.value!!,
+                                viewModel.loadingProcess)
+                    }
+                    isSuccess && viewModel.isUserWantToDeleteRemoteImage(loadingType) -> {
+                        viewModel.deleteImage(viewModel.repo,
+                                viewModel.documentResultRef.value!!,
+                                viewModel.loadingProcess)
+                    }
                     isSuccess -> {
-                        if (userHasLocalImageToUpload){
-                            viewModel.storeImage()
-                        } else {
-                            Toast.makeText(context,
-                                    getLoadingTypeText(loadingType),
-                                    Toast.LENGTH_SHORT).show()
-                            activity?.let {
-                                it.setResult(Activity.RESULT_OK)
-                                it.finish()
-                            }
+                        Toast.makeText(context,
+                                getLoadingTypeText(loadingType),
+                                Toast.LENGTH_SHORT).show()
+                        activity?.let {
+                            it.setResult(Activity.RESULT_OK)
+                            it.finish()
                         }
                     }
                     !isSuccess && !isLoading -> {
@@ -152,7 +159,7 @@ class BookInspectFragment : BaseInspectFragment() {
             it?.run {
                 context?.let {
                     GlideApp.with(it)
-                            .load(this.imagePath)
+                            .load(if (!isRemoteSource) imagePath else viewModel.repo.getImageThumb(imagePath))
                             .placeholder(R.drawable.ic_camera.resDrawable(it))
                             .into(bookImageButton)
                 }

@@ -43,7 +43,8 @@ abstract class BaseRepo <T:RepoDataModel> {
                     listener(null)
                 }
     }
-    open fun loadFromRemote(startPosition: Int = -1, loadDistance: Int = -1,
+    open fun loadFromRemote(startPosition: Int = -1,
+                            loadDistance: Int = -1,
                             orderBy: String = "name",
                             filterMap: Map<String, String>? = null,
                             loadingFlag: MutableLiveData<LoadingProcess>? = null){
@@ -81,10 +82,10 @@ abstract class BaseRepo <T:RepoDataModel> {
 
     fun createRemoteData(dataModel: T,
                          loadingFlag: MutableLiveData<LoadingProcess>,
-                         docRef: MutableLiveData<DocumentReference>){
+                         docRef: MutableLiveData<String>){
         loadingFlag.value = LoadingProcess(true, false, LoadingType.Create)
         db.add(dataModel).addOnCompleteListener {
-            docRef.value = it.result
+            docRef.value = it.result.id
             loadingFlag.value = LoadingProcess(false, it.isSuccessful, LoadingType.Create)
         }
     }
@@ -145,16 +146,26 @@ abstract class BaseRepo <T:RepoDataModel> {
     // region remote image
     fun storeImage(filePath: String,
                    docId: String,
-                   loadingFlag: MutableLiveData<LoadingProcess>, completeListener: (Boolean) -> Unit){
+                   loadingFlag: MutableLiveData<LoadingProcess>,
+                   completeListener: (Boolean) -> Unit){
         loadingFlag.value = LoadingProcess(true, false, LoadingType.Create)
 
         val file = Uri.fromFile(File(filePath))
         val remoteFile = storageRef.child("$docId.jpg")
         remoteFile.putFile(file)
-                .addOnCompleteListener {
-                    completeListener(it.isSuccessful)
-                    loadingFlag.value = LoadingProcess(false, it.isSuccessful, LoadingType.Create)
-                }
+            .addOnCompleteListener {
+                completeListener(it.isSuccessful)
+                loadingFlag.value = LoadingProcess(false, it.isSuccessful, LoadingType.Create)
+            }
+    }
+    fun deleteImage(docId: String,
+                    loadingFlag: MutableLiveData<LoadingProcess>){
+        loadingFlag.value = LoadingProcess(true, false, LoadingType.Delete)
+        getImageThumb(docId).delete().addOnCompleteListener {
+            getImageFull(docId).delete().addOnCompleteListener {
+                loadingFlag.value = LoadingProcess(false, it.isSuccessful, LoadingType.Delete)
+            }
+        }
     }
     fun getImageFull(docId: String) = storageRef.child("$docId.jpg")
     fun getImageThumb(docId: String) = storageRef.child("thumb_$docId.jpg")

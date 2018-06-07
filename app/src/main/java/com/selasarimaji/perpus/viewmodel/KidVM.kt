@@ -5,20 +5,7 @@ import com.selasarimaji.perpus.model.RepoDataModel
 import com.selasarimaji.perpus.model.RepoImage
 import com.selasarimaji.perpus.repository.KidRepo
 
-class KidVM : BaseContentCreationVM<RepoDataModel.Kid>() {
+class KidVM : BaseContentCreationVM<RepoDataModel.Kid>(), ImageContentVM<RepoDataModel.Kid> {
     override val repo = KidRepo()
-
-    val pickedImage = MutableLiveData<RepoImage>()
-
-    fun imagePickActivityResult(image: RepoImage){
-        pickedImage.value = image
-    }
-
-    fun storeImage() {
-        repo.storeImage(pickedImage.value!!.imagePath, documentResultRef.value!!.id, loadingProcess){
-            if (it){
-                pickedImage.value = RepoImage(pickedImage.value!!.imagePath, true)
-            }
-        }
-    }
+    override val pickedImage = MutableLiveData<RepoImage>()
 }

@@ -6,7 +6,7 @@ import com.selasarimaji.perpus.model.RepoImage
 import com.selasarimaji.perpus.repository.BookRepo
 import com.selasarimaji.perpus.repository.CategoryRepo
 
-class BookVM : BaseContentCreationVM<RepoDataModel.Book>() {
+class BookVM : BaseContentCreationVM<RepoDataModel.Book>(), ImageContentVM<RepoDataModel.Book> {
     override val repo = BookRepo()
 
     // auto complete
@@ -16,25 +16,13 @@ class BookVM : BaseContentCreationVM<RepoDataModel.Book>() {
     }
 
     // image upload
-    val pickedImage = MutableLiveData<RepoImage>()
+    override val pickedImage = MutableLiveData<RepoImage>()
 
     fun getPossibleCategoryInputName(charSequence: CharSequence){
         if (charSequence.toString() != categoryQuery) { // blocking un needed response
             categoryQuery = charSequence.toString()
             if(categoryQuery.isNotEmpty())
                 repoCategoryVal.loadFromRemote(filterMap = mapOf("name" to categoryQuery))
-        }
-    }
-
-    fun imagePickActivityResult(image: RepoImage){
-        pickedImage.value = image
-    }
-
-    fun storeImage() {
-        repo.storeImage(pickedImage.value!!.imagePath, documentResultRef.value!!.id, loadingProcess){
-            if (it){
-                pickedImage.value = RepoImage(pickedImage.value!!.imagePath, true)
-            }
         }
     }
 }

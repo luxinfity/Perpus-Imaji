@@ -22,6 +22,7 @@ import java.util.*
 import android.widget.ArrayAdapter
 import com.esafirm.imagepicker.features.ImagePicker
 import com.selasarimaji.perpus.*
+import com.selasarimaji.perpus.model.LoadingType
 import com.selasarimaji.perpus.model.RepoImage
 import com.selasarimaji.perpus.model.getLoadingTypeText
 
@@ -111,19 +112,25 @@ class KidInspectFragment : BaseInspectFragment() {
                 kidImageButton.isEnabled = !isLoading
 
                 // loading process
-                val userHasLocalImageToUpload = viewModel.pickedImage.value?.isRemoteSource ?: false
                 when {
+                    isSuccess && (viewModel.userHasLocalImage
+                            || viewModel.isUserWantToUpdateRemoteImage(loadingType)) -> {
+                        viewModel.storeImage(viewModel.repo,
+                                viewModel.documentResultRef.value!!,
+                                viewModel.loadingProcess)
+                    }
+                    isSuccess && viewModel.isUserWantToDeleteRemoteImage(loadingType) -> {
+                        viewModel.deleteImage(viewModel.repo,
+                                viewModel.documentResultRef.value!!,
+                                viewModel.loadingProcess)
+                    }
                     isSuccess -> {
-                        if (userHasLocalImageToUpload){
-                            viewModel.storeImage()
-                        } else {
-                            Toast.makeText(context,
-                                    getLoadingTypeText(loadingType),
-                                    Toast.LENGTH_SHORT).show()
-                            activity?.let {
-                                it.setResult(Activity.RESULT_OK)
-                                it.finish()
-                            }
+                        Toast.makeText(context,
+                                getLoadingTypeText(loadingType),
+                                Toast.LENGTH_SHORT).show()
+                        activity?.let {
+                            it.setResult(Activity.RESULT_OK)
+                            it.finish()
                         }
                     }
                     !isSuccess && !isLoading -> {
@@ -139,7 +146,7 @@ class KidInspectFragment : BaseInspectFragment() {
             it?.run {
                 context?.let {
                     GlideApp.with(it)
-                            .load(imagePath)
+                            .load(if (!isRemoteSource) imagePath else viewModel.repo.getImageFull(imagePath))
                             .placeholder(R.drawable.ic_camera.resDrawable(it))
                             .into(kidImageButton)
                 }
