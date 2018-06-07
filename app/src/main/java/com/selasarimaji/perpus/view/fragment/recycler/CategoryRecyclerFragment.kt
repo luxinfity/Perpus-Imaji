@@ -32,7 +32,8 @@ class CategoryRecyclerFragment : BaseRecyclerFragment() {
     override fun setupRecycler(view: View){
         val adapter = ContentRecyclerAdapter<RepoDataModel.Category>(ContentType.Category){
             context?.run {
-                startActivity(ContentInspectActivity.createIntentToHere(this, ContentType.Category, it))
+                val intent = ContentInspectActivity.createIntentToHere(this, ContentType.Category, it)
+                startActivityForResult(intent, CREATION_REQUEST_CODE)
             }
         }
         val layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)

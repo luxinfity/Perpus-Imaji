@@ -32,7 +32,8 @@ class KidRecyclerFragment : BaseRecyclerFragment() {
     override fun setupRecycler(view: View){
         val adapter = ContentRecyclerAdapter<RepoDataModel.Kid>(ContentType.Kid){
             context?.run {
-                startActivity(ContentInspectActivity.createIntentToHere(this, ContentType.Kid, it))
+                val intent = ContentInspectActivity.createIntentToHere(this, ContentType.Kid, it)
+                startActivityForResult(intent, CREATION_REQUEST_CODE)
             }
         }
         val layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
