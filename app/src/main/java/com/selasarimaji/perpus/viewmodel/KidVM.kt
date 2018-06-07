@@ -15,6 +15,10 @@ class KidVM : BaseContentCreationVM<RepoDataModel.Kid>() {
     }
 
     fun storeImage() {
-        repo.storeImage(pickedImage.value!!.imagePath, documentResultRef.value!!.id, loadingProcess)
+        repo.storeImage(pickedImage.value!!.imagePath, documentResultRef.value!!.id, loadingProcess){
+            if (it){
+                pickedImage.value = RepoImage(pickedImage.value!!.imagePath, true)
+            }
+        }
     }
 }

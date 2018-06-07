@@ -18,7 +18,8 @@ abstract class RepoDataModel : Serializable {
         get() = Calendar.getInstance().time.time
     // endregion
 
-    data class Category (val name: String, val description: String,
+    data class Category (val name: String,
+                         val description: String,
                          val idParent: String? = "") : RepoDataModel() {
         @get:Exclude override val collectionName = "Category"
 
@@ -35,7 +36,10 @@ abstract class RepoDataModel : Serializable {
             }
         }
     }
-    data class Book (val name: String, val author: String, val year: Int, val publisher: String,
+    data class Book (val name: String,
+                     val authors: List<String>,
+                     val year: Int,
+                     val publisher: String,
                      val idCategoryList: List<String>) : RepoDataModel(){
         @get:Exclude override val collectionName = "Book"
 
@@ -43,7 +47,9 @@ abstract class RepoDataModel : Serializable {
             fun turnDocumentToObject(documentSnapshot: DocumentSnapshot) : Book {
                 documentSnapshot.let {
                     val name = it["name"].toString()
-                    val author = it["author"].toString()
+                    val author = it["authors"].let {
+                        (it as Iterable<*>).map{ it.toString() }
+                    }
                     val year = it["year"].toString().toInt()
                     val publisher = it["publisher"].toString()
                     val idCategoryList = it["idCategoryList"]?.let {
@@ -57,8 +63,10 @@ abstract class RepoDataModel : Serializable {
             }
         }
     }
-    data class Borrow (val idBook: String, val idChild: String,
-                       val startDate: String, val endDate: String) : RepoDataModel(){
+    data class Borrow (val idBook: String,
+                       val idChild: String,
+                       val startDate: String,
+                       val endDate: String) : RepoDataModel(){
         @get:Exclude override val collectionName = "Borrow"
 
         companion object {
@@ -75,8 +83,10 @@ abstract class RepoDataModel : Serializable {
             }
         }
     }
-    data class Kid (val name: String, val address: String, val isMale: Boolean,
-                       val birthDate: String) : RepoDataModel(){
+    data class Kid (val name: String,
+                    val address: String,
+                    val isMale: Boolean,
+                    val birthDate: String) : RepoDataModel(){
         @get:Exclude override val collectionName = "Kid"
 
         companion object {

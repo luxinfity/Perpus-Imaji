@@ -52,12 +52,6 @@ class ContentInspectActivity : BaseNavigationActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_content_inspect)
 
-        viewModel.shouldShowProgressBar.observe(this, Observer {
-            it?.run {
-                progressBar.visibility = if (this) View.VISIBLE else View.GONE
-            }
-        })
-
         setupToolbar()
         contentType?.run {
             setupObserversInfo(this)
@@ -70,9 +64,6 @@ class ContentInspectActivity : BaseNavigationActivity() {
 
     private fun setupToolbar(){
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        viewModel.title.observe(this, Observer {
-            supportActionBar?.title = it
-        })
     }
 
     private fun setupFragmentContent(contentType: ContentType){
@@ -111,7 +102,9 @@ class ContentInspectActivity : BaseNavigationActivity() {
         })
 
         viewModel.loadingProcess.observe(this, Observer {
-
+            it?.run {
+                progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            }
         })
     }
 

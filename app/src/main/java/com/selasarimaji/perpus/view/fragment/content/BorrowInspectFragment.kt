@@ -72,11 +72,10 @@ class BorrowInspectFragment : BaseInspectFragment() {
     }
 
     override fun setupToolbar(){
+        viewModel.title.value = "Peminjaman"
         viewModelInspect.getSelectedItemLiveData().observe(this, Observer {
             (it as RepoDataModel.Borrow?)?.let {
                 viewModel.title.value = it.id.toUpperCase()
-            } ?: also {
-                viewModel.title.value = "Peminjaman"
             }
         })
     }
@@ -110,6 +109,8 @@ class BorrowInspectFragment : BaseInspectFragment() {
                                 it.editText?.inputType = InputType.TYPE_CLASS_TEXT
                             }
                         }
+                        this[2].isEnabled = it?.first == true
+                        this[3].isEnabled = it?.first == true
                     }
         })
         viewModel.loadingProcess.observe(this, Observer {
@@ -118,14 +119,22 @@ class BorrowInspectFragment : BaseInspectFragment() {
                 addButton.isEnabled = !isLoading
 
                 // loading process
-                if (isSuccess){
-                    Toast.makeText(context,
-                            getLoadingTypeText(loadingType),
-                            Toast.LENGTH_SHORT).show()
-                    activity?.let {
-                        it.setResult(Activity.RESULT_OK)
-                        it.finish()
+                when {
+                    isSuccess -> {
+                        Toast.makeText(context,
+                                getLoadingTypeText(loadingType),
+                                Toast.LENGTH_SHORT).show()
+                        activity?.let {
+                            it.setResult(Activity.RESULT_OK)
+                            it.finish()
+                        }
                     }
+                    !isSuccess && !isLoading -> {
+                        Toast.makeText(context,
+                                "Gagal, Jaringan terganggu, silahkan coba lagi",
+                                Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {}
                 }
             }
         })

@@ -47,18 +47,16 @@ class BorrowVM : BaseContentCreationVM<RepoDataModel.Borrow>() {
     fun getPossibleKidName(charSequence: CharSequence){
         if (charSequence.toString() != kidQuery) { // blocking un needed response
             kidQuery = charSequence.toString()
-            repoKidVal.clearLocalData()
-            repoKidVal.loadFromRemote(filterMap = mapOf("name" to kidQuery),
-                    loadingFlag = loadingProcess)
+            if(kidQuery.isNotEmpty())
+                repoKidVal.loadFromRemote(filterMap = mapOf("name" to kidQuery))
         }
     }
 
     fun getPossibleBookName(charSequence: CharSequence){
         if (charSequence.toString() != bookQuery) { // blocking un needed response
             bookQuery = charSequence.toString()
-            repoBookVal.clearLocalData()
-            repoBookVal.loadFromRemote(filterMap = mapOf("name" to bookQuery),
-                    loadingFlag = loadingProcess)
+            if(bookQuery.isNotEmpty())
+                repoBookVal.loadFromRemote(filterMap = mapOf("name" to bookQuery))
         }
     }
 }

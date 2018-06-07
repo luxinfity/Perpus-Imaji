@@ -21,9 +21,8 @@ class BookVM : BaseContentCreationVM<RepoDataModel.Book>() {
     fun getPossibleCategoryInputName(charSequence: CharSequence){
         if (charSequence.toString() != categoryQuery) { // blocking un needed response
             categoryQuery = charSequence.toString()
-            repoCategoryVal.clearLocalData()
-            repoCategoryVal.loadFromRemote(filterMap = mapOf("name" to categoryQuery),
-                    loadingFlag = loadingProcess)
+            if(categoryQuery.isNotEmpty())
+                repoCategoryVal.loadFromRemote(filterMap = mapOf("name" to categoryQuery))
         }
     }
 
@@ -32,6 +31,10 @@ class BookVM : BaseContentCreationVM<RepoDataModel.Book>() {
     }
 
     fun storeImage() {
-        repo.storeImage(pickedImage.value!!.imagePath, documentResultRef.value!!.id, loadingProcess)
+        repo.storeImage(pickedImage.value!!.imagePath, documentResultRef.value!!.id, loadingProcess){
+            if (it){
+                pickedImage.value = RepoImage(pickedImage.value!!.imagePath, true)
+            }
+        }
     }
 }

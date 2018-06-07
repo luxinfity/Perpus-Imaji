@@ -17,7 +17,6 @@ import com.hootsuite.nachos.NachoTextView
 import com.hootsuite.nachos.terminator.ChipTerminatorHandler
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.selasarimaji.perpus.*
-import com.selasarimaji.perpus.model.LoadingType
 import com.selasarimaji.perpus.model.RepoDataModel
 import com.selasarimaji.perpus.model.RepoImage
 import com.selasarimaji.perpus.model.getLoadingTypeText
@@ -61,11 +60,10 @@ class BookInspectFragment : BaseInspectFragment() {
     }
 
     override fun setupToolbar(){
+        viewModel.title.value = "Buku"
         viewModelInspect.getSelectedItemLiveData().observe(this, Observer {
             (it as RepoDataModel.Book?)?.let {
                 viewModel.title.value = it.name.toUpperCase()
-            } ?: also {
-                viewModel.title.value = "Buku"
             }
         })
     }
@@ -74,7 +72,7 @@ class BookInspectFragment : BaseInspectFragment() {
         viewModelInspect.getSelectedItemLiveData().observe(this, Observer {
             (it as RepoDataModel.Book?)?.let {
                 bookNameInputLayout.editText?.setText(it.name)
-                bookAuthorInputLayout.editText?.setText(it.author)
+                bookAuthorInputLayout.editText?.setText(it.authors.toString())
                 yearInputLayout.editText?.setText(it.year.toString())
                 publisherInputLayout.editText?.setText(it.publisher)
                 categoryListChipInput.editText?.setText(it.idCategoryList.toString())
@@ -85,6 +83,7 @@ class BookInspectFragment : BaseInspectFragment() {
 
         viewModelInspect.editOrCreateMode.observe(this, Observer {
             addButton.visibility = if (it?.second != true) View.GONE else View.VISIBLE
+            bookImageButton.isEnabled = it?.second == true
         })
 
         viewModelInspect.editOrCreateMode.observe(this, Observer {
@@ -102,24 +101,38 @@ class BookInspectFragment : BaseInspectFragment() {
                             this.map {
                                 it.editText?.inputType = InputType.TYPE_CLASS_TEXT
                             }
+                            this[2].editText?.inputType = InputType.TYPE_CLASS_NUMBER // year input
                         }
-                        this[2].editText?.inputType = InputType.TYPE_CLASS_NUMBER // year input
                     }
         })
         viewModel.loadingProcess.observe(this, Observer {
             it?.run {
                 // loading bar
                 addButton.isEnabled = !isLoading
+                bookImageButton.isEnabled = !isLoading
 
                 // loading process
-                if (isSuccess){
-                    Toast.makeText(context,
-                            getLoadingTypeText(loadingType),
-                            Toast.LENGTH_SHORT).show()
-                    activity?.let {
-                        it.setResult(Activity.RESULT_OK)
-                        it.finish()
+                val userHasLocalImageToUpload = viewModel.pickedImage.value?.isRemoteSource ?: false
+                when {
+                    isSuccess -> {
+                        if (userHasLocalImageToUpload){
+                            viewModel.storeImage()
+                        } else {
+                            Toast.makeText(context,
+                                    getLoadingTypeText(loadingType),
+                                    Toast.LENGTH_SHORT).show()
+                            activity?.let {
+                                it.setResult(Activity.RESULT_OK)
+                                it.finish()
+                            }
+                        }
                     }
+                    !isSuccess && !isLoading -> {
+                        Toast.makeText(context,
+                                "Gagal, Jaringan terganggu, silahkan coba lagi",
+                                Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {}
                 }
             }
         })
@@ -158,7 +171,13 @@ class BookInspectFragment : BaseInspectFragment() {
         }
 
         val name = bookNameInputLayout.tryToRemoveFromList(editTextList)
-        val author = bookAuthorInputLayout.tryToRemoveFromList(editTextList)
+        val authors = (bookAuthorInputLayout.editText as NachoTextView).chipValues.map {
+            it.toLowerCase()
+        }.also {
+            if (it.isNotEmpty()) {
+                editTextList.remove(bookAuthorInputLayout)
+            }
+        }
         val year = yearInputLayout.tryToRemoveFromList(editTextList)
         val publisher = publisherInputLayout.tryToRemoveFromList(editTextList)
         val category = (categoryListChipInput.editText as NachoTextView).chipValues.map {
@@ -177,7 +196,7 @@ class BookInspectFragment : BaseInspectFragment() {
         }
 
         if(editTextList.isEmpty()){
-            viewModel.storeData(RepoDataModel.Book(name, author, year.toInt(), publisher, category))
+            viewModel.storeData(RepoDataModel.Book(name, authors, year.toInt(), publisher, category))
         }
     }
 

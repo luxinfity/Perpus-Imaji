@@ -14,8 +14,8 @@ class CategoryVM : BaseContentCreationVM<RepoDataModel.Category>() {
     fun getPossibleCategoryInputName(charSequence: CharSequence){
         if (charSequence.toString() != categoryQuery) { // blocking un needed response
             categoryQuery = charSequence.toString()
-            repoCategoryVal.loadFromRemote(filterMap = mapOf("name" to categoryQuery),
-                    loadingFlag = loadingProcess)
+            if(categoryQuery.isNotEmpty())
+                repoCategoryVal.loadFromRemote(filterMap = mapOf("name" to categoryQuery))
         }
     }
 }

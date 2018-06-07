@@ -48,11 +48,10 @@ class CategoryInspectFragment : BaseInspectFragment() {
     }
 
     override fun setupToolbar(){
+        viewModel.title.value = "Kategori"
         viewModelInspect.getSelectedItemLiveData().observe(this, Observer {
             (it as RepoDataModel.Category?)?.let {
                 viewModel.title.value = it.name.toUpperCase()
-            } ?: also {
-                viewModel.title.value = "Kategori"
             }
         })
     }
@@ -97,21 +96,29 @@ class CategoryInspectFragment : BaseInspectFragment() {
         viewModel.loadingProcess.observe(this, Observer {
             it?.run {
                 // loading bar
-                viewModelInspect.shouldShowProgressBar.value = this.isLoading
                 addButton.isEnabled = !isLoading
 
                 // loading process
-                if (isSuccess){
-                    Toast.makeText(context,
-                            getLoadingTypeText(loadingType),
-                            Toast.LENGTH_SHORT).show()
-                    activity?.let {
-                        it.setResult(Activity.RESULT_OK)
-                        it.finish()
+                when {
+                    isSuccess -> {
+                        Toast.makeText(context,
+                                getLoadingTypeText(loadingType),
+                                Toast.LENGTH_SHORT).show()
+                        activity?.let {
+                            it.setResult(Activity.RESULT_OK)
+                            it.finish()
+                        }
                     }
+                    !isSuccess && !isLoading -> {
+                        Toast.makeText(context,
+                                "Gagal, Jaringan terganggu, silahkan coba lagi",
+                                Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {}
                 }
             }
         })
+
         viewModel.repoCategoryVal.fetchedData.observe(this, Observer {
             it?.run {
                 val adapter = ArrayAdapter<String>(context,
@@ -127,7 +134,7 @@ class CategoryInspectFragment : BaseInspectFragment() {
 
     override fun submitValue() {
         val editTextList = arrayListOf<TextInputLayout>(categoryNameInputLayout,
-                categoryDescInputLayout, categoryParentInputLayout).apply {
+                categoryDescInputLayout).apply {
             this.map {
                 it.error = null
                 it.isErrorEnabled = false
@@ -139,11 +146,7 @@ class CategoryInspectFragment : BaseInspectFragment() {
 
         val parent = viewModel.repoCategoryVal.fetchedData.value?.find {
             it.name == parentCategoryText.toLowerCase()
-        }?.id.also {
-            if (!it.isNullOrEmpty()) {
-                editTextList.remove(categoryParentInputLayout)
-            }
-        }
+        }?.id
 
         editTextList.map {
             if (it.error.isNullOrEmpty()) it.error = "Silahkan diisi"

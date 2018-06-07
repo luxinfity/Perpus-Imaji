@@ -30,7 +30,7 @@ abstract class BaseRepo <T:RepoDataModel> {
     }
 
     // region remote data
-    fun getRemoteTotalCount(listener : (Int) -> Unit){
+    fun getRemoteTotalCount(listener : (Int?) -> Unit){
         functions.getHttpsCallable("directCall-getContentCount")
                 .call(mapOf("contentType" to contentName))
                 .continueWith {
@@ -39,12 +39,15 @@ abstract class BaseRepo <T:RepoDataModel> {
                 .addOnCompleteListener {
                     listener(it.result)
                 }
+                .addOnFailureListener {
+                    listener(null)
+                }
     }
     open fun loadFromRemote(startPosition: Int = -1, loadDistance: Int = -1,
                             orderBy: String = "name",
                             filterMap: Map<String, String>? = null,
-                            loadingFlag: MutableLiveData<LoadingProcess>){
-        loadingFlag.value = LoadingProcess(true, false, LoadingType.Read)
+                            loadingFlag: MutableLiveData<LoadingProcess>? = null){
+        loadingFlag?.value = LoadingProcess(true, false, LoadingType.Read)
         if (filterMap != null && filterMap.size > 1){
             functions.getHttpsCallable("directCall-getContentWithCustomFilter")
                     .call(mapOf(
@@ -55,7 +58,7 @@ abstract class BaseRepo <T:RepoDataModel> {
                     .addOnCompleteListener {
                         val test = it.result.data
                         val res = test.toString()
-                        loadingFlag.value = LoadingProcess(false,
+                        loadingFlag?.value = LoadingProcess(false,
                                 it.isSuccessful,
                                 LoadingType.Read)
                     }
@@ -69,7 +72,7 @@ abstract class BaseRepo <T:RepoDataModel> {
                 }
             }.get().addOnCompleteListener {
                 onLoadCallback(it.result)
-                loadingFlag.value = LoadingProcess(false, it.isSuccessful, LoadingType.Read)
+                loadingFlag?.value = LoadingProcess(false, it.isSuccessful, LoadingType.Read)
             }
         }
     }
@@ -130,7 +133,8 @@ abstract class BaseRepo <T:RepoDataModel> {
         val pos = fetchedData.value?.indexOfFirst { it.id == dataModel.id } ?: -1
 
         return (pos > -1).also {
-            val newDataList = fetchedData.value!!.toMutableList().also {
+            if (!it) return false
+            val newDataList = fetchedData.value?.toMutableList()?.also {
                 it[pos] = dataModel
             }
             fetchedData.value = newDataList
@@ -141,13 +145,14 @@ abstract class BaseRepo <T:RepoDataModel> {
     // region remote image
     fun storeImage(filePath: String,
                    docId: String,
-                   loadingFlag: MutableLiveData<LoadingProcess>){
+                   loadingFlag: MutableLiveData<LoadingProcess>, completeListener: (Boolean) -> Unit){
         loadingFlag.value = LoadingProcess(true, false, LoadingType.Create)
 
         val file = Uri.fromFile(File(filePath))
         val remoteFile = storageRef.child("$docId.jpg")
         remoteFile.putFile(file)
                 .addOnCompleteListener {
+                    completeListener(it.isSuccessful)
                     loadingFlag.value = LoadingProcess(false, it.isSuccessful, LoadingType.Create)
                 }
     }

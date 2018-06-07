@@ -24,7 +24,7 @@ class CategoryViewHolder(view: View) : BaseContentViewHolder(view){
 class BookViewHolder(view: View) : BaseContentViewHolder(view){
     fun setupView(item: RepoDataModel.Book) {
         view.bookNameText.text = item.name.capitalizeWords()
-        view.bookDesc.text = item.author.capitalizeWords()
+        view.bookDesc.text = item.authors.map { it.capitalizeWords() }.toString()
     }
 }
 class BorrowViewHolder(view: View) : BaseContentViewHolder(view){

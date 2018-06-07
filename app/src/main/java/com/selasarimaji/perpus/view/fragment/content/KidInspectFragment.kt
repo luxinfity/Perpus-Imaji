@@ -60,11 +60,10 @@ class KidInspectFragment : BaseInspectFragment() {
     }
 
     override fun setupToolbar(){
+        viewModel.title.value = "Anak"
         viewModelInspect.getSelectedItemLiveData().observe(this, Observer {
             (it as RepoDataModel.Kid?)?.let {
                 viewModel.title.value = it.name.toUpperCase()
-            } ?: also {
-                viewModel.title.value = "Anak"
             }
         })
     }
@@ -82,7 +81,9 @@ class KidInspectFragment : BaseInspectFragment() {
         })
 
         viewModelInspect.editOrCreateMode.observe(this, Observer {
+            // it?.second -> can be null
             addButton.visibility = if (it?.second != true) View.GONE else View.VISIBLE
+            kidImageButton.isEnabled = it?.second == true
         })
 
         viewModelInspect.editOrCreateMode.observe(this, Observer {
@@ -100,22 +101,37 @@ class KidInspectFragment : BaseInspectFragment() {
                                 it.editText?.inputType = InputType.TYPE_CLASS_TEXT
                             }
                         }
+                        this[2].isEnabled = it?.first == true
                     }
         })
         viewModel.loadingProcess.observe(this, Observer {
             it?.run {
                 // loading bar
                 addButton.isEnabled = !isLoading
+                kidImageButton.isEnabled = !isLoading
 
                 // loading process
-                if (isSuccess){
-                    Toast.makeText(context,
-                            getLoadingTypeText(loadingType),
-                            Toast.LENGTH_SHORT).show()
-                    activity?.let {
-                        it.setResult(Activity.RESULT_OK)
-                        it.finish()
+                val userHasLocalImageToUpload = viewModel.pickedImage.value?.isRemoteSource ?: false
+                when {
+                    isSuccess -> {
+                        if (userHasLocalImageToUpload){
+                            viewModel.storeImage()
+                        } else {
+                            Toast.makeText(context,
+                                    getLoadingTypeText(loadingType),
+                                    Toast.LENGTH_SHORT).show()
+                            activity?.let {
+                                it.setResult(Activity.RESULT_OK)
+                                it.finish()
+                            }
+                        }
                     }
+                    !isSuccess && !isLoading -> {
+                        Toast.makeText(context,
+                                "Gagal, Jaringan terganggu, silahkan coba lagi",
+                                Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {}
                 }
             }
         })
