@@ -15,19 +15,16 @@ import android.widget.AutoCompleteTextView
 import android.widget.EditText
 import android.widget.Toast
 import com.jakewharton.rxbinding2.widget.RxTextView
-import com.selasarimaji.perpus.R
-import com.selasarimaji.perpus.capitalizeWords
-import com.selasarimaji.perpus.getCurrentDateString
+import com.selasarimaji.perpus.*
 import com.selasarimaji.perpus.model.RepoDataModel
 import com.selasarimaji.perpus.model.getLoadingTypeText
-import com.selasarimaji.perpus.tryToRemoveFromList
 import com.selasarimaji.perpus.viewmodel.BorrowVM
 import kotlinx.android.synthetic.main.layout_content_creation.*
 import kotlinx.android.synthetic.main.content_borrow.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class BorrowInspectFragment : BaseInspectFragment() {
+class BorrowInspectFragment : BaseInspectFragment<RepoDataModel.Borrow>() {
 
     override val viewModel by lazy {
         ViewModelProviders.of(activity!!).get(BorrowVM::class.java)
@@ -121,6 +118,7 @@ class BorrowInspectFragment : BaseInspectFragment() {
                 // loading process
                 when {
                     isSuccess -> {
+                        clearFocus()
                         Toast.makeText(context,
                                 getLoadingTypeText(loadingType),
                                 Toast.LENGTH_SHORT).show()
@@ -162,7 +160,7 @@ class BorrowInspectFragment : BaseInspectFragment() {
         })
     }
 
-    override fun submitValue() {
+    override fun createValue(): RepoDataModel.Borrow? {
         val editTextList = arrayListOf<TextInputLayout>(borrowBookInputLayout,
                 borrowNameInputLayout, borrowStartDateInputLayout,
                 borrowEndDateInputLayout).apply {
@@ -172,29 +170,40 @@ class BorrowInspectFragment : BaseInspectFragment() {
             }
         }
         val bookName = viewModel.repoBookVal.fetchedData.value?.find {
-                it.name == bookText.toLowerCase()
-            }?.id.also {
-                if (!it.isNullOrEmpty()) {
-                    editTextList.remove(borrowBookInputLayout)
-                }
+            it.name == bookText.toLowerCase()
+        }?.id.also {
+            if (!it.isNullOrEmpty()) {
+                editTextList.remove(borrowBookInputLayout)
             }
+        }
 
         val borrower = viewModel.repoKidVal.fetchedData.value?.find {
-                it.name == kidText.toLowerCase()
-            }?.id.also {
-                if (!it.isNullOrEmpty()) {
-                    editTextList.remove(borrowNameInputLayout)
-                }
+            it.name == kidText.toLowerCase()
+        }?.id.also {
+            if (!it.isNullOrEmpty()) {
+                editTextList.remove(borrowNameInputLayout)
             }
+        }
         val startDate = borrowStartDateInputLayout.tryToRemoveFromList(editTextList)
         val endDate = borrowEndDateInputLayout.tryToRemoveFromList(editTextList)
+        if (parseDateString(endDate) < parseDateString(startDate)) {
+            editTextList.add(borrowEndDateInputLayout)
+            borrowEndDateInputLayout.error = "Tanggal kembali harus lebih besar"
+        }
 
         editTextList.map {
             if (it.error.isNullOrEmpty()) it.error = "Silahkan diisi"
         }
 
-        if(editTextList.isEmpty()) {
-            viewModel.storeData(RepoDataModel.Borrow(bookName!!, borrower!!, startDate, endDate))
+        return if(editTextList.isEmpty())
+            RepoDataModel.Borrow(bookName!!, borrower!!, startDate, endDate)
+        else
+            null
+    }
+
+    override fun submitValue() {
+        createValue()?.let {
+            viewModel.storeData(it)
         }
     }
 
@@ -203,12 +212,12 @@ class BorrowInspectFragment : BaseInspectFragment() {
             add(Calendar.DATE, dayAhead)
         }
         val year = c.get(Calendar.YEAR)
-        val month = c.get(Calendar.MONTH)
+        val month = c.get(Calendar.MONTH) + 1
         val day = c.get(Calendar.DAY_OF_MONTH)
         editText.setOnClickListener {
             DatePickerDialog(context,
                     DatePickerDialog.OnDateSetListener { _, year, month, day ->
-                        editText.setText("$month/$day/$year")
+                        editText.setText("${month.addZeroIfBelow10()}/${day.addZeroIfBelow10()}/$year")
                     },
                     year, month, day).show()
         }
@@ -223,6 +232,7 @@ class BorrowInspectFragment : BaseInspectFragment() {
     override fun clearFocus() {
         (context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?)?.
                 hideSoftInputFromWindow(linearContainer.windowToken, 0)
+        viewModelInspect.setSelectedItem(viewModelInspect.getSelectedItemLiveData().value)
     }
 
     override fun tryDeleteCurrentItem() {
@@ -240,6 +250,26 @@ class BorrowInspectFragment : BaseInspectFragment() {
     override fun deleteCurrentItem() {
         viewModelInspect.getSelectedItemLiveData().value?.let {
             viewModel.deleteCurrent(it)
+        }
+    }
+
+    override fun tryUpdateCurrentItem() {
+        AlertDialog.Builder(context).setTitle("Are you sure want to update?")
+                .setPositiveButton("Yes"){ dialog, _ ->
+                    super.tryUpdateCurrentItem()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("No"){ dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
+    }
+
+    override fun updateCurrentItem() {
+        createValue()?.let {
+            viewModel.updateData(it.apply {
+                id = viewModelInspect.getSelectedItemLiveData().value!!.id
+            })
         }
     }
 }

@@ -25,7 +25,7 @@ import kotlinx.android.synthetic.main.content_book.*
 import kotlinx.android.synthetic.main.layout_content_creation.*
 import java.util.concurrent.TimeUnit
 
-class BookInspectFragment : BaseInspectFragment() {
+class BookInspectFragment : BaseInspectFragment<RepoDataModel.Book>() {
 
     override val viewModel by lazy {
         ViewModelProviders.of(activity!!).get(BookVM::class.java)
@@ -77,14 +77,16 @@ class BookInspectFragment : BaseInspectFragment() {
                 publisherInputLayout.editText?.setText(it.publisher)
                 categoryListChipInput.editText?.setText(it.idCategoryList.toString())
 
-                viewModel.documentResultRef.value = it.id
-                viewModel.pickedImage.value = RepoImage(it.id, true)
+                if (it.hasImage) {
+                    viewModel.documentResultRef.value = it.id
+                    viewModel.pickedImage.value = RepoImage(it.id, true)
+                }
             }
         })
 
         viewModelInspect.editOrCreateMode.observe(this, Observer {
             addButton.visibility = if (it?.second != true) View.GONE else View.VISIBLE
-            bookImageButton.isEnabled = it?.second == true
+            bookImageButton.isEnabled = it?.first == true
         })
 
         viewModelInspect.editOrCreateMode.observe(this, Observer {
@@ -126,6 +128,7 @@ class BookInspectFragment : BaseInspectFragment() {
                                 viewModel.loadingProcess)
                     }
                     isSuccess -> {
+                        clearFocus()
                         Toast.makeText(context,
                                 getLoadingTypeText(loadingType),
                                 Toast.LENGTH_SHORT).show()
@@ -167,7 +170,7 @@ class BookInspectFragment : BaseInspectFragment() {
         })
     }
 
-    override fun submitValue() {
+    override fun createValue(): RepoDataModel.Book? {
         val editTextList = arrayListOf<TextInputLayout>(bookNameInputLayout,
                 bookAuthorInputLayout, yearInputLayout,
                 publisherInputLayout, categoryListChipInput).apply {
@@ -197,13 +200,21 @@ class BookInspectFragment : BaseInspectFragment() {
                 editTextList.remove(categoryListChipInput)
             }
         }
+        val hasImage = viewModel.pickedImage.value?.isRemoteSource ?: false
 
         editTextList.map {
             if (it.error.isNullOrEmpty()) it.error = "Silahkan diisi"
         }
 
-        if(editTextList.isEmpty()){
-            viewModel.storeData(RepoDataModel.Book(name, authors, year.toInt(), publisher, category))
+        return if(editTextList.isEmpty())
+            RepoDataModel.Book(name, authors, year.toInt(), publisher, category, hasImage)
+        else
+            null
+    }
+
+    override fun submitValue() {
+        createValue()?.let {
+            viewModel.storeData(it)
         }
     }
 
@@ -216,6 +227,8 @@ class BookInspectFragment : BaseInspectFragment() {
     override fun clearFocus() {
         (context?.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager?)?.
                 hideSoftInputFromWindow(linearContainer.windowToken, 0)
+
+        viewModelInspect.setSelectedItem(viewModelInspect.getSelectedItemLiveData().value)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -228,7 +241,7 @@ class BookInspectFragment : BaseInspectFragment() {
     }
 
     override fun tryDeleteCurrentItem() {
-        AlertDialog.Builder(context).setTitle("Are you sure want to delete")
+        AlertDialog.Builder(context).setTitle("Are you sure want to delete?")
                 .setPositiveButton("Yes"){ dialog, _ ->
                     super.tryDeleteCurrentItem()
                     dialog.dismiss()
@@ -242,6 +255,26 @@ class BookInspectFragment : BaseInspectFragment() {
     override fun deleteCurrentItem() {
         viewModelInspect.getSelectedItemLiveData().value?.let {
             viewModel.deleteCurrent(it)
+        }
+    }
+
+    override fun tryUpdateCurrentItem() {
+        AlertDialog.Builder(context).setTitle("Are you sure want to update?")
+                .setPositiveButton("Yes"){ dialog, _ ->
+                    super.tryUpdateCurrentItem()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("No"){ dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
+    }
+
+    override fun updateCurrentItem() {
+        createValue()?.let {
+            viewModel.updateData(it.apply {
+                id = viewModelInspect.getSelectedItemLiveData().value!!.id
+            })
         }
     }
 }

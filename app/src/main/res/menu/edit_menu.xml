@@ -6,11 +6,15 @@
         app:showAsAction="ifRoom"
         android:title="Edit" />
     <item
-        android:id="@+id/app_bar_save"
-        app:showAsAction="always"
-        android:title="Save" />
-    <item
         android:id="@+id/app_bar_delete"
         app:showAsAction="always"
         android:title="Delete" />
+    <item
+        android:id="@+id/app_bar_cancel"
+        app:showAsAction="always"
+        android:title="Cancel" />
+    <item
+        android:id="@+id/app_bar_save"
+        app:showAsAction="always"
+        android:title="Save" />
 </menu>

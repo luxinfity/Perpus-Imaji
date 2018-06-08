@@ -42,6 +42,9 @@ fun parseDateString(dateString : String) : Calendar{
 fun String.capitalizeWords() =
     split(" ").map { it.capitalize() }.reduce { acc, s -> "$acc $s" }
 
+fun Int.addZeroIfBelow10() =
+       if (this > 9) this.toString() else "0$this"
+
 fun TextInputLayout.tryToRemoveFromList(list: MutableList<TextInputLayout>) =
     this.editText?.text.toString().toLowerCase().also {
         if (it.isNotEmpty()) {

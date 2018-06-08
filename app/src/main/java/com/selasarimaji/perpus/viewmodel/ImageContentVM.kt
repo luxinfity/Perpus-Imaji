@@ -8,8 +8,9 @@ import com.selasarimaji.perpus.model.RepoImage
 import com.selasarimaji.perpus.repository.BaseRepo
 
 interface ImageContentVM<T: RepoDataModel> {
-    // image upload
+
     val pickedImage : MutableLiveData<RepoImage>
+
     fun imagePickActivityResult(image: RepoImage){
         pickedImage.value = image
     }
@@ -26,7 +27,11 @@ interface ImageContentVM<T: RepoDataModel> {
     fun deleteImage(repo: BaseRepo<T>,
                     documentId: String,
                     loadingProcess: MutableLiveData<LoadingProcess>){
-        repo.deleteImage(documentId, loadingProcess)
+        repo.deleteImage(documentId, loadingProcess){
+            if(it){
+                pickedImage.value = RepoImage("", false)
+            }
+        }
     }
 
     // status check helper

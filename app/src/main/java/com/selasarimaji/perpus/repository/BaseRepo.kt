@@ -89,13 +89,15 @@ abstract class BaseRepo <T:RepoDataModel> {
             loadingFlag.value = LoadingProcess(false, it.isSuccessful, LoadingType.Create)
         }
     }
-    fun deleteFromRemote(id: String, loadingFlag: MutableLiveData<LoadingProcess>){
+    fun deleteFromRemote(id: String,
+                         loadingFlag: MutableLiveData<LoadingProcess>){
         loadingFlag.value = LoadingProcess(true, false, LoadingType.Delete)
         db.document(id).delete().addOnCompleteListener {
             loadingFlag.value = LoadingProcess(false, it.isSuccessful, LoadingType.Delete)
         }
     }
-    fun updateRemoteData(dataModel: T, loadingFlag: MutableLiveData<LoadingProcess>){
+    fun updateRemoteData(dataModel: T,
+                         loadingFlag: MutableLiveData<LoadingProcess>){
         loadingFlag.value = LoadingProcess(true, false, LoadingType.Update)
         db.document(dataModel.id).set(dataModel, SetOptions.merge()).addOnCompleteListener {
             loadingFlag.value = LoadingProcess(false, it.isSuccessful, LoadingType.Update)
@@ -159,10 +161,12 @@ abstract class BaseRepo <T:RepoDataModel> {
             }
     }
     fun deleteImage(docId: String,
-                    loadingFlag: MutableLiveData<LoadingProcess>){
+                    loadingFlag: MutableLiveData<LoadingProcess>,
+                    completeListener: (Boolean) -> Unit){
         loadingFlag.value = LoadingProcess(true, false, LoadingType.Delete)
         getImageThumb(docId).delete().addOnCompleteListener {
             getImageFull(docId).delete().addOnCompleteListener {
+                completeListener(it.isSuccessful)
                 loadingFlag.value = LoadingProcess(false, it.isSuccessful, LoadingType.Delete)
             }
         }

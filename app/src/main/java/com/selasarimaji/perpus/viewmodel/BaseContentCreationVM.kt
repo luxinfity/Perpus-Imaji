@@ -13,8 +13,12 @@ abstract class BaseContentCreationVM <T: RepoDataModel> : BaseLoadingVM() {
     var totalRemoteCount = MutableLiveData<Int>()
     var documentResultRef = MutableLiveData<String>()
 
-    open fun storeData(category: T){
-        repo.createRemoteData(category, loadingProcess, documentResultRef)
+    open fun storeData(dataModel: T){
+        repo.createRemoteData(dataModel, loadingProcess, documentResultRef)
+    }
+
+    open fun updateData(dataModel: T){
+        repo.updateRemoteData(dataModel, loadingProcess)
     }
 
     open fun reload(filterMap: Map<String, String>? = null){

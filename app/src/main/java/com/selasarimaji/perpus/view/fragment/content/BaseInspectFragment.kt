@@ -7,11 +7,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.selasarimaji.perpus.R
+import com.selasarimaji.perpus.model.RepoDataModel
 import com.selasarimaji.perpus.viewmodel.BaseLoadingVM
 import com.selasarimaji.perpus.viewmodel.InspectVM
 import kotlinx.android.synthetic.main.layout_content_creation.*
 
-abstract class BaseInspectFragment : Fragment() {
+abstract class BaseInspectFragment<T: RepoDataModel> : Fragment() {
     abstract val viewModel : BaseLoadingVM
 
     protected val viewModelInspect by lazy {
@@ -34,6 +35,7 @@ abstract class BaseInspectFragment : Fragment() {
     }
 
     protected abstract fun setupToolbar()
+    protected abstract fun createValue(): T?
     protected abstract fun submitValue()
     protected abstract fun setupView()
     protected abstract fun setupObserver()
@@ -45,4 +47,9 @@ abstract class BaseInspectFragment : Fragment() {
         deleteCurrentItem()
     }
     abstract fun deleteCurrentItem()
+
+    open fun tryUpdateCurrentItem(){
+        updateCurrentItem()
+    }
+    abstract fun updateCurrentItem()
 }

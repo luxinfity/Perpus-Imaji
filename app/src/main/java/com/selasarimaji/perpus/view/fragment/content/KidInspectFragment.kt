@@ -22,11 +22,10 @@ import java.util.*
 import android.widget.ArrayAdapter
 import com.esafirm.imagepicker.features.ImagePicker
 import com.selasarimaji.perpus.*
-import com.selasarimaji.perpus.model.LoadingType
 import com.selasarimaji.perpus.model.RepoImage
 import com.selasarimaji.perpus.model.getLoadingTypeText
 
-class KidInspectFragment : BaseInspectFragment() {
+class KidInspectFragment : BaseInspectFragment<RepoDataModel.Kid>() {
 
     companion object {
         const val DoBKey = "KidCreationActivity-DoB"
@@ -77,14 +76,17 @@ class KidInspectFragment : BaseInspectFragment() {
                 kidBirthDateInputLayout.editText?.setText(it.birthDate)
                 kidGenderInputLayout.editText?.setText(if (it.isMale) "Cowok" else "Cewek")
 
-                viewModel.pickedImage.value = RepoImage(it.id, true)
+                if (it.hasImage) {
+                    viewModel.documentResultRef.value = it.id
+                    viewModel.pickedImage.value = RepoImage(it.id, true)
+                }
             }
         })
 
         viewModelInspect.editOrCreateMode.observe(this, Observer {
             // it?.second -> can be null
             addButton.visibility = if (it?.second != true) View.GONE else View.VISIBLE
-            kidImageButton.isEnabled = it?.second == true
+            kidImageButton.isEnabled = it?.first == true
         })
 
         viewModelInspect.editOrCreateMode.observe(this, Observer {
@@ -125,6 +127,7 @@ class KidInspectFragment : BaseInspectFragment() {
                                 viewModel.loadingProcess)
                     }
                     isSuccess -> {
+                        clearFocus()
                         Toast.makeText(context,
                                 getLoadingTypeText(loadingType),
                                 Toast.LENGTH_SHORT).show()
@@ -154,7 +157,7 @@ class KidInspectFragment : BaseInspectFragment() {
         })
     }
 
-    override fun submitValue() {
+    override fun createValue(): RepoDataModel.Kid? {
         val editTextList = arrayListOf<TextInputLayout>(kidNameInputLayout, kidAddressInputLayout,
                 kidBirthDateInputLayout).apply {
             this.map {
@@ -167,13 +170,21 @@ class KidInspectFragment : BaseInspectFragment() {
         val address = kidAddressInputLayout.tryToRemoveFromList(editTextList)
         val gender = kidGenderInputLayout.editText?.text.toString() == "Cowok"
         val dateOfBirth = kidBirthDateInputLayout.tryToRemoveFromList(editTextList)
+        val hasImage = viewModel.pickedImage.value?.isRemoteSource ?: false
 
         editTextList.map {
             if (it.error.isNullOrEmpty()) it.error = "Silahkan diisi"
         }
 
-        if(editTextList.isEmpty()) {
-            viewModel.storeData(RepoDataModel.Kid(name, address, gender, dateOfBirth))
+        return if(editTextList.isEmpty())
+            RepoDataModel.Kid(name, address, gender, dateOfBirth, hasImage)
+        else
+            null
+    }
+
+    override fun submitValue() {
+        createValue()?.let {
+            viewModel.storeData(it)
         }
     }
 
@@ -184,12 +195,12 @@ class KidInspectFragment : BaseInspectFragment() {
            c = parseDateString(savedString)
         }
         val year = c.get(Calendar.YEAR)
-        val month = c.get(Calendar.MONTH)
+        val month = c.get(Calendar.MONTH) + 1
         val day = c.get(Calendar.DAY_OF_MONTH)
         editText.setOnClickListener {
             DatePickerDialog(context,
                     DatePickerDialog.OnDateSetListener { _, year, month, day ->
-                        editText.setText("$month/$day/$year")
+                        editText.setText("${month.addZeroIfBelow10()}/${day.addZeroIfBelow10()}/$year")
                     },
                     year, month, day).show()
         }
@@ -213,6 +224,7 @@ class KidInspectFragment : BaseInspectFragment() {
     override fun clearFocus() {
         (context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?)?.
                 hideSoftInputFromWindow(linearContainer.windowToken, 0)
+        viewModelInspect.setSelectedItem(viewModelInspect.getSelectedItemLiveData().value)
     }
 
     override fun tryDeleteCurrentItem() {
@@ -230,6 +242,27 @@ class KidInspectFragment : BaseInspectFragment() {
     override fun deleteCurrentItem() {
         viewModelInspect.getSelectedItemLiveData().value?.let {
             viewModel.deleteCurrent(it)
+        }
+    }
+
+
+    override fun tryUpdateCurrentItem() {
+        AlertDialog.Builder(context).setTitle("Are you sure want to update?")
+                .setPositiveButton("Yes"){ dialog, _ ->
+                    super.tryUpdateCurrentItem()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("No"){ dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
+    }
+
+    override fun updateCurrentItem() {
+        createValue()?.let {
+            viewModel.updateData(it.apply {
+                id = viewModelInspect.getSelectedItemLiveData().value!!.id
+            })
         }
     }
 }

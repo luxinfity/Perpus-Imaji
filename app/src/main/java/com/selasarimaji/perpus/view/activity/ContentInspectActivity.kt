@@ -26,7 +26,7 @@ class ContentInspectActivity : BaseNavigationActivity() {
                 }
     }
 
-    private lateinit var fragmentInfo: BaseInspectFragment
+    private lateinit var fragmentInfo: BaseInspectFragment<RepoDataModel>
 
     val viewModel by lazy {
         ViewModelProviders.of(this).get(InspectVM::class.java)
@@ -72,7 +72,7 @@ class ContentInspectActivity : BaseNavigationActivity() {
             ContentType.Book -> BookInspectFragment()
             ContentType.Kid -> KidInspectFragment()
             ContentType.Borrow -> BorrowInspectFragment()
-        }
+        } as BaseInspectFragment<RepoDataModel>
 
 //        val fragmentDetail = when(contentType){
 //            ContentType.Category -> BookRecyclerFragment()
@@ -121,6 +121,7 @@ class ContentInspectActivity : BaseNavigationActivity() {
         menuInflater.inflate(R.menu.edit_menu, menu)
         viewModel.editOrCreateMode.observe(this, Observer {
             it?.let {
+                menu.findItem(R.id.app_bar_cancel).isVisible = it.first && !it.second
                 menu.findItem(R.id.app_bar_save).isVisible = it.first && !it.second
                 menu.findItem(R.id.app_bar_edit).isVisible = !it.first && !it.second
                 menu.findItem(R.id.app_bar_delete).isVisible = !it.first && !it.second
@@ -135,9 +136,13 @@ class ContentInspectActivity : BaseNavigationActivity() {
                 viewModel.editOrCreateMode.value = Pair(true, false)
                 fragmentInfo.focusFirstText()
             }
-            R.id.app_bar_save-> {
+            R.id.app_bar_cancel-> {
                 viewModel.editOrCreateMode.value = Pair(false, false)
                 fragmentInfo.clearFocus()
+            }
+            R.id.app_bar_save-> {
+                viewModel.editOrCreateMode.value = Pair(false, false)
+                fragmentInfo.tryUpdateCurrentItem()
             }
             R.id.app_bar_delete-> {
                 viewModel.editOrCreateMode.value = Pair(false, false)

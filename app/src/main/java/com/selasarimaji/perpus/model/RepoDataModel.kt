@@ -40,7 +40,8 @@ abstract class RepoDataModel : Serializable {
                      val authors: List<String>,
                      val year: Int,
                      val publisher: String,
-                     val idCategoryList: List<String>) : RepoDataModel(){
+                     val idCategoryList: List<String>,
+                     val hasImage: Boolean) : RepoDataModel(){
         @get:Exclude override val collectionName = "Book"
 
         companion object {
@@ -55,8 +56,8 @@ abstract class RepoDataModel : Serializable {
                     val idCategoryList = it["idCategoryList"]?.let {
                         (it as Iterable<*>).map{ it.toString() }
                     } ?: listOf()
-
-                    return Book(name, author, year, publisher, idCategoryList).apply {
+                    val hasImage = it["hasImage"].toString().toBoolean()
+                    return Book(name, author, year, publisher, idCategoryList, hasImage).apply {
                         id = documentSnapshot.id
                     }
                 }
@@ -86,7 +87,8 @@ abstract class RepoDataModel : Serializable {
     data class Kid (val name: String,
                     val address: String,
                     val isMale: Boolean,
-                    val birthDate: String) : RepoDataModel(){
+                    val birthDate: String,
+                    val hasImage: Boolean) : RepoDataModel(){
         @get:Exclude override val collectionName = "Kid"
 
         companion object {
@@ -96,7 +98,8 @@ abstract class RepoDataModel : Serializable {
                     val address = it["address"].toString()
                     val isMale = it["male"].toString().toBoolean()
                     val birthDate = it["birthDate"].toString()
-                    return Kid(name, address, isMale, birthDate).apply {
+                    val hasImage = it["hasImage"].toString().toBoolean()
+                    return Kid(name, address, isMale, birthDate, hasImage).apply {
                         id = documentSnapshot.id
                     }
                 }

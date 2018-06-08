@@ -23,7 +23,7 @@ import kotlinx.android.synthetic.main.layout_content_creation.*
 import kotlinx.android.synthetic.main.content_category.*
 import java.util.concurrent.TimeUnit
 
-class CategoryInspectFragment : BaseInspectFragment() {
+class CategoryInspectFragment : BaseInspectFragment<RepoDataModel.Category>() {
     override val viewModel by lazy {
         ViewModelProviders.of(activity!!).get(CategoryVM::class.java)
     }
@@ -101,6 +101,7 @@ class CategoryInspectFragment : BaseInspectFragment() {
                 // loading process
                 when {
                     isSuccess -> {
+                        clearFocus()
                         Toast.makeText(context,
                                 getLoadingTypeText(loadingType),
                                 Toast.LENGTH_SHORT).show()
@@ -132,7 +133,7 @@ class CategoryInspectFragment : BaseInspectFragment() {
         })
     }
 
-    override fun submitValue() {
+    override fun createValue(): RepoDataModel.Category? {
         val editTextList = arrayListOf<TextInputLayout>(categoryNameInputLayout,
                 categoryDescInputLayout).apply {
             this.map {
@@ -152,8 +153,15 @@ class CategoryInspectFragment : BaseInspectFragment() {
             if (it.error.isNullOrEmpty()) it.error = "Silahkan diisi"
         }
 
-        if(editTextList.isEmpty()) {
-            viewModel.storeData(RepoDataModel.Category(name, desc, parent))
+        return if(editTextList.isEmpty())
+            RepoDataModel.Category(name, desc, parent)
+        else
+            null
+    }
+
+    override fun submitValue() {
+        createValue()?.let {
+            viewModel.storeData(it)
         }
     }
 
@@ -166,6 +174,7 @@ class CategoryInspectFragment : BaseInspectFragment() {
     override fun clearFocus() {
         (context?.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager?)?.
                 hideSoftInputFromWindow(linearContainer.windowToken, 0)
+        viewModelInspect.setSelectedItem(viewModelInspect.getSelectedItemLiveData().value)
     }
 
     override fun tryDeleteCurrentItem() {
@@ -183,6 +192,27 @@ class CategoryInspectFragment : BaseInspectFragment() {
     override fun deleteCurrentItem() {
         viewModelInspect.getSelectedItemLiveData().value?.let {
             viewModel.deleteCurrent(it)
+        }
+    }
+
+
+    override fun tryUpdateCurrentItem() {
+        AlertDialog.Builder(context).setTitle("Are you sure want to update?")
+                .setPositiveButton("Yes"){ dialog, _ ->
+                    super.tryUpdateCurrentItem()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("No"){ dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
+    }
+
+    override fun updateCurrentItem() {
+        createValue()?.let {
+            viewModel.updateData(it.apply {
+                id = viewModelInspect.getSelectedItemLiveData().value!!.id
+            })
         }
     }
 }
