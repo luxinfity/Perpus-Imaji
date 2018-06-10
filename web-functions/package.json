@@ -1,0 +1,10 @@
+{
+  "name": "selasarimaji",
+  "description": "Selasar Imaji in Firebase",
+  "scripts": {
+    "deploy-func": "firebase deploy --only functions",
+    "deploy-host": "firebase deploy --only hosting"
+  },
+  "private": true,
+  "license": "MIT"
+}
