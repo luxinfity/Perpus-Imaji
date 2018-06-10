@@ -7,6 +7,7 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
+import android.support.design.widget.Snackbar
 import android.support.design.widget.TextInputLayout
 import android.text.InputType
 import android.view.View
@@ -240,9 +241,25 @@ class KidInspectFragment : BaseInspectFragment<RepoDataModel.Kid>() {
     }
 
     override fun deleteCurrentItem() {
-        viewModelInspect.getSelectedItemLiveData().value?.let {
-            viewModel.deleteCurrent(it)
-            viewModelInspect.editOrCreateMode.value = Pair(false, false)
+        viewModelInspect.getSelectedItemLiveData().value?.run{
+            viewModel.canSafelyDeleted(id){
+                when (it) {
+                    true -> {
+                        viewModel.deleteCurrent(this)
+                        viewModelInspect.editOrCreateMode.value = Pair(false, false)
+                    }
+                    null -> Toast.makeText(context,
+                            "Gagal, Jaringan terganggu, silahkan coba lagi",
+                            Toast.LENGTH_SHORT).show()
+                    else -> Snackbar.make(linearContainer,
+                            "Item ini masih digunakan oleh item lain, edit atau hapus item tersebut terlebih dahulu",
+                            Snackbar.LENGTH_INDEFINITE).run {
+                        setAction("OK"){
+                            dismiss()
+                        }
+                    }.show()
+                }
+            }
         }
     }
 

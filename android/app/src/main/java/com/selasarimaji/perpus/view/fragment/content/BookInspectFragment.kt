@@ -6,6 +6,7 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.Intent
+import android.support.design.widget.Snackbar
 import android.support.design.widget.TextInputLayout
 import android.text.InputType
 import android.view.View
@@ -44,6 +45,9 @@ class BookInspectFragment : BaseInspectFragment<RepoDataModel.Book>() {
             it.addChipTerminator(';', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_ALL)
             it.enableEditChipOnTouch(false, false)
         }
+        (categoryListChipInput.editText as NachoTextView).also {
+            it.addChipTerminator(';', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_ALL)
+        }
 
         categoryListChipInput.editText?.let{
             RxTextView.textChanges(it)
@@ -72,10 +76,10 @@ class BookInspectFragment : BaseInspectFragment<RepoDataModel.Book>() {
         viewModelInspect.getSelectedItemLiveData().observe(this, Observer {
             (it as RepoDataModel.Book?)?.let {
                 bookNameInputLayout.editText?.setText(it.name)
-                bookAuthorInputLayout.editText?.setText(it.authors.toString())
+                bookAuthorInputLayout.editText?.setText(it.authors.joinToString(";", postfix = ";"))
                 yearInputLayout.editText?.setText(it.year.toString())
                 publisherInputLayout.editText?.setText(it.publisher)
-                categoryListChipInput.editText?.setText(it.idCategoryList.toString())
+                categoryListChipInput.editText?.setText(it.idCategoryList.joinToString(";", postfix = ";"))
 
                 if (it.hasImage) {
                     viewModel.documentResultRef.value = it.id
@@ -196,8 +200,10 @@ class BookInspectFragment : BaseInspectFragment<RepoDataModel.Book>() {
                     find { it.name == value.toLowerCase() }?.id
                     ?: ""
         }.also {
-            if (it.isNotEmpty()) {
+            if (it.isNotEmpty() && !it.contains("")) {
                 editTextList.remove(categoryListChipInput)
+            } else {
+                categoryListChipInput.error = "Pastikan kategori telah terdaftar"
             }
         }
         val hasImage = viewModel.pickedImage.value?.isRemoteSource ?: false
@@ -253,9 +259,25 @@ class BookInspectFragment : BaseInspectFragment<RepoDataModel.Book>() {
     }
 
     override fun deleteCurrentItem() {
-        viewModelInspect.getSelectedItemLiveData().value?.let {
-            viewModel.deleteCurrent(it)
-            viewModelInspect.editOrCreateMode.value = Pair(false, false)
+        viewModelInspect.getSelectedItemLiveData().value?.run{
+            viewModel.canSafelyDeleted(id){
+                when (it) {
+                    true -> {
+                        viewModel.deleteCurrent(this)
+                        viewModelInspect.editOrCreateMode.value = Pair(false, false)
+                    }
+                    null -> Toast.makeText(context,
+                            "Gagal, Jaringan terganggu, silahkan coba lagi",
+                            Toast.LENGTH_SHORT).show()
+                    else -> Snackbar.make(linearContainer,
+                            "Item ini masih digunakan oleh item lain, edit atau hapus item tersebut terlebih dahulu",
+                            Snackbar.LENGTH_INDEFINITE).run {
+                        setAction("OK"){
+                            dismiss()
+                        }
+                    }.show()
+                }
+            }
         }
     }
 

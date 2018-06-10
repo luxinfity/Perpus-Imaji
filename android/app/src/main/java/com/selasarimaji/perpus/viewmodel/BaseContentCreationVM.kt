@@ -13,6 +13,14 @@ abstract class BaseContentCreationVM <T: RepoDataModel> : BaseLoadingVM() {
     var totalRemoteCount = MutableLiveData<Int>()
     var documentResultRef = MutableLiveData<String>()
 
+    open fun getRealNameOfId(id: String, onResult: (String) -> Unit){
+        if (id.isNotEmpty()) {
+            repo.getRealNameOfId(id) {
+                it?.let(onResult)
+            }
+        }
+    }
+
     open fun storeData(dataModel: T){
         repo.createRemoteData(dataModel, loadingProcess, documentResultRef)
     }
@@ -61,5 +69,9 @@ abstract class BaseContentCreationVM <T: RepoDataModel> : BaseLoadingVM() {
                 repo.deleteFromRemote(item.id, loadingProcess)
             }
         }
+    }
+
+    fun canSafelyDeleted(id: String, result: (Boolean?) -> Unit) {
+        repo.canSafelyDelete(id, loadingProcess){ result(it) }
     }
 }

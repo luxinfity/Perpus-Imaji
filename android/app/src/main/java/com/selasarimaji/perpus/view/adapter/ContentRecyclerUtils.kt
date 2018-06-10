@@ -24,7 +24,7 @@ class CategoryViewHolder(view: View) : BaseContentViewHolder(view){
 class BookViewHolder(view: View) : BaseContentViewHolder(view){
     fun setupView(item: RepoDataModel.Book) {
         view.bookNameText.text = item.name.capitalizeWords()
-        view.bookDesc.text = item.authors.map { it.capitalizeWords() }.toString()
+        view.bookDesc.text = "Penulis : ${ item.authors.joinToString(";") { it.capitalizeWords() } }"
     }
 }
 class BorrowViewHolder(view: View) : BaseContentViewHolder(view){
@@ -83,5 +83,15 @@ class ContentRecyclerAdapter <T: RepoDataModel> (private val contentType: Conten
         items.clear()
         items.addAll(newList)
         notifyDataSetChanged()
+    }
+
+    fun updateData(newData: T){
+        items.indexOfFirst { it.id == newData.id }.let {
+            if (it > -1){
+                items.removeAt(it)
+                items.add(it, newData)
+                notifyItemChanged(it)
+            }
+        }
     }
 }

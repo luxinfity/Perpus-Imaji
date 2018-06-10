@@ -58,6 +58,21 @@ class BorrowRecyclerFragment : BaseRecyclerFragment() {
             }
         })
         viewModel.repo.fetchedData.observe(this, Observer {
+            it?.map {
+                val data = it
+                viewModel.repoBookVal.getRealNameOfId(data.idBook){
+                    val bookName = it ?: ""
+                    viewModel.repoKidVal.getRealNameOfId(data.idChild){
+                        val childName = it ?: ""
+
+                        adapter.updateData(data.copy(idBook = bookName,
+                                idChild = childName).apply {
+                            id = data.id
+                        })
+                    }
+                }
+            }
+
             it?.let {
                 adapter.setupNewData(it)
                 if (it.isNotEmpty()) dismissLoading()

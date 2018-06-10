@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context.INPUT_METHOD_SERVICE
+import android.support.design.widget.Snackbar
 import android.support.design.widget.TextInputLayout
 import android.text.InputType
 import android.view.View
@@ -61,9 +62,6 @@ class CategoryInspectFragment : BaseInspectFragment<RepoDataModel.Category>() {
                 categoryDescInputLayout.editText?.setText(it.description)
                 categoryParentInputLayout.editText?.setText(it.idParent)
                 categoryPathInputLayout.editText?.setText(it.idParent)
-                viewModel.getRealNameOfId(it.idParent){
-                    categoryParentInputLayout.editText?.setText(it)
-                }
             }
         })
 
@@ -191,9 +189,25 @@ class CategoryInspectFragment : BaseInspectFragment<RepoDataModel.Category>() {
     }
 
     override fun deleteCurrentItem() {
-        viewModelInspect.getSelectedItemLiveData().value?.let {
-            viewModel.deleteCurrent(it)
-            viewModelInspect.editOrCreateMode.value = Pair(false, false)
+        viewModelInspect.getSelectedItemLiveData().value?.run{
+            viewModel.canSafelyDeleted(id){
+                when (it) {
+                    true -> {
+                        viewModel.deleteCurrent(this)
+                        viewModelInspect.editOrCreateMode.value = Pair(false, false)
+                    }
+                    null -> Toast.makeText(context,
+                            "Gagal, Jaringan terganggu, silahkan coba lagi",
+                            Toast.LENGTH_SHORT).show()
+                    else -> Snackbar.make(linearContainer,
+                            "Item ini masih digunakan oleh item lain, edit atau hapus item tersebut terlebih dahulu",
+                            Snackbar.LENGTH_INDEFINITE).run {
+                                setAction("OK"){
+                                    dismiss()
+                                }
+                            }.show()
+                }
+            }
         }
     }
 

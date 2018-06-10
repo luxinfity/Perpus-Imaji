@@ -37,10 +37,11 @@ abstract class BaseRepo <T:RepoDataModel> {
                     it.result.data.toString().toInt()
                 }
                 .addOnCompleteListener {
-                    listener(it.result)
-                }
-                .addOnFailureListener {
-                    listener(null)
+                    try {
+                        listener(it.result)
+                    } catch (ex: Exception) {
+                        listener(null)
+                    }
                 }
     }
     open fun loadFromRemote(startPosition: Int = -1,
@@ -113,6 +114,25 @@ abstract class BaseRepo <T:RepoDataModel> {
         }.addOnFailureListener {
             onResult(null)
         }
+    }
+    fun canSafelyDelete(id: String,
+                        loadingFlag: MutableLiveData<LoadingProcess>,
+                        onResult: (Boolean?) -> Unit){
+        loadingFlag.value = LoadingProcess(true, false, LoadingType.Delete)
+        functions.getHttpsCallable("directCall-canItemSafelyDelete")
+                .call(mapOf(
+                        "contentType" to contentName,
+                        "id" to id
+                ))
+                .addOnCompleteListener {
+                    try {
+                        val result = it.result.data.toString().toBoolean()
+                        loadingFlag.value = LoadingProcess(result, false, LoadingType.Delete)
+                        onResult(result)
+                    } catch (ex : Exception){
+                        onResult(null)
+                    }
+                }
     }
     // endregion
 

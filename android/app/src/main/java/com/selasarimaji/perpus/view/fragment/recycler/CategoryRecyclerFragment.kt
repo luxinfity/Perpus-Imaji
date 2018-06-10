@@ -58,6 +58,18 @@ class CategoryRecyclerFragment : BaseRecyclerFragment() {
             }
         })
         viewModel.repo.fetchedData.observe(this, Observer {
+            it?.map {
+                val data = it
+                viewModel.getRealNameOfId(data.id){
+                    val parentName = it
+
+                    adapter.updateData(data.copy(idParent = parentName)
+                            .apply {
+                        id = data.id
+                    })
+                }
+            }
+
             it?.let {
                 adapter.setupNewData(it)
                 if (it.isNotEmpty()) dismissLoading()

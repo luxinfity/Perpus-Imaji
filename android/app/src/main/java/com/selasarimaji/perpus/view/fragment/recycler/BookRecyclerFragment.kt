@@ -58,6 +58,24 @@ class BookRecyclerFragment : BaseRecyclerFragment() {
             }
         })
         viewModel.repo.fetchedData.observe(this, Observer {
+            it?.map {
+                val data = it
+
+                val correctNameList = mutableListOf<String>()
+                for (parentId in data.idCategoryList){
+                    viewModel.repoCategoryVal.getRealNameOfId(parentId){
+                        correctNameList.add(it ?: "")
+
+                        if (correctNameList.size == data.idCategoryList.size){
+                            adapter.updateData(data.copy(idCategoryList = correctNameList)
+                                    .apply {
+                                        id = data.id
+                                    })
+                        }
+                    }
+                }
+            }
+
             it?.let {
                 adapter.setupNewData(it)
                 if (it.isNotEmpty()) dismissLoading()
