@@ -14,6 +14,10 @@ import com.selasarimaji.perpus.ContentType
 import com.selasarimaji.perpus.model.RepoDataModel
 import com.selasarimaji.perpus.view.fragment.content.*
 import com.selasarimaji.perpus.viewmodel.*
+import com.selasarimaji.perpus.viewmodel.content.BookVM
+import com.selasarimaji.perpus.viewmodel.content.BorrowVM
+import com.selasarimaji.perpus.viewmodel.content.CategoryVM
+import com.selasarimaji.perpus.viewmodel.content.KidVM
 import kotlinx.android.synthetic.main.activity_content_inspect.*
 
 class ContentInspectActivity : BaseNavigationActivity() {
@@ -74,6 +78,7 @@ class ContentInspectActivity : BaseNavigationActivity() {
             ContentType.Borrow -> BorrowInspectFragment()
         } as BaseInspectFragment<RepoDataModel>
 
+        // todo detail list view
 //        val fragmentDetail = when(contentType){
 //            ContentType.Category -> BookRecyclerFragment()
 //            ContentType.Book -> KidRecyclerFragment()
@@ -82,6 +87,7 @@ class ContentInspectActivity : BaseNavigationActivity() {
 //        }
 
         supportFragmentManager.beginTransaction().replace(frameContentInfo.id, fragmentInfo).commit()
+        // todo detail list view
 //        fragmentDetail?.run {
 //            supportFragmentManager.beginTransaction().replace(frameContentDetail.id, this).commit()
 //        }
@@ -96,15 +102,13 @@ class ContentInspectActivity : BaseNavigationActivity() {
         }
 
         viewModel.title.observe(this, Observer {
-            it?.run {
-                supportActionBar!!.title = it
+            it?.let {
+                supportActionBar?.title = it
             }
         })
 
-        viewModel.loadingProcess.observe(this, Observer {
-            it?.run {
-                progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-            }
+        viewModel.isLoading.observe(this, Observer {
+            progressBar.visibility = if (it == true) View.VISIBLE else View.GONE
         })
     }
 

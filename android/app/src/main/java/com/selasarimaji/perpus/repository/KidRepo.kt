@@ -15,8 +15,8 @@ class KidRepo : BaseRepo<RepoDataModel.Kid>() {
     override val fetchedData: MutableLiveData<List<RepoDataModel.Kid>>
         get() = liveData
 
-    override fun onLoadCallback(querySnapshot: QuerySnapshot) {
-        querySnapshot.documents.map {
+    override fun onLoadCallback(querySnapshot: QuerySnapshot?) {
+        querySnapshot?.documents?.map {
             createLocalItem(RepoDataModel.Kid.turnDocumentToObject(it))
         }
     }

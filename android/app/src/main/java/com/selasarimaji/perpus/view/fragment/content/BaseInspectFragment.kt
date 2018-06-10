@@ -6,7 +6,9 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.selasarimaji.perpus.R
+import com.selasarimaji.perpus.model.Loading
 import com.selasarimaji.perpus.model.RepoDataModel
 import com.selasarimaji.perpus.viewmodel.BaseLoadingVM
 import com.selasarimaji.perpus.viewmodel.InspectVM
@@ -52,4 +54,18 @@ abstract class BaseInspectFragment<T: RepoDataModel> : Fragment() {
         updateCurrentItem()
     }
     abstract fun updateCurrentItem()
+
+    fun showErrorConnectionToast(){
+        clearFocus()
+        Toast.makeText(context,
+                "Gagal, Jaringan terganggu, silahkan coba lagi",
+                Toast.LENGTH_SHORT).show()
+    }
+
+    fun showLoadingResultToast(loadingType: Loading.Type){
+        clearFocus()
+        Toast.makeText(context,
+                Loading.getLoadingTypeText(loadingType),
+                Toast.LENGTH_SHORT).show()
+    }
 }

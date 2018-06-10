@@ -17,9 +17,8 @@ import com.jakewharton.rxbinding2.widget.RxTextView
 import com.selasarimaji.perpus.R
 import com.selasarimaji.perpus.capitalizeWords
 import com.selasarimaji.perpus.model.RepoDataModel
-import com.selasarimaji.perpus.model.getLoadingTypeText
 import com.selasarimaji.perpus.tryToRemoveFromList
-import com.selasarimaji.perpus.viewmodel.CategoryVM
+import com.selasarimaji.perpus.viewmodel.content.CategoryVM
 import kotlinx.android.synthetic.main.layout_content_creation.*
 import kotlinx.android.synthetic.main.content_category.*
 import java.util.concurrent.TimeUnit
@@ -91,34 +90,17 @@ class CategoryInspectFragment : BaseInspectFragment<RepoDataModel.Category>() {
                         }
                     }
         })
-
-        viewModel.loadingProcess.observe(this, Observer {
-            it?.run {
-                // loading bar
-                addButton.isEnabled = !isLoading
-
-                // loading process
-                when {
-                    isSuccess -> {
-                        clearFocus()
-                        Toast.makeText(context,
-                                getLoadingTypeText(loadingType),
-                                Toast.LENGTH_SHORT).show()
-                        activity?.let {
-                            it.setResult(Activity.RESULT_OK)
-                            it.finish()
-                        }
-                    }
-                    !isSuccess && !isLoading -> {
-                        Toast.makeText(context,
-                                "Gagal, Jaringan terganggu, silahkan coba lagi",
-                                Toast.LENGTH_SHORT).show()
-                    }
-                    else -> {}
+        viewModel.isLoading.observe(this, Observer {
+            addButton.isEnabled = !(it ?: false)
+        })
+        viewModel.shouldFinish.observe(this, Observer {
+            if (it == true){
+                activity?.let {
+                    it.setResult(Activity.RESULT_OK)
+                    it.finish()
                 }
             }
         })
-
         viewModel.repoCategoryVal.fetchedData.observe(this, Observer {
             it?.run {
                 val adapter = ArrayAdapter<String>(context,
@@ -160,7 +142,14 @@ class CategoryInspectFragment : BaseInspectFragment<RepoDataModel.Category>() {
 
     override fun submitValue() {
         createValue()?.let {
-            viewModel.storeData(it)
+            viewModel.storeData(it){
+                if(it.isSuccess) {
+                    showLoadingResultToast(it.loadingType)
+                    viewModel.shouldFinish.value = true
+                } else {
+                    showErrorConnectionToast()
+                }
+            }
         }
     }
 
@@ -191,9 +180,16 @@ class CategoryInspectFragment : BaseInspectFragment<RepoDataModel.Category>() {
     override fun deleteCurrentItem() {
         viewModelInspect.getSelectedItemLiveData().value?.run{
             viewModel.canSafelyDeleted(id){
-                when (it) {
+                when (it.data) {
                     true -> {
-                        viewModel.deleteCurrent(this)
+                        viewModel.deleteCurrent(this){
+                            if (it.isSuccess) {
+                                showLoadingResultToast(it.loadingType)
+                                viewModel.shouldFinish.value = true
+                            } else{
+                                showErrorConnectionToast()
+                            }
+                        }
                         viewModelInspect.editOrCreateMode.value = Pair(false, false)
                     }
                     null -> Toast.makeText(context,
@@ -227,7 +223,14 @@ class CategoryInspectFragment : BaseInspectFragment<RepoDataModel.Category>() {
         createValue()?.let {
             viewModel.updateData(it.apply {
                 id = viewModelInspect.getSelectedItemLiveData().value!!.id
-            })
+            }){
+                if (it.isSuccess) {
+                    showLoadingResultToast(it.loadingType)
+                    viewModel.shouldFinish.value = true
+                } else{
+                    showErrorConnectionToast()
+                }
+            }
             viewModelInspect.editOrCreateMode.value = Pair(false, false)
         }
     }

@@ -15,8 +15,8 @@ class BorrowRepo : BaseRepo<RepoDataModel.Borrow>() {
     override val fetchedData: MutableLiveData<List<RepoDataModel.Borrow>>
         get() = liveData
 
-    override fun onLoadCallback(querySnapshot: QuerySnapshot) {
-        querySnapshot.documents.map {
+    override fun onLoadCallback(querySnapshot: QuerySnapshot?) {
+        querySnapshot?.documents?.map {
             createLocalItem(RepoDataModel.Borrow.turnDocumentToObject(it))
         }
     }

@@ -12,7 +12,7 @@ import com.selasarimaji.perpus.ContentType
 import com.selasarimaji.perpus.model.RepoDataModel
 import com.selasarimaji.perpus.view.activity.ContentInspectActivity
 import com.selasarimaji.perpus.view.adapter.ContentRecyclerAdapter
-import com.selasarimaji.perpus.viewmodel.KidVM
+import com.selasarimaji.perpus.viewmodel.content.KidVM
 import kotlinx.android.synthetic.main.fragment_recycler.*
 
 class KidRecyclerFragment : BaseRecyclerFragment() {
@@ -52,10 +52,8 @@ class KidRecyclerFragment : BaseRecyclerFragment() {
                 }
             }
         })
-        viewModel.loadingProcess.observe(this, Observer {
-            it?.let {
-                ptrLayout.isRefreshing = it.isLoading
-            }
+        viewModel.isLoading.observe(this, Observer {
+            ptrLayout.isRefreshing = it ?: false
         })
         viewModel.repo.fetchedData.observe(this, Observer {
             it?.let {

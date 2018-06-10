@@ -1,10 +1,7 @@
 package com.selasarimaji.perpus.viewmodel
 
 import android.arch.lifecycle.MutableLiveData
-import com.selasarimaji.perpus.model.LoadingProcess
-import com.selasarimaji.perpus.model.LoadingType
-import com.selasarimaji.perpus.model.RepoDataModel
-import com.selasarimaji.perpus.model.RepoImage
+import com.selasarimaji.perpus.model.*
 import com.selasarimaji.perpus.repository.BaseRepo
 
 interface ImageContentVM<T: RepoDataModel> {
@@ -16,34 +13,24 @@ interface ImageContentVM<T: RepoDataModel> {
     }
     fun storeImage(repo: BaseRepo<T>,
                    documentId: String,
-                   loadingProcess: MutableLiveData<LoadingProcess>) {
-        repo.storeImage(pickedImage.value!!.imagePath, documentId, loadingProcess){
-            if (it){
-                pickedImage.value = RepoImage(pickedImage.value!!.imagePath, true)
-            }
-        }
+                   isLoading: MutableLiveData<Boolean>,
+                   onResult: (Loading.Result<Boolean>) -> Unit) {
+        repo.storeImage(pickedImage.value!!.imagePath, documentId, isLoading, onResult)
     }
 
     fun deleteImage(repo: BaseRepo<T>,
                     documentId: String,
-                    loadingProcess: MutableLiveData<LoadingProcess>){
-        repo.deleteImage(documentId, loadingProcess){
-            if(it){
-                pickedImage.value = RepoImage("", false)
-            }
-        }
+                    isLoading: MutableLiveData<Boolean>,
+                    onResult: (Loading.Result<Boolean>) -> Unit){
+        repo.deleteImage(documentId, isLoading, onResult)
     }
 
     // status check helper
     val userImagePathExist
         get() = !pickedImage.value?.imagePath.isNullOrEmpty()
+    val userHasRemoteImage
+        get() = pickedImage.value?.isRemoteSource == true && userImagePathExist
     val userHasLocalImage
         get() = pickedImage.value?.isRemoteSource == false && userImagePathExist
-    val userHasRemoteImage
-        get() = pickedImage.value?.isRemoteSource ?: false && userImagePathExist
 
-    fun isUserWantToDeleteRemoteImage(loadingType: LoadingType)
-            = userHasRemoteImage && loadingType == LoadingType.Delete
-    fun isUserWantToUpdateRemoteImage(loadingType: LoadingType)
-            = userHasRemoteImage && loadingType == LoadingType.Update
 }

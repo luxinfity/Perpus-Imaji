@@ -20,9 +20,9 @@ import com.jakewharton.rxbinding2.widget.RxTextView
 import com.selasarimaji.perpus.*
 import com.selasarimaji.perpus.model.RepoDataModel
 import com.selasarimaji.perpus.model.RepoImage
-import com.selasarimaji.perpus.model.getLoadingTypeText
-import com.selasarimaji.perpus.viewmodel.BookVM
+import com.selasarimaji.perpus.viewmodel.content.BookVM
 import kotlinx.android.synthetic.main.content_book.*
+import kotlinx.android.synthetic.main.fragment_recycler.*
 import kotlinx.android.synthetic.main.layout_content_creation.*
 import java.util.concurrent.TimeUnit
 
@@ -82,7 +82,7 @@ class BookInspectFragment : BaseInspectFragment<RepoDataModel.Book>() {
                 categoryListChipInput.editText?.setText(it.idCategoryList.joinToString(";", postfix = ";"))
 
                 if (it.hasImage) {
-                    viewModel.documentResultRef.value = it.id
+                    viewModel.documentResultRef = it.id
                     viewModel.pickedImage.value = RepoImage(it.id, true)
                 }
             }
@@ -112,41 +112,15 @@ class BookInspectFragment : BaseInspectFragment<RepoDataModel.Book>() {
                         }
                     }
         })
-        viewModel.loadingProcess.observe(this, Observer {
-            it?.run {
-                // loading bar
-                addButton.isEnabled = !isLoading
-                bookImageButton.isEnabled = !isLoading
-
-                // loading process
-                when {
-                    isSuccess && (viewModel.userHasLocalImage
-                            || viewModel.isUserWantToUpdateRemoteImage(loadingType)) -> {
-                        viewModel.storeImage(viewModel.repo,
-                                viewModel.documentResultRef.value!!,
-                                viewModel.loadingProcess)
-                    }
-                    isSuccess && viewModel.isUserWantToDeleteRemoteImage(loadingType) -> {
-                        viewModel.deleteImage(viewModel.repo,
-                                viewModel.documentResultRef.value!!,
-                                viewModel.loadingProcess)
-                    }
-                    isSuccess -> {
-                        clearFocus()
-                        Toast.makeText(context,
-                                getLoadingTypeText(loadingType),
-                                Toast.LENGTH_SHORT).show()
-                        activity?.let {
-                            it.setResult(Activity.RESULT_OK)
-                            it.finish()
-                        }
-                    }
-                    !isSuccess && !isLoading -> {
-                        Toast.makeText(context,
-                                "Gagal, Jaringan terganggu, silahkan coba lagi",
-                                Toast.LENGTH_SHORT).show()
-                    }
-                    else -> {}
+        viewModel.isLoading.observe(this, Observer {
+            addButton.isEnabled = !(it ?: false)
+            bookImageButton.isEnabled = !(it ?: false)
+        })
+        viewModel.shouldFinish.observe(this, Observer {
+            if (it == true){
+                activity?.let {
+                    it.setResult(Activity.RESULT_OK)
+                    it.finish()
                 }
             }
         })
@@ -206,7 +180,7 @@ class BookInspectFragment : BaseInspectFragment<RepoDataModel.Book>() {
                 categoryListChipInput.error = "Pastikan kategori telah terdaftar"
             }
         }
-        val hasImage = viewModel.pickedImage.value?.isRemoteSource ?: false
+        val hasImage = viewModel.pickedImage.value?.isRemoteSource == false
 
         editTextList.map {
             if (it.error.isNullOrEmpty()) it.error = "Silahkan diisi"
@@ -220,7 +194,21 @@ class BookInspectFragment : BaseInspectFragment<RepoDataModel.Book>() {
 
     override fun submitValue() {
         createValue()?.let {
-            viewModel.storeData(it)
+            viewModel.storeData(it){
+                if (it.isSuccess && viewModel.userHasLocalImage && it.data != null){
+                    viewModel.storeImage(viewModel.repo, it.data, viewModel.isLoading){
+                        if (it.isSuccess) {
+                            showLoadingResultToast(it.loadingType)
+                            viewModel.shouldFinish.value = true
+                        }
+                    }
+                } else if(it.isSuccess) {
+                    showLoadingResultToast(it.loadingType)
+                    viewModel.shouldFinish.value = true
+                } else {
+                    showErrorConnectionToast()
+                }
+            }
         }
     }
 
@@ -261,9 +249,25 @@ class BookInspectFragment : BaseInspectFragment<RepoDataModel.Book>() {
     override fun deleteCurrentItem() {
         viewModelInspect.getSelectedItemLiveData().value?.run{
             viewModel.canSafelyDeleted(id){
-                when (it) {
+                when (it.data) {
                     true -> {
-                        viewModel.deleteCurrent(this)
+                        viewModel.deleteCurrent(this){
+                            if (it.isSuccess && viewModel.userHasRemoteImage){
+                                viewModel.deleteImage(viewModel.repo,
+                                        viewModel.documentResultRef!!,
+                                        viewModel.isLoading){
+                                    if (it.isSuccess) {
+                                        showLoadingResultToast(it.loadingType)
+                                        viewModel.shouldFinish.value = true
+                                    }
+                                }
+                            } else if (it.isSuccess) {
+                                showLoadingResultToast(it.loadingType)
+                                viewModel.shouldFinish.value = true
+                            } else{
+                                showErrorConnectionToast()
+                            }
+                        }
                         viewModelInspect.editOrCreateMode.value = Pair(false, false)
                     }
                     null -> Toast.makeText(context,
@@ -297,7 +301,23 @@ class BookInspectFragment : BaseInspectFragment<RepoDataModel.Book>() {
         createValue()?.let {
             viewModel.updateData(it.apply {
                 id = viewModelInspect.getSelectedItemLiveData().value!!.id
-            })
+            }){
+                if (it.isSuccess && viewModel.userHasLocalImage){
+                    viewModel.storeImage(viewModel.repo,
+                            viewModel.documentResultRef!!,
+                            viewModel.isLoading){
+                        if (it.isSuccess) {
+                            showLoadingResultToast(it.loadingType)
+                            viewModel.shouldFinish.value = true
+                        }
+                    }
+                } else if(it.isSuccess) {
+                    showLoadingResultToast(it.loadingType)
+                    viewModel.shouldFinish.value = true
+                } else {
+                    showErrorConnectionToast()
+                }
+            }
             viewModelInspect.editOrCreateMode.value = Pair(false, false)
         }
     }

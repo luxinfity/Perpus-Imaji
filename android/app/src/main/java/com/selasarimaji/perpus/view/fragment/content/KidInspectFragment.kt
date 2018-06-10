@@ -16,7 +16,7 @@ import android.widget.AutoCompleteTextView
 import android.widget.EditText
 import android.widget.Toast
 import com.selasarimaji.perpus.model.RepoDataModel
-import com.selasarimaji.perpus.viewmodel.KidVM
+import com.selasarimaji.perpus.viewmodel.content.KidVM
 import kotlinx.android.synthetic.main.layout_content_creation.*
 import kotlinx.android.synthetic.main.content_kid.*
 import java.util.*
@@ -24,7 +24,6 @@ import android.widget.ArrayAdapter
 import com.esafirm.imagepicker.features.ImagePicker
 import com.selasarimaji.perpus.*
 import com.selasarimaji.perpus.model.RepoImage
-import com.selasarimaji.perpus.model.getLoadingTypeText
 
 class KidInspectFragment : BaseInspectFragment<RepoDataModel.Kid>() {
 
@@ -78,7 +77,7 @@ class KidInspectFragment : BaseInspectFragment<RepoDataModel.Kid>() {
                 kidGenderInputLayout.editText?.setText(if (it.isMale) "Cowok" else "Cewek")
 
                 if (it.hasImage) {
-                    viewModel.documentResultRef.value = it.id
+                    viewModel.documentResultRef = it.id
                     viewModel.pickedImage.value = RepoImage(it.id, true)
                 }
             }
@@ -108,41 +107,15 @@ class KidInspectFragment : BaseInspectFragment<RepoDataModel.Kid>() {
                         this[2].isEnabled = it?.first == true
                     }
         })
-        viewModel.loadingProcess.observe(this, Observer {
-            it?.run {
-                // loading bar
-                addButton.isEnabled = !isLoading
-                kidImageButton.isEnabled = !isLoading
-
-                // loading process
-                when {
-                    isSuccess && (viewModel.userHasLocalImage
-                            || viewModel.isUserWantToUpdateRemoteImage(loadingType)) -> {
-                        viewModel.storeImage(viewModel.repo,
-                                viewModel.documentResultRef.value!!,
-                                viewModel.loadingProcess)
-                    }
-                    isSuccess && viewModel.isUserWantToDeleteRemoteImage(loadingType) -> {
-                        viewModel.deleteImage(viewModel.repo,
-                                viewModel.documentResultRef.value!!,
-                                viewModel.loadingProcess)
-                    }
-                    isSuccess -> {
-                        clearFocus()
-                        Toast.makeText(context,
-                                getLoadingTypeText(loadingType),
-                                Toast.LENGTH_SHORT).show()
-                        activity?.let {
-                            it.setResult(Activity.RESULT_OK)
-                            it.finish()
-                        }
-                    }
-                    !isSuccess && !isLoading -> {
-                        Toast.makeText(context,
-                                "Gagal, Jaringan terganggu, silahkan coba lagi",
-                                Toast.LENGTH_SHORT).show()
-                    }
-                    else -> {}
+        viewModel.isLoading.observe(this, Observer {
+            addButton.isEnabled = !(it ?: false)
+            kidImageButton.isEnabled = !(it ?: false)
+        })
+        viewModel.shouldFinish.observe(this, Observer {
+            if (it == true){
+                activity?.let {
+                    it.setResult(Activity.RESULT_OK)
+                    it.finish()
                 }
             }
         })
@@ -171,7 +144,7 @@ class KidInspectFragment : BaseInspectFragment<RepoDataModel.Kid>() {
         val address = kidAddressInputLayout.tryToRemoveFromList(editTextList)
         val gender = kidGenderInputLayout.editText?.text.toString() == "Cowok"
         val dateOfBirth = kidBirthDateInputLayout.tryToRemoveFromList(editTextList)
-        val hasImage = viewModel.pickedImage.value?.isRemoteSource ?: false
+        val hasImage = viewModel.pickedImage.value?.isRemoteSource == false
 
         editTextList.map {
             if (it.error.isNullOrEmpty()) it.error = "Silahkan diisi"
@@ -185,7 +158,21 @@ class KidInspectFragment : BaseInspectFragment<RepoDataModel.Kid>() {
 
     override fun submitValue() {
         createValue()?.let {
-            viewModel.storeData(it)
+            viewModel.storeData(it){
+                if (it.isSuccess && viewModel.userHasLocalImage && it.data != null){
+                    viewModel.storeImage(viewModel.repo, it.data, viewModel.isLoading){
+                        if (it.isSuccess) {
+                            showLoadingResultToast(it.loadingType)
+                            viewModel.shouldFinish.value = true
+                        }
+                    }
+                } else if(it.isSuccess) {
+                    showLoadingResultToast(it.loadingType)
+                    viewModel.shouldFinish.value = true
+                } else {
+                    showErrorConnectionToast()
+                }
+            }
         }
     }
 
@@ -243,9 +230,25 @@ class KidInspectFragment : BaseInspectFragment<RepoDataModel.Kid>() {
     override fun deleteCurrentItem() {
         viewModelInspect.getSelectedItemLiveData().value?.run{
             viewModel.canSafelyDeleted(id){
-                when (it) {
+                when (it.data) {
                     true -> {
-                        viewModel.deleteCurrent(this)
+                        viewModel.deleteCurrent(this){
+                            if (it.isSuccess && viewModel.userHasRemoteImage){
+                                viewModel.deleteImage(viewModel.repo,
+                                        viewModel.documentResultRef!!,
+                                        viewModel.isLoading){
+                                    if (it.isSuccess) {
+                                        showLoadingResultToast(it.loadingType)
+                                        viewModel.shouldFinish.value = true
+                                    }
+                                }
+                            } else if (it.isSuccess) {
+                                showLoadingResultToast(it.loadingType)
+                                viewModel.shouldFinish.value = true
+                            } else{
+                                showErrorConnectionToast()
+                            }
+                        }
                         viewModelInspect.editOrCreateMode.value = Pair(false, false)
                     }
                     null -> Toast.makeText(context,
@@ -279,7 +282,23 @@ class KidInspectFragment : BaseInspectFragment<RepoDataModel.Kid>() {
         createValue()?.let {
             viewModel.updateData(it.apply {
                 id = viewModelInspect.getSelectedItemLiveData().value!!.id
-            })
+            }){
+                if (it.isSuccess && viewModel.userHasLocalImage){
+                    viewModel.storeImage(viewModel.repo,
+                            viewModel.documentResultRef!!,
+                            viewModel.isLoading){
+                        if (it.isSuccess) {
+                            showLoadingResultToast(it.loadingType)
+                            viewModel.shouldFinish.value = true
+                        }
+                    }
+                } else if(it.isSuccess) {
+                    showLoadingResultToast(it.loadingType)
+                    viewModel.shouldFinish.value = true
+                } else {
+                    showErrorConnectionToast()
+                }
+            }
             viewModelInspect.editOrCreateMode.value = Pair(false, false)
         }
     }

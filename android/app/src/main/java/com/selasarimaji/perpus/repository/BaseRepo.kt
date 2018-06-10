@@ -5,9 +5,7 @@ import android.net.Uri
 import com.google.firebase.firestore.*
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.storage.FirebaseStorage
-import com.selasarimaji.perpus.model.RepoDataModel
-import com.selasarimaji.perpus.model.LoadingProcess
-import com.selasarimaji.perpus.model.LoadingType
+import com.selasarimaji.perpus.model.*
 import java.io.File
 
 abstract class BaseRepo <T:RepoDataModel> {
@@ -44,64 +42,67 @@ abstract class BaseRepo <T:RepoDataModel> {
                     }
                 }
     }
-    open fun loadFromRemote(startPosition: Int = -1,
-                            loadDistance: Int = -1,
-                            orderBy: String = "name",
-                            filterMap: Map<String, String>? = null,
-                            loadingFlag: MutableLiveData<LoadingProcess>? = null){
-        loadingFlag?.value = LoadingProcess(true, false, LoadingType.Read)
-        if (filterMap != null && filterMap.size > 1){
+    open fun loadFromRemote(params: Loading.Param = Loading.Param(),
+                            loadingFlag: MutableLiveData<Boolean>? = null,
+                            onResult: (Loading.Result<QuerySnapshot>) -> Unit ){
+        loadingFlag?.value = true
+        if (params.filterMap != null && params.filterMap.size > 1){
             functions.getHttpsCallable("directCall-getContentWithCustomFilter")
                     .call(mapOf(
                             "contentType" to contentName,
-                            "filter" to filterMap
+                            "filter" to params.filterMap
                     ))
-                    // TODO implement result mapping
                     .addOnCompleteListener {
-                        val test = it.result.data
-                        val res = test.toString()
-                        loadingFlag?.value = LoadingProcess(false,
-                                it.isSuccessful,
-                                LoadingType.Read)
+                        loadingFlag?.value = false
+                        // TODO implement result mapping
+//                        try {
+//                            onResult(LoadingResult(true, LoadingType.Read, it.result.data))
+//                        } catch (ex: Exception){
+//                            onResult(LoadingResult(false, LoadingType.Read))
+//                        }
                     }
         } else {
-            db.orderBy(orderBy).apply {
-                if (startPosition > -1) startAt(startPosition)
-                if (loadDistance > -1) limit(loadDistance.toLong())
+            db.orderBy(params.orderBy).apply {
+                if (params.loadPosition.start > -1) startAt(params.loadPosition.start)
+                if (params.loadPosition.stop > -1) limit(params.loadPosition.stop.toLong())
 
-                filterMap?.map {
+                params.filterMap?.map {
                     this.whereGreaterThanOrEqualTo(it.key, it.value)
                 }
             }.get().addOnCompleteListener {
-                onLoadCallback(it.result)
-                loadingFlag?.value = LoadingProcess(false, it.isSuccessful, LoadingType.Read)
+                loadingFlag?.value = false
+                onResult(Loading.Result(it.isSuccessful, Loading.Type.Read, it.result))
             }
         }
     }
 
-    abstract fun onLoadCallback(querySnapshot: QuerySnapshot)
+    abstract fun onLoadCallback(querySnapshot: QuerySnapshot?)
 
     fun createRemoteData(dataModel: T,
-                         loadingFlag: MutableLiveData<LoadingProcess>,
-                         docRef: MutableLiveData<String>){
-        loadingFlag.value = LoadingProcess(true, false, LoadingType.Create)
+                         loadingFlag: MutableLiveData<Boolean>,
+                         onResult: (Loading.Result<String>) -> Unit){
+        loadingFlag.value = true
         db.add(dataModel).addOnCompleteListener {
-            docRef.value = it.result.id
-            loadingFlag.value = LoadingProcess(false, it.isSuccessful, LoadingType.Create)
+            loadingFlag.value = false
+            onResult(Loading.Result(it.isSuccessful, Loading.Type.Create, it.result.id))
         }
     }
     fun deleteFromRemote(id: String,
-                         loadingFlag: MutableLiveData<LoadingProcess>){
-        loadingFlag.value = LoadingProcess(true, false, LoadingType.Delete)
+                         loadingFlag: MutableLiveData<Boolean>,
+                         onResult: (Loading.Result<Any>) -> Unit){
+        loadingFlag.value = true
         db.document(id).delete().addOnCompleteListener {
-            loadingFlag.value = LoadingProcess(false, it.isSuccessful, LoadingType.Delete)
+            loadingFlag.value = false
+            onResult(Loading.Result(it.isSuccessful, Loading.Type.Delete))
         }
     }
     fun updateRemoteData(dataModel: T,
-                         loadingFlag: MutableLiveData<LoadingProcess>){
-        loadingFlag.value = LoadingProcess(true, false, LoadingType.Update)
+                         loadingFlag: MutableLiveData<Boolean>,
+                         onResult: (Loading.Result<Any>) -> Unit){
+        loadingFlag.value = true
         db.document(dataModel.id).set(dataModel, SetOptions.merge()).addOnCompleteListener {
-            loadingFlag.value = LoadingProcess(false, it.isSuccessful, LoadingType.Update)
+            loadingFlag.value = false
+            onResult(Loading.Result(it.isSuccessful, Loading.Type.Update))
         }
     }
     fun getRealNameOfId(id: String, onResult: (String?) -> Unit){
@@ -116,21 +117,21 @@ abstract class BaseRepo <T:RepoDataModel> {
         }
     }
     fun canSafelyDelete(id: String,
-                        loadingFlag: MutableLiveData<LoadingProcess>,
-                        onResult: (Boolean?) -> Unit){
-        loadingFlag.value = LoadingProcess(true, false, LoadingType.Delete)
+                        loadingFlag: MutableLiveData<Boolean>,
+                        onResult: (Loading.Result<Boolean>) -> Unit){
+        loadingFlag.value = true
         functions.getHttpsCallable("directCall-canItemSafelyDelete")
                 .call(mapOf(
                         "contentType" to contentName,
                         "id" to id
                 ))
                 .addOnCompleteListener {
+                    loadingFlag.value = false
                     try {
                         val result = it.result.data.toString().toBoolean()
-                        loadingFlag.value = LoadingProcess(result, false, LoadingType.Delete)
-                        onResult(result)
+                        onResult(Loading.Result(it.isSuccessful, Loading.Type.Delete, result))
                     } catch (ex : Exception){
-                        onResult(null)
+                        onResult(Loading.Result(false, Loading.Type.Delete))
                     }
                 }
     }
@@ -179,26 +180,27 @@ abstract class BaseRepo <T:RepoDataModel> {
     // region remote image
     fun storeImage(filePath: String,
                    docId: String,
-                   loadingFlag: MutableLiveData<LoadingProcess>,
-                   completeListener: (Boolean) -> Unit){
-        loadingFlag.value = LoadingProcess(true, false, LoadingType.Create)
+                   loadingFlag: MutableLiveData<Boolean>,
+                   onResult: (Loading.Result<Boolean>) -> Unit){
+
+        loadingFlag.value = true
 
         val file = Uri.fromFile(File(filePath))
         val remoteFile = storageRef.child("$docId.jpg")
         remoteFile.putFile(file)
             .addOnCompleteListener {
-                completeListener(it.isSuccessful)
-                loadingFlag.value = LoadingProcess(false, it.isSuccessful, LoadingType.Create)
+                loadingFlag.value = false
+                onResult(Loading.Result(it.isSuccessful, Loading.Type.Create))
             }
     }
     fun deleteImage(docId: String,
-                    loadingFlag: MutableLiveData<LoadingProcess>,
-                    completeListener: (Boolean) -> Unit){
-        loadingFlag.value = LoadingProcess(true, false, LoadingType.Delete)
+                    loadingFlag: MutableLiveData<Boolean>,
+                    onResult: (Loading.Result<Boolean>) -> Unit){
+        loadingFlag.value = true
         getImageThumb(docId).delete().addOnCompleteListener {
             getImageFull(docId).delete().addOnCompleteListener {
-                completeListener(it.isSuccessful)
-                loadingFlag.value = LoadingProcess(false, it.isSuccessful, LoadingType.Delete)
+                loadingFlag.value = false
+                onResult(Loading.Result(it.isSuccessful, Loading.Type.Delete))
             }
         }
     }

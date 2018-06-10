@@ -1,17 +1,17 @@
 package com.selasarimaji.perpus.viewmodel
 
+import com.selasarimaji.perpus.model.Loading
 import android.arch.lifecycle.MutableLiveData
-import com.google.firebase.firestore.DocumentReference
 import com.selasarimaji.perpus.model.RepoDataModel
 import com.selasarimaji.perpus.repository.BaseRepo
 
 abstract class BaseContentCreationVM <T: RepoDataModel> : BaseLoadingVM() {
     abstract val repo: BaseRepo<T>
     open val loadDistance = 10
+    var documentResultRef: String? = null
 
     var title = MutableLiveData<String>()
     var totalRemoteCount = MutableLiveData<Int>()
-    var documentResultRef = MutableLiveData<String>()
 
     open fun getRealNameOfId(id: String, onResult: (String) -> Unit){
         if (id.isNotEmpty()) {
@@ -21,12 +21,12 @@ abstract class BaseContentCreationVM <T: RepoDataModel> : BaseLoadingVM() {
         }
     }
 
-    open fun storeData(dataModel: T){
-        repo.createRemoteData(dataModel, loadingProcess, documentResultRef)
+    open fun storeData(dataModel: T, onResult: (Loading.Result<String>) -> Unit){
+        repo.createRemoteData(dataModel, isLoading, onResult)
     }
 
-    open fun updateData(dataModel: T){
-        repo.updateRemoteData(dataModel, loadingProcess)
+    open fun updateData(dataModel: T, onResult: (Loading.Result<Any>) -> Unit){
+        repo.updateRemoteData(dataModel, isLoading, onResult)
     }
 
     open fun reload(filterMap: Map<String, String>? = null){
@@ -42,36 +42,42 @@ abstract class BaseContentCreationVM <T: RepoDataModel> : BaseLoadingVM() {
 
     open fun loadInitial(filterMap: Map<String, String>? = null){
         getTotalRemoteCount()
-        loadingProcess.value.let {
-            if (it?.isLoading != true){
-                repo.loadFromRemote(0,
-                        loadDistance,
-                        filterMap = filterMap,
-                        loadingFlag = loadingProcess)
+        isLoading.value.let {
+            if (it != true){
+                repo.loadFromRemote(Loading.Param(
+                        Loading.Param.Position(0, loadDistance), filterMap = filterMap),
+                        isLoading){
+                    repo.onLoadCallback(it.data)
+                }
             }
         }
     }
 
     open fun loadMore(filterMap: Map<String, String>? = null){
-        loadingProcess.value.let {
-            if (it?.isLoading != true){
-                repo.loadFromRemote(repo.fetchedData.value!!.size,
-                        loadDistance,
-                        filterMap = filterMap,
-                        loadingFlag = loadingProcess)
+        isLoading.value.let {
+            if (it != true){
+                repo.loadFromRemote(Loading.Param(
+                        Loading.Param.Position(repo.fetchedData.value!!.size, loadDistance), filterMap = filterMap),
+                        isLoading){
+                    repo.onLoadCallback(it.data)
+                }
             }
         }
     }
 
-    fun deleteCurrent(item: RepoDataModel){
-        loadingProcess.value.let {
-            if (it?.isLoading != true) {
-                repo.deleteFromRemote(item.id, loadingProcess)
+    fun deleteCurrent(item: RepoDataModel, onResult: (Loading.Result<Any>) -> Unit){
+        isLoading.value.let {
+            if (it != true){
+                repo.deleteFromRemote(item.id, isLoading, onResult)
             }
         }
     }
 
-    fun canSafelyDeleted(id: String, result: (Boolean?) -> Unit) {
-        repo.canSafelyDelete(id, loadingProcess){ result(it) }
+    fun canSafelyDeleted(id: String, result: (Loading.Result<Boolean>) -> Unit) {
+        isLoading.value.let {
+            if (it != true){
+                repo.canSafelyDelete(id, isLoading, result)
+            }
+        }
     }
 }

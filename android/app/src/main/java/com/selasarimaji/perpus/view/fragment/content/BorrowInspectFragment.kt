@@ -13,12 +13,10 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.EditText
-import android.widget.Toast
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.selasarimaji.perpus.*
 import com.selasarimaji.perpus.model.RepoDataModel
-import com.selasarimaji.perpus.model.getLoadingTypeText
-import com.selasarimaji.perpus.viewmodel.BorrowVM
+import com.selasarimaji.perpus.viewmodel.content.BorrowVM
 import kotlinx.android.synthetic.main.layout_content_creation.*
 import kotlinx.android.synthetic.main.content_borrow.*
 import java.util.*
@@ -110,29 +108,14 @@ class BorrowInspectFragment : BaseInspectFragment<RepoDataModel.Borrow>() {
                         this[3].isEnabled = it?.first == true
                     }
         })
-        viewModel.loadingProcess.observe(this, Observer {
-            it?.run {
-                // loading bar
-                addButton.isEnabled = !isLoading
-
-                // loading process
-                when {
-                    isSuccess -> {
-                        clearFocus()
-                        Toast.makeText(context,
-                                getLoadingTypeText(loadingType),
-                                Toast.LENGTH_SHORT).show()
-                        activity?.let {
-                            it.setResult(Activity.RESULT_OK)
-                            it.finish()
-                        }
-                    }
-                    !isSuccess && !isLoading -> {
-                        Toast.makeText(context,
-                                "Gagal, Jaringan terganggu, silahkan coba lagi",
-                                Toast.LENGTH_SHORT).show()
-                    }
-                    else -> {}
+        viewModel.isLoading.observe(this, Observer {
+            addButton.isEnabled = !(it ?: false)
+        })
+        viewModel.shouldFinish.observe(this, Observer {
+            if (it == true){
+                activity?.let {
+                    it.setResult(Activity.RESULT_OK)
+                    it.finish()
                 }
             }
         })
@@ -203,7 +186,14 @@ class BorrowInspectFragment : BaseInspectFragment<RepoDataModel.Borrow>() {
 
     override fun submitValue() {
         createValue()?.let {
-            viewModel.storeData(it)
+            viewModel.storeData(it){
+                if(it.isSuccess) {
+                    showLoadingResultToast(it.loadingType)
+                    viewModel.shouldFinish.value = true
+                } else {
+                    showErrorConnectionToast()
+                }
+            }
         }
     }
 
@@ -249,7 +239,14 @@ class BorrowInspectFragment : BaseInspectFragment<RepoDataModel.Borrow>() {
 
     override fun deleteCurrentItem() {
         viewModelInspect.getSelectedItemLiveData().value?.let {
-            viewModel.deleteCurrent(it)
+            viewModel.deleteCurrent(it){
+                if (it.isSuccess) {
+                    showLoadingResultToast(it.loadingType)
+                    viewModel.shouldFinish.value = true
+                } else{
+                    showErrorConnectionToast()
+                }
+            }
             viewModelInspect.editOrCreateMode.value = Pair(false, false)
         }
     }
@@ -270,7 +267,14 @@ class BorrowInspectFragment : BaseInspectFragment<RepoDataModel.Borrow>() {
         createValue()?.let {
             viewModel.updateData(it.apply {
                 id = viewModelInspect.getSelectedItemLiveData().value!!.id
-            })
+            }){
+                if (it.isSuccess) {
+                    showLoadingResultToast(it.loadingType)
+                    viewModel.shouldFinish.value = true
+                } else{
+                    showErrorConnectionToast()
+                }
+            }
             viewModelInspect.editOrCreateMode.value = Pair(false, false)
         }
     }

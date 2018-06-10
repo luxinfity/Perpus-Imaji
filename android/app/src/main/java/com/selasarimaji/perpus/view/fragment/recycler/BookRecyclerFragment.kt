@@ -12,7 +12,7 @@ import com.selasarimaji.perpus.ContentType
 import com.selasarimaji.perpus.model.RepoDataModel
 import com.selasarimaji.perpus.view.activity.ContentInspectActivity
 import com.selasarimaji.perpus.view.adapter.ContentRecyclerAdapter
-import com.selasarimaji.perpus.viewmodel.BookVM
+import com.selasarimaji.perpus.viewmodel.content.BookVM
 import kotlinx.android.synthetic.main.fragment_recycler.*
 
 class BookRecyclerFragment : BaseRecyclerFragment() {
@@ -52,10 +52,8 @@ class BookRecyclerFragment : BaseRecyclerFragment() {
                 }
             }
         })
-        viewModel.loadingProcess.observe(this, Observer {
-            it?.let {
-                ptrLayout.isRefreshing = it.isLoading
-            }
+        viewModel.isLoading.observe(this, Observer {
+            ptrLayout.isRefreshing = it ?: false
         })
         viewModel.repo.fetchedData.observe(this, Observer {
             it?.map {
@@ -85,17 +83,12 @@ class BookRecyclerFragment : BaseRecyclerFragment() {
         viewModelInspect.editOrCreateMode.observe(this, Observer {
             fabButton.visibility = if (it?.first != true) View.VISIBLE else View.GONE
         })
-
-        viewModelInspect.getSelectedItemLiveData().value.let {
-            viewModel.loadInitial()
-        }
+        viewModel.loadInitial()
     }
 
     override fun refresh(){
         super.refresh()
-        viewModelInspect.getSelectedItemLiveData().value.let {
-            viewModel.reload()
-        }
+        viewModel.reload()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

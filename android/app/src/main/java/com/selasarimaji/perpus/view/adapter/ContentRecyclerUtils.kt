@@ -30,13 +30,13 @@ class BookViewHolder(view: View) : BaseContentViewHolder(view){
 class BorrowViewHolder(view: View) : BaseContentViewHolder(view){
     fun setupView(item: RepoDataModel.Borrow) {
         view.borrowIdText.text = item.id.toUpperCase()
-        view.borrowDescText.text = "Anak : ${item.idChild} \nBuku : ${item.idBook}"
+        view.borrowDescText.text = "Anak : ${item.idChild.capitalizeWords()} \nBuku : ${item.idBook.capitalizeWords()}"
     }
 }
 class KidViewHolder(view: View) : BaseContentViewHolder(view){
     fun setupView(item:RepoDataModel.Kid) {
         view.kidNameText.text = item.name.capitalizeWords()
-        view.kidDesc.text = "DoB: ${item.birthDate} Blok: ${item.address} " +
+        view.kidDesc.text = "DoB: ${item.birthDate} Blok: ${item.address.capitalizeWords()} " +
                 "Gender: ${if(item.isMale) "Cowok" else "Cewek"}"
     }
 }

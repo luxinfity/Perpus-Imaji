@@ -15,8 +15,8 @@ class CategoryRepo : BaseRepo<RepoDataModel.Category>() {
     override val fetchedData: MutableLiveData<List<RepoDataModel.Category>>
         get() = liveData
 
-    override fun onLoadCallback(querySnapshot: QuerySnapshot) {
-        querySnapshot.documents.map {
+    override fun onLoadCallback(querySnapshot: QuerySnapshot?) {
+        querySnapshot?.documents?.map {
             createLocalItem(RepoDataModel.Category.turnDocumentToObject(it))
         }
     }

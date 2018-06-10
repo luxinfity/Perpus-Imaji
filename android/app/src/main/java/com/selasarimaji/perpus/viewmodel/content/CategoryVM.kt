@@ -1,8 +1,9 @@
-package com.selasarimaji.perpus.viewmodel
+package com.selasarimaji.perpus.viewmodel.content
 
+import com.selasarimaji.perpus.model.Loading
 import com.selasarimaji.perpus.model.RepoDataModel
-import com.selasarimaji.perpus.repository.BookRepo
 import com.selasarimaji.perpus.repository.CategoryRepo
+import com.selasarimaji.perpus.viewmodel.BaseContentCreationVM
 
 class CategoryVM : BaseContentCreationVM<RepoDataModel.Category>() {
     override val repo = CategoryRepo()
@@ -11,15 +12,14 @@ class CategoryVM : BaseContentCreationVM<RepoDataModel.Category>() {
     val repoCategoryVal by lazy {
         CategoryRepo()
     }
-    private val bookRepo by lazy {
-        BookRepo()
-    }
 
     fun getPossibleCategoryInputName(charSequence: CharSequence){
         if (charSequence.toString() != categoryQuery) { // blocking un needed response
             categoryQuery = charSequence.toString()
             if(categoryQuery.isNotEmpty())
-                repoCategoryVal.loadFromRemote(filterMap = mapOf("name" to categoryQuery))
+                repoCategoryVal.loadFromRemote(Loading.Param(filterMap = mapOf("name" to categoryQuery))){
+                    repoCategoryVal.onLoadCallback(it.data)
+                }
         }
     }
 }

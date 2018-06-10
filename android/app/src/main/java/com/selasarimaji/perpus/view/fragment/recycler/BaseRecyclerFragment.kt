@@ -3,11 +3,15 @@ package com.selasarimaji.perpus.view.fragment.recycler
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.SearchView
 import android.view.*
+import android.widget.Toast
+import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
 import com.selasarimaji.perpus.R
 import com.selasarimaji.perpus.viewmodel.InspectVM
 import kotlinx.android.synthetic.main.fragment_recycler.*
 import kotlinx.android.synthetic.main.fragment_recycler.view.*
+import java.util.concurrent.TimeUnit
 
 abstract class BaseRecyclerFragment : Fragment() {
     companion object {
@@ -39,6 +43,13 @@ abstract class BaseRecyclerFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.content_menu, menu)
+
+        RxSearchView.queryTextChanges(menu.findItem(R.id.app_bar_search).actionView as SearchView)
+                .skip(1)
+                .debounce(300, TimeUnit.MILLISECONDS)
+                .subscribe {
+                    print(it.toString())
+                }
         super.onCreateOptionsMenu(menu, inflater)
     }
 

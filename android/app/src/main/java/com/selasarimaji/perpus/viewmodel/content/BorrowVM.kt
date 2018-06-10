@@ -1,9 +1,11 @@
-package com.selasarimaji.perpus.viewmodel
+package com.selasarimaji.perpus.viewmodel.content
 
+import com.selasarimaji.perpus.model.Loading
 import com.selasarimaji.perpus.model.RepoDataModel
 import com.selasarimaji.perpus.repository.BookRepo
 import com.selasarimaji.perpus.repository.BorrowRepo
 import com.selasarimaji.perpus.repository.KidRepo
+import com.selasarimaji.perpus.viewmodel.BaseContentCreationVM
 
 class BorrowVM : BaseContentCreationVM<RepoDataModel.Borrow>() {
     override val repo = BorrowRepo()
@@ -21,25 +23,27 @@ class BorrowVM : BaseContentCreationVM<RepoDataModel.Borrow>() {
 
     override fun loadInitial(filterMap: Map<String, String>?){
         getTotalRemoteCount()
-        loadingProcess.value.let {
-            if (it?.isLoading != true){
-                repo.loadFromRemote(0,
-                        loadDistance,
+        isLoading.value.let {
+            if (it != true){
+                repo.loadFromRemote(Loading.Param(
+                        Loading.Param.Position(0, loadDistance),
                         orderBy = "startDate",
-                        filterMap = filterMap,
-                        loadingFlag = loadingProcess)
+                        filterMap = filterMap), isLoading){
+                    repo.onLoadCallback(it.data)
+                }
             }
         }
     }
 
     override fun loadMore(filterMap: Map<String, String>?) {
-        loadingProcess.value?.let {
-            if (!it.isLoading){
-                repo.loadFromRemote(repo.fetchedData.value!!.size,
-                        loadDistance,
+        isLoading.value.let {
+            if (it != true){
+                repo.loadFromRemote(Loading.Param(
+                        Loading.Param.Position(repo.fetchedData.value!!.size, loadDistance),
                         orderBy = "startDate",
-                        filterMap = filterMap,
-                        loadingFlag = loadingProcess)
+                        filterMap = filterMap), isLoading){
+                    repo.onLoadCallback(it.data)
+                }
             }
         }
     }
@@ -48,7 +52,9 @@ class BorrowVM : BaseContentCreationVM<RepoDataModel.Borrow>() {
         if (charSequence.toString() != kidQuery) { // blocking un needed response
             kidQuery = charSequence.toString()
             if(kidQuery.isNotEmpty())
-                repoKidVal.loadFromRemote(filterMap = mapOf("name" to kidQuery))
+                repoKidVal.loadFromRemote(Loading.Param(filterMap = mapOf("name" to kidQuery))){
+                    repoKidVal.onLoadCallback(it.data)
+                }
         }
     }
 
@@ -56,7 +62,9 @@ class BorrowVM : BaseContentCreationVM<RepoDataModel.Borrow>() {
         if (charSequence.toString() != bookQuery) { // blocking un needed response
             bookQuery = charSequence.toString()
             if(bookQuery.isNotEmpty())
-                repoBookVal.loadFromRemote(filterMap = mapOf("name" to bookQuery))
+                repoBookVal.loadFromRemote(Loading.Param(filterMap = mapOf("name" to bookQuery))){
+                    repoBookVal.onLoadCallback(it.data)
+                }
         }
     }
 }
