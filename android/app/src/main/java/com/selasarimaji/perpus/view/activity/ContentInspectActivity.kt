@@ -141,11 +141,9 @@ class ContentInspectActivity : BaseNavigationActivity() {
                 fragmentInfo.clearFocus()
             }
             R.id.app_bar_save-> {
-                viewModel.editOrCreateMode.value = Pair(false, false)
                 fragmentInfo.tryUpdateCurrentItem()
             }
             R.id.app_bar_delete-> {
-                viewModel.editOrCreateMode.value = Pair(false, false)
                 fragmentInfo.tryDeleteCurrentItem()
             }
         }

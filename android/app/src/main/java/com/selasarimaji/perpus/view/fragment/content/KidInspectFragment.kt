@@ -242,9 +242,9 @@ class KidInspectFragment : BaseInspectFragment<RepoDataModel.Kid>() {
     override fun deleteCurrentItem() {
         viewModelInspect.getSelectedItemLiveData().value?.let {
             viewModel.deleteCurrent(it)
+            viewModelInspect.editOrCreateMode.value = Pair(false, false)
         }
     }
-
 
     override fun tryUpdateCurrentItem() {
         AlertDialog.Builder(context).setTitle("Are you sure want to update?")
@@ -263,6 +263,7 @@ class KidInspectFragment : BaseInspectFragment<RepoDataModel.Kid>() {
             viewModel.updateData(it.apply {
                 id = viewModelInspect.getSelectedItemLiveData().value!!.id
             })
+            viewModelInspect.editOrCreateMode.value = Pair(false, false)
         }
     }
 }

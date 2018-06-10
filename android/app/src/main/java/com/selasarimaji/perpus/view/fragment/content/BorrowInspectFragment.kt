@@ -250,6 +250,7 @@ class BorrowInspectFragment : BaseInspectFragment<RepoDataModel.Borrow>() {
     override fun deleteCurrentItem() {
         viewModelInspect.getSelectedItemLiveData().value?.let {
             viewModel.deleteCurrent(it)
+            viewModelInspect.editOrCreateMode.value = Pair(false, false)
         }
     }
 
@@ -270,6 +271,7 @@ class BorrowInspectFragment : BaseInspectFragment<RepoDataModel.Borrow>() {
             viewModel.updateData(it.apply {
                 id = viewModelInspect.getSelectedItemLiveData().value!!.id
             })
+            viewModelInspect.editOrCreateMode.value = Pair(false, false)
         }
     }
 }

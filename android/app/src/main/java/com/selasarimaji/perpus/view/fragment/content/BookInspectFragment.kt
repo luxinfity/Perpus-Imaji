@@ -255,6 +255,7 @@ class BookInspectFragment : BaseInspectFragment<RepoDataModel.Book>() {
     override fun deleteCurrentItem() {
         viewModelInspect.getSelectedItemLiveData().value?.let {
             viewModel.deleteCurrent(it)
+            viewModelInspect.editOrCreateMode.value = Pair(false, false)
         }
     }
 
@@ -275,6 +276,7 @@ class BookInspectFragment : BaseInspectFragment<RepoDataModel.Book>() {
             viewModel.updateData(it.apply {
                 id = viewModelInspect.getSelectedItemLiveData().value!!.id
             })
+            viewModelInspect.editOrCreateMode.value = Pair(false, false)
         }
     }
 }
