@@ -12,8 +12,10 @@ abstract class RepoDataModel : Serializable {
 
     // region data tracker
     // don't remove, will be used in serializing
+    @Suppress("unused")
     val editor : String
         get() = FirebaseAuth.getInstance().currentUser?.email ?: ""
+    @Suppress("unused")
     val lastEdit : Long
         get() = Calendar.getInstance().time.time
     // endregion
