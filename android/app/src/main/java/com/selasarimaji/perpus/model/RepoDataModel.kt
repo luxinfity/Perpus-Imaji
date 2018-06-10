@@ -20,7 +20,7 @@ abstract class RepoDataModel : Serializable {
 
     data class Category (val name: String,
                          val description: String,
-                         val idParent: String? = "") : RepoDataModel() {
+                         val idParent: String = "") : RepoDataModel() {
         @get:Exclude override val collectionName = "Category"
 
         companion object {
@@ -28,7 +28,7 @@ abstract class RepoDataModel : Serializable {
                 documentSnapshot.let {
                     val name = it["name"].toString()
                     val description = it["description"].toString()
-                    val idParent = it["idParent"].toString()
+                    val idParent = it["idParent"]?.toString() ?: ""
                     return Category(name, description, idParent).apply {
                         id = documentSnapshot.id
                     }

@@ -18,4 +18,12 @@ class CategoryVM : BaseContentCreationVM<RepoDataModel.Category>() {
                 repoCategoryVal.loadFromRemote(filterMap = mapOf("name" to categoryQuery))
         }
     }
+
+    fun getRealNameOfId(id: String, onResult: (String) -> Unit){
+        if (id.isNotEmpty()) {
+            repo.getRealNameOfId(id) {
+                it?.let(onResult)
+            }
+        }
+    }
 }

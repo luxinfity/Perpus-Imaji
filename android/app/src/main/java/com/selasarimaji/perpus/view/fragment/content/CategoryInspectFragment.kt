@@ -34,9 +34,7 @@ class CategoryInspectFragment : BaseInspectFragment<RepoDataModel.Category>() {
     override fun setupView(){
         val view = layoutInflater.inflate(R.layout.content_category, null)
         linearContainer.addView(view, 0)
-
         categoryPathInputLayout.visibility = View.GONE
-
         categoryParentInputLayout.editText?.let{
             RxTextView.textChanges(it)
                     .skip(1)
@@ -63,6 +61,9 @@ class CategoryInspectFragment : BaseInspectFragment<RepoDataModel.Category>() {
                 categoryDescInputLayout.editText?.setText(it.description)
                 categoryParentInputLayout.editText?.setText(it.idParent)
                 categoryPathInputLayout.editText?.setText(it.idParent)
+                viewModel.getRealNameOfId(it.idParent){
+                    categoryParentInputLayout.editText?.setText(it)
+                }
             }
         })
 
@@ -147,7 +148,7 @@ class CategoryInspectFragment : BaseInspectFragment<RepoDataModel.Category>() {
 
         val parent = viewModel.repoCategoryVal.fetchedData.value?.find {
             it.name == parentCategoryText.toLowerCase()
-        }?.id
+        }?.id ?: ""
 
         editTextList.map {
             if (it.error.isNullOrEmpty()) it.error = "Silahkan diisi"

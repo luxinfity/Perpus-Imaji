@@ -103,6 +103,17 @@ abstract class BaseRepo <T:RepoDataModel> {
             loadingFlag.value = LoadingProcess(false, it.isSuccessful, LoadingType.Update)
         }
     }
+    fun getRealNameOfId(id: String, onResult: (String?) -> Unit){
+        db.document(id).get().addOnCompleteListener {
+            if (it.isSuccessful) {
+                onResult(it.result["name"].toString())
+            } else {
+                onResult(null)
+            }
+        }.addOnFailureListener {
+            onResult(null)
+        }
+    }
     // endregion
 
     // region local data
