@@ -29,19 +29,23 @@ const getContentWithCustomFilter = functions.https.onCall((data, context) => {
             .then(snapshot => {
                 var filteredData = [];
                 snapshot.forEach(doc => {
-                    console.log(doc);
+                    console.log(doc.id);
+                    var item = doc.data();
                     var check = true;
                     if (filters) {
                         for (key in filters){
-                            if (doc.data()[key].indexOf(filters[key]) === -1){
+                            if (item[key].indexOf(filters[key]) === -1){
                                 check = false;
                                 break;
                             }
                         }
                     }
-                    if (check) filteredData.push(doc.data());
+                    if (check) {            
+                        item.id = doc.id;
+                        filteredData.push(item);
+                    }
                 });
-                console.log("data: " + filteredData.size);                
+                console.log("data: " + filteredData.length);                
                 return filteredData;
             })
             .catch(err => {
