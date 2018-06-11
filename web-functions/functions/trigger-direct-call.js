@@ -31,6 +31,7 @@ const getContentWithCustomFilter = functions.https.onCall((data, context) => {
                 snapshot.forEach(doc => {
                     console.log(doc.id);
                     var item = doc.data();
+                    item.id = doc.id;
                     var check = true;
                     if (filters) {
                         for (key in filters){
@@ -40,8 +41,7 @@ const getContentWithCustomFilter = functions.https.onCall((data, context) => {
                             }
                         }
                     }
-                    if (check) {            
-                        item.id = doc.id;
+                    if (check) {
                         filteredData.push(item);
                     }
                 });
