@@ -47,6 +47,7 @@ function createSheet(contentType, workbook){
                     if(isFirst){
                         isFirst = false;
                         var columns = [];
+                        columns.push({ header: "ID", key: "ID" });
                         for (columnName in doc.data()){
                             // setup header
                             columns.push({ header: columnName, key: columnName });
@@ -56,8 +57,7 @@ function createSheet(contentType, workbook){
                     for (columnName in doc.data()){
                         row[columnName] = doc.data()[columnName];
                     }
-                    console.log(doc.id);
-                    row.id = doc.id;
+                    row["ID"] = doc.id;
                     sheet.addRow(row);
                 });
                 return sheet;

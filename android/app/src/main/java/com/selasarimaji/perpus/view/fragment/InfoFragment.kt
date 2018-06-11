@@ -22,8 +22,15 @@ class InfoFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_info, container, false).apply {
-            this.instagramButtom.setOnClickListener {
+            this.instagramButton.setOnClickListener {
                 val url = "https://www.instagram.com/selasarimaji/"
+                startActivity(Intent(Intent.ACTION_VIEW).apply {
+                    data = Uri.parse(url)
+                })
+            }
+
+            this.downloadButton.setOnClickListener {
+                val url = "https://us-central1-selasar-imaji.cloudfunctions.net/httpsCall-downloadAllData"
                 startActivity(Intent(Intent.ACTION_VIEW).apply {
                     data = Uri.parse(url)
                 })
