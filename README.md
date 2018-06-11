@@ -30,6 +30,23 @@ Layanan firebase yang digunakan:
 
 [Selasar Imaji](https://www.instagram.com/selasarimaji/) oleh Turun Tangan Bandung.
 
+## Apps Screenshot
+
+### Recycler
+
+![alt text][category-recycler]
+![alt text][book-recycler] 
+![alt text][kid-recycler]
+![alt text][borrow-recycler]
+![alt text][inspect-recycler]
+
 ## License
 
 MIT
+
+<!-- recycler -->
+[category-recycler]: https://github.com/alifgiant/Perpus-Imaji/blob/v1-release/images/recycler/category.png "Category Recycler"
+[book-recycler]: https://github.com/alifgiant/Perpus-Imaji/blob/v1-release/images/recycler/book.png "Book Recycler"
+[kid-recycler]: https://github.com/alifgiant/Perpus-Imaji/blob/v1-release/images/recycler/kid.png "Kid Recycler"
+[borrow-recycler]: https://github.com/alifgiant/Perpus-Imaji/blob/v1-release/images/recycler/borrow.png "Borrow Recycler"
+[inspect-recycler]: https://github.com/alifgiant/Perpus-Imaji/blob/v1-release/images/recycler/inspect.png "Inspect Recycler"
