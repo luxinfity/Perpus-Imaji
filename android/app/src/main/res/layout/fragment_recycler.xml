@@ -23,6 +23,12 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </android.support.v4.widget.SwipeRefreshLayout>
+    <TextView
+        android:id="@+id/emptyText"
+        android:gravity="center"
+        android:text="Tidak Ada Data"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fabButton"
         app:layout_constraintBottom_toBottomOf="parent"

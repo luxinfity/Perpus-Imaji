@@ -59,6 +59,7 @@ class KidRecyclerFragment : BaseRecyclerFragment() {
             ptrLayout.isRefreshing = it ?: false
         })
         viewModel.repo.fetchedData.observe(this, Observer {
+            emptyText.visibility = if (it != null && it.isNotEmpty()) View.GONE else View.VISIBLE
             it?.let {
                 adapter.setupNewData(it)
                 if (it.isNotEmpty()) dismissLoading()
