@@ -10,7 +10,6 @@ import com.selasarimaji.perpus.repository.BaseRepo
 abstract class BaseContentCreationVM <T: RepoDataModel> : BaseLoadingVM() {
     abstract val repo: BaseRepo<T>
     open val loadDistance = 10
-    var documentResultRef: String? = null
 
     var title = MutableLiveData<String>()
     var totalRemoteCount = MutableLiveData<Int>()

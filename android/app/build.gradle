@@ -35,7 +35,6 @@ dependencies {
     // Android Architecture Component
     implementation "android.arch.lifecycle:extensions:1.1.1"
     // custom views
-    implementation 'com.github.clans:fab:1.6.4'
     implementation "com.hootsuite.android:nachos:1.1.1"
     // FireBase Libs
     implementation 'com.google.firebase:firebase-core:16.0.0'

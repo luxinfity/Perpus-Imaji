@@ -13,6 +13,7 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.esafirm.imagepicker.features.ImagePicker
 import com.hootsuite.nachos.NachoTextView
 import com.hootsuite.nachos.terminator.ChipTerminatorHandler
@@ -59,6 +60,7 @@ class BookInspectFragment : BaseInspectFragment<RepoDataModel.Book>() {
         }
 
         bookImageButton.setOnClickListener {
+            clearFocus()
             ImagePicker.create(this).startImagePicker()
         }
     }
@@ -82,7 +84,6 @@ class BookInspectFragment : BaseInspectFragment<RepoDataModel.Book>() {
                 categoryListChipInput.editText?.setText(it.idCategoryList.joinToString(";", postfix = ";"))
 
                 if (it.hasImage) {
-                    viewModel.documentResultRef = it.id
                     viewModel.pickedImage.value = RepoImage(it.id, true)
                 }
             }
@@ -141,7 +142,11 @@ class BookInspectFragment : BaseInspectFragment<RepoDataModel.Book>() {
                 context?.let {
                     GlideApp.with(it)
                             .load(if (!isRemoteSource) imagePath else viewModel.repo.getImageThumb(imagePath))
-                            .placeholder(R.drawable.ic_camera.resDrawable(it))
+                            .diskCacheStrategy(DiskCacheStrategy.NONE)
+                            .skipMemoryCache(true)
+                            .placeholder(R.drawable.ic_book.resDrawable(it).apply {
+                                this?.tint(R.color.colorAccent.resColor(it))
+                            })
                             .into(bookImageButton)
                 }
             }
@@ -254,7 +259,7 @@ class BookInspectFragment : BaseInspectFragment<RepoDataModel.Book>() {
                         viewModel.deleteCurrent(this){
                             if (it.isSuccess && viewModel.userHasRemoteImage){
                                 viewModel.deleteImage(viewModel.repo,
-                                        viewModel.documentResultRef!!,
+                                        id,
                                         viewModel.isLoading){
                                     if (it.isSuccess) {
                                         showLoadingResultToast(it.loadingType)
@@ -304,7 +309,7 @@ class BookInspectFragment : BaseInspectFragment<RepoDataModel.Book>() {
             }){
                 if (it.isSuccess && viewModel.userHasLocalImage){
                     viewModel.storeImage(viewModel.repo,
-                            viewModel.documentResultRef!!,
+                            viewModelInspect.getSelectedItemLiveData().value!!.id,
                             viewModel.isLoading){
                         if (it.isSuccess) {
                             showLoadingResultToast(it.loadingType)

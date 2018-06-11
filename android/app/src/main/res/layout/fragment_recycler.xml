@@ -33,7 +33,7 @@
         android:id="@+id/fabButton"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:src="@drawable/fab_add"
+        android:src="@drawable/ic_add"
         android:layout_margin="16dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />

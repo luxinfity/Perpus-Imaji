@@ -21,6 +21,7 @@ import kotlinx.android.synthetic.main.layout_content_creation.*
 import kotlinx.android.synthetic.main.content_kid.*
 import java.util.*
 import android.widget.ArrayAdapter
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.esafirm.imagepicker.features.ImagePicker
 import com.selasarimaji.perpus.*
 import com.selasarimaji.perpus.model.RepoImage
@@ -55,6 +56,7 @@ class KidInspectFragment : BaseInspectFragment<RepoDataModel.Kid>() {
         }
 
         kidImageButton.setOnClickListener {
+            clearFocus()
             ImagePicker.create(this).startImagePicker()
         }
     }
@@ -77,7 +79,6 @@ class KidInspectFragment : BaseInspectFragment<RepoDataModel.Kid>() {
                 kidGenderInputLayout.editText?.setText(if (it.isMale) "Cowok" else "Cewek")
 
                 if (it.hasImage) {
-                    viewModel.documentResultRef = it.id
                     viewModel.pickedImage.value = RepoImage(it.id, true)
                 }
             }
@@ -124,7 +125,11 @@ class KidInspectFragment : BaseInspectFragment<RepoDataModel.Kid>() {
                 context?.let {
                     GlideApp.with(it)
                             .load(if (!isRemoteSource) imagePath else viewModel.repo.getImageFull(imagePath))
-                            .placeholder(R.drawable.ic_camera.resDrawable(it))
+                            .diskCacheStrategy(DiskCacheStrategy.NONE)
+                            .skipMemoryCache(true)
+                            .placeholder(R.drawable.ic_people.resDrawable(it).apply {
+                                this?.tint(R.color.colorAccent.resColor(it))
+                            })
                             .into(kidImageButton)
                 }
             }
@@ -235,7 +240,7 @@ class KidInspectFragment : BaseInspectFragment<RepoDataModel.Kid>() {
                         viewModel.deleteCurrent(this){
                             if (it.isSuccess && viewModel.userHasRemoteImage){
                                 viewModel.deleteImage(viewModel.repo,
-                                        viewModel.documentResultRef!!,
+                                        id,
                                         viewModel.isLoading){
                                     if (it.isSuccess) {
                                         showLoadingResultToast(it.loadingType)
@@ -285,7 +290,7 @@ class KidInspectFragment : BaseInspectFragment<RepoDataModel.Kid>() {
             }){
                 if (it.isSuccess && viewModel.userHasLocalImage){
                     viewModel.storeImage(viewModel.repo,
-                            viewModel.documentResultRef!!,
+                            viewModelInspect.getSelectedItemLiveData().value!!.id,
                             viewModel.isLoading){
                         if (it.isSuccess) {
                             showLoadingResultToast(it.loadingType)
