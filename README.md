@@ -28,7 +28,8 @@ Layanan firebase yang digunakan:
 
 ## In collaboration with
 
-[Selasar Imaji](https://www.instagram.com/selasarimaji/) oleh Turun Tangan Bandung.
+- Relawan program [Selasar Imaji](https://www.instagram.com/selasarimaji/) oleh Turun Tangan Bandung.
+- Team developer dari [Telkom University, Mobile Innovation](https://www.instagram.com/motionlab_/), Bandung, Indonesia.
 
 ## Apps Screenshot
 
