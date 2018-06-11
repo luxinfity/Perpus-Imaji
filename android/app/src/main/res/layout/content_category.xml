@@ -17,6 +17,18 @@
             android:singleLine="true"/>
     </android.support.design.widget.TextInputLayout>
     <android.support.design.widget.TextInputLayout
+        android:id="@+id/categoryCodeInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp">
+        <android.support.design.widget.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Kode DDC"
+            android:imeOptions="actionNext"
+            android:singleLine="true"/>
+    </android.support.design.widget.TextInputLayout>
+    <android.support.design.widget.TextInputLayout
         android:id="@+id/categoryDescInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

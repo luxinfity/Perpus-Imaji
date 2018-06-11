@@ -58,6 +58,7 @@ class CategoryInspectFragment : BaseInspectFragment<RepoDataModel.Category>() {
         viewModelInspect.getSelectedItemLiveData().observe(this, Observer {
             (it as RepoDataModel.Category?)?.let {
                 categoryNameInputLayout.editText?.setText(it.name)
+                categoryCodeInputLayout.editText?.setText(it.code)
                 categoryDescInputLayout.editText?.setText(it.description)
                 categoryParentInputLayout.editText?.setText(it.idParent)
                 categoryPathInputLayout.editText?.setText(it.idParent)
@@ -70,6 +71,7 @@ class CategoryInspectFragment : BaseInspectFragment<RepoDataModel.Category>() {
 
         viewModelInspect.editOrCreateMode.observe(this, Observer {
             arrayListOf<TextInputLayout>(categoryNameInputLayout,
+                    categoryCodeInputLayout,
                     categoryDescInputLayout,
                     categoryParentInputLayout,
                     categoryPathInputLayout)
@@ -116,6 +118,7 @@ class CategoryInspectFragment : BaseInspectFragment<RepoDataModel.Category>() {
 
     override fun createValue(): RepoDataModel.Category? {
         val editTextList = arrayListOf<TextInputLayout>(categoryNameInputLayout,
+                categoryCodeInputLayout,
                 categoryDescInputLayout).apply {
             this.map {
                 it.error = null
@@ -124,6 +127,7 @@ class CategoryInspectFragment : BaseInspectFragment<RepoDataModel.Category>() {
         }
 
         val name = categoryNameInputLayout.tryToRemoveFromList(editTextList)
+        val code = categoryCodeInputLayout.tryToRemoveFromList(editTextList)
         val desc = categoryDescInputLayout.tryToRemoveFromList(editTextList)
 
         val parent = viewModel.repoCategoryVal.fetchedData.value?.find {
@@ -135,7 +139,7 @@ class CategoryInspectFragment : BaseInspectFragment<RepoDataModel.Category>() {
         }
 
         return if(editTextList.isEmpty())
-            RepoDataModel.Category(name, desc, parent)
+            RepoDataModel.Category(name, code, desc, parent)
         else
             null
     }

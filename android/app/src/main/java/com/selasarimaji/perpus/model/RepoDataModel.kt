@@ -22,6 +22,7 @@ abstract class RepoDataModel : Serializable {
     // endregion
 
     data class Category (val name: String,
+                         val code: String,
                          val description: String,
                          val idParent: String = "") : RepoDataModel() {
         @get:Exclude override val collectionName = "Category"
@@ -30,9 +31,10 @@ abstract class RepoDataModel : Serializable {
             fun turnDocumentToObject(documentSnapshot: DocumentSnapshot) : Category {
                 documentSnapshot.let {
                     val name = it["name"].toString()
+                    val code = it["code"].toString()
                     val description = it["description"].toString()
                     val idParent = it["idParent"]?.toString() ?: ""
-                    return Category(name, description, idParent).apply {
+                    return Category(name, code, description, idParent).apply {
                         id = documentSnapshot.id
                     }
                 }
@@ -40,9 +42,10 @@ abstract class RepoDataModel : Serializable {
             fun turnDocumentToObject(jsonObject: JsonObject) : Category {
                 jsonObject.let {
                     val name = it["name"].toString().removeSurrounding("\"")
+                    val code = it["code"].toString().removeSurrounding("\"")
                     val description = it["description"].toString().removeSurrounding("\"")
                     val idParent = it["idParent"]?.toString()?.removeSurrounding("\"") ?: ""
-                    return Category(name, description, idParent).apply {
+                    return Category(name, code, description, idParent).apply {
                         id = it["id"].toString().removeSurrounding("\"")
                     }
                 }
