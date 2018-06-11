@@ -9,6 +9,7 @@ import android.widget.Toast
 import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
 import com.selasarimaji.perpus.R
 import com.selasarimaji.perpus.viewmodel.InspectVM
+import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.fragment_recycler.*
 import kotlinx.android.synthetic.main.fragment_recycler.view.*
 import java.util.concurrent.TimeUnit
@@ -47,8 +48,9 @@ abstract class BaseRecyclerFragment : Fragment() {
         RxSearchView.queryTextChanges(menu.findItem(R.id.app_bar_search).actionView as SearchView)
                 .skip(1)
                 .debounce(300, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    print(it.toString())
+                    viewModelInspect.queryString.value = it.toString()
                 }
         super.onCreateOptionsMenu(menu, inflater)
     }
@@ -65,7 +67,7 @@ abstract class BaseRecyclerFragment : Fragment() {
 
     abstract fun setupRecycler(view: View)
 
-    open fun refresh(){
+    open fun refresh(filterMap: Map<String, String>? = null){
         showLoading()
     }
 }

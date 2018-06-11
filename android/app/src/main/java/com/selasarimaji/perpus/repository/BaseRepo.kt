@@ -5,6 +5,10 @@ import android.net.Uri
 import com.google.firebase.firestore.*
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.storage.FirebaseStorage
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonArray
+import com.google.gson.reflect.TypeToken
 import com.selasarimaji.perpus.model.*
 import java.io.File
 
@@ -44,22 +48,24 @@ abstract class BaseRepo <T:RepoDataModel> {
     }
     open fun loadFromRemote(params: Loading.Param = Loading.Param(),
                             loadingFlag: MutableLiveData<Boolean>? = null,
-                            onResult: (Loading.Result<QuerySnapshot>) -> Unit ){
+                            onResult: (Loading.Result<Any>) -> Unit ){
         loadingFlag?.value = true
-        if (params.filterMap != null && params.filterMap.size > 1){
+        if (params.filterMap != null){
             functions.getHttpsCallable("directCall-getContentWithCustomFilter")
                     .call(mapOf(
                             "contentType" to contentName,
                             "filter" to params.filterMap
                     ))
+                    .continueWith {
+                        Gson().toJsonTree(it.result.data).asJsonArray
+                    }
                     .addOnCompleteListener {
                         loadingFlag?.value = false
-                        // TODO implement result mapping
-//                        try {
-//                            onResult(LoadingResult(true, LoadingType.Read, it.result.data))
-//                        } catch (ex: Exception){
-//                            onResult(LoadingResult(false, LoadingType.Read))
-//                        }
+                        try {
+                            onResult(Loading.Result(true, Loading.Type.Read, it.result))
+                        } catch (ex: Exception){
+                            onResult(Loading.Result(false, Loading.Type.Read))
+                        }
                     }
         } else {
             db.orderBy(params.orderBy).apply {
@@ -77,6 +83,7 @@ abstract class BaseRepo <T:RepoDataModel> {
     }
 
     abstract fun onLoadCallback(querySnapshot: QuerySnapshot?)
+    abstract fun onLoadCallback(jsonArray: JsonArray?)
 
     fun createRemoteData(dataModel: T,
                          loadingFlag: MutableLiveData<Boolean>,
@@ -130,7 +137,7 @@ abstract class BaseRepo <T:RepoDataModel> {
                     try {
                         val result = it.result.data.toString().toBoolean()
                         onResult(Loading.Result(it.isSuccessful, Loading.Type.Delete, result))
-                    } catch (ex : Exception){
+                    } catch (ex: Exception) {
                         onResult(Loading.Result(false, Loading.Type.Delete))
                     }
                 }

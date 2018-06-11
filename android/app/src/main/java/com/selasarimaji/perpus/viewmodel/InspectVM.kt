@@ -7,6 +7,7 @@ import com.selasarimaji.perpus.model.RepoDataModel
 class InspectVM : ViewModel(){
     private var selectedItem = MutableLiveData<RepoDataModel>()
     var editOrCreateMode = MutableLiveData<Pair<Boolean, Boolean>>()
+    var queryString = MutableLiveData<String>()
 
     fun setSelectedItem(item: RepoDataModel?){
         item?.let {

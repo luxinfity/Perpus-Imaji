@@ -48,7 +48,7 @@ class CategoryRecyclerFragment : BaseRecyclerFragment() {
                 val totalRemoteCount = viewModel.totalRemoteCount.value ?: totalItemCount
                 if (lastVisiblePosition + thresholdItemCount >= totalItemCount
                         && totalItemCount < totalRemoteCount){
-                    viewModel.loadMore()
+                    viewModel.loadMore(viewModel.filterMap)
                 }
             }
         })
@@ -76,12 +76,19 @@ class CategoryRecyclerFragment : BaseRecyclerFragment() {
         viewModelInspect.editOrCreateMode.observe(this, Observer {
             fabButton.visibility = if (it?.first != true) View.VISIBLE else View.GONE
         })
+        viewModelInspect.queryString.observe(this, Observer {
+            it?.let {
+                val filter = if (it.isNotEmpty()) mapOf("name" to it) else null
+                refresh(filter)
+            }
+        })
         viewModel.loadInitial()
     }
 
-    override fun refresh(){
-        super.refresh()
-        viewModel.reload()
+    override fun refresh(filterMap: Map<String, String>?){
+        super.refresh(filterMap)
+        viewModel.filterMap = filterMap
+        viewModel.reload(filterMap)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

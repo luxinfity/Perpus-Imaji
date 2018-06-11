@@ -3,6 +3,7 @@ package com.selasarimaji.perpus.model
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Exclude
+import com.google.gson.JsonObject
 import java.io.Serializable
 import java.util.*
 
@@ -36,6 +37,16 @@ abstract class RepoDataModel : Serializable {
                     }
                 }
             }
+            fun turnDocumentToObject(jsonObject: JsonObject) : Category {
+                jsonObject.let {
+                    val name = it["name"].toString().removeSurrounding("\"")
+                    val description = it["description"].toString().removeSurrounding("\"")
+                    val idParent = it["idParent"]?.toString()?.removeSurrounding("\"") ?: ""
+                    return Category(name, description, idParent).apply {
+                        id = it["id"].toString().removeSurrounding("\"")
+                    }
+                }
+            }
         }
     }
     data class Book (val name: String,
@@ -64,6 +75,24 @@ abstract class RepoDataModel : Serializable {
                     }
                 }
             }
+            fun turnDocumentToObject(jsonObject: JsonObject) : Book {
+                jsonObject.let {
+                    val name = it["name"].toString().removeSurrounding("\"")
+                    val author = it["authors"].let {
+                        (it as Iterable<*>)
+                                .map{ it.toString().removeSurrounding("\"") }
+                    }
+                    val year = it["year"].toString().removeSurrounding("\"").toInt()
+                    val publisher = it["publisher"].toString().removeSurrounding("\"")
+                    val idCategoryList = it["idCategoryList"]?.let {
+                        (it as Iterable<*>).map{ it.toString().removeSurrounding("\"") }
+                    } ?: listOf()
+                    val hasImage = it["hasImage"].toString().removeSurrounding("\"").toBoolean()
+                    return Book(name, author, year, publisher, idCategoryList, hasImage).apply {
+                        id = it["id"].toString()
+                    }
+                }
+            }
         }
     }
     data class Borrow (val idBook: String,
@@ -81,6 +110,17 @@ abstract class RepoDataModel : Serializable {
                     val endDate = it["endDate"].toString()
                     return Borrow(idBook, idChild, startDate, endDate).apply {
                         id = documentSnapshot.id
+                    }
+                }
+            }
+            fun turnDocumentToObject(jsonObject: JsonObject) : Borrow {
+                jsonObject.let {
+                    val idBook = it["idBook"].toString().removeSurrounding("\"")
+                    val idChild = it["idChild"].toString().removeSurrounding("\"")
+                    val startDate = it["startDate"].toString().removeSurrounding("\"")
+                    val endDate = it["endDate"].toString().removeSurrounding("\"")
+                    return Borrow(idBook, idChild, startDate, endDate).apply {
+                        id = it["id"].toString().removeSurrounding("\"")
                     }
                 }
             }
@@ -103,6 +143,18 @@ abstract class RepoDataModel : Serializable {
                     val hasImage = it["hasImage"].toString().toBoolean()
                     return Kid(name, address, isMale, birthDate, hasImage).apply {
                         id = documentSnapshot.id
+                    }
+                }
+            }
+            fun turnDocumentToObject(jsonObject: JsonObject) : Kid {
+                jsonObject.let {
+                    val name = it["name"].toString().removeSurrounding("\"")
+                    val address = it["address"].toString().removeSurrounding("\"")
+                    val isMale = it["male"].toString().removeSurrounding("\"").toBoolean()
+                    val birthDate = it["birthDate"].toString().removeSurrounding("\"")
+                    val hasImage = it["hasImage"].toString().removeSurrounding("\"").toBoolean()
+                    return Kid(name, address, isMale, birthDate, hasImage).apply {
+                        id = it["id"].toString().removeSurrounding("\"")
                     }
                 }
             }

@@ -1,5 +1,7 @@
 package com.selasarimaji.perpus.viewmodel.content
 
+import com.google.firebase.firestore.QuerySnapshot
+import com.google.gson.JsonArray
 import com.selasarimaji.perpus.model.Loading
 import com.selasarimaji.perpus.model.RepoDataModel
 import com.selasarimaji.perpus.repository.BookRepo
@@ -29,7 +31,7 @@ class BorrowVM : BaseContentCreationVM<RepoDataModel.Borrow>() {
                         Loading.Param.Position(0, loadDistance),
                         orderBy = "startDate",
                         filterMap = filterMap), isLoading){
-                    repo.onLoadCallback(it.data)
+                    if (it.data is QuerySnapshot) repo.onLoadCallback(it.data)
                 }
             }
         }
@@ -42,7 +44,7 @@ class BorrowVM : BaseContentCreationVM<RepoDataModel.Borrow>() {
                         Loading.Param.Position(repo.fetchedData.value!!.size, loadDistance),
                         orderBy = "startDate",
                         filterMap = filterMap), isLoading){
-                    repo.onLoadCallback(it.data)
+                    if (it.data is QuerySnapshot) repo.onLoadCallback(it.data)
                 }
             }
         }
@@ -53,7 +55,8 @@ class BorrowVM : BaseContentCreationVM<RepoDataModel.Borrow>() {
             kidQuery = charSequence.toString()
             if(kidQuery.isNotEmpty())
                 repoKidVal.loadFromRemote(Loading.Param(filterMap = mapOf("name" to kidQuery))){
-                    repoKidVal.onLoadCallback(it.data)
+                    if (it.data is QuerySnapshot) repoKidVal.onLoadCallback(it.data)
+                    else if (it.data is JsonArray) repoKidVal.onLoadCallback(it.data)
                 }
         }
     }
@@ -63,7 +66,8 @@ class BorrowVM : BaseContentCreationVM<RepoDataModel.Borrow>() {
             bookQuery = charSequence.toString()
             if(bookQuery.isNotEmpty())
                 repoBookVal.loadFromRemote(Loading.Param(filterMap = mapOf("name" to bookQuery))){
-                    repoBookVal.onLoadCallback(it.data)
+                    if (it.data is QuerySnapshot) repoBookVal.onLoadCallback(it.data)
+                    else if (it.data is JsonArray) repoBookVal.onLoadCallback(it.data)
                 }
         }
     }

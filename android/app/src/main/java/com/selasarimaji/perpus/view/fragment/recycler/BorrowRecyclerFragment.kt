@@ -48,7 +48,7 @@ class BorrowRecyclerFragment : BaseRecyclerFragment() {
                 val totalRemoteCount = viewModel.totalRemoteCount.value ?: totalItemCount
                 if (lastVisiblePosition + thresholdItemCount >= totalItemCount
                         && totalItemCount < totalRemoteCount){
-                    viewModel.loadMore()
+                    viewModel.loadMore(viewModel.filterMap)
                 }
             }
         })
@@ -83,9 +83,9 @@ class BorrowRecyclerFragment : BaseRecyclerFragment() {
         viewModel.loadInitial()
     }
 
-    override fun refresh(){
-        super.refresh()
-        viewModel.reload()
+    override fun refresh(filterMap: Map<String, String>?){
+        super.refresh(filterMap)
+        viewModel.reload(filterMap)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -93,5 +93,9 @@ class BorrowRecyclerFragment : BaseRecyclerFragment() {
         if (requestCode == CREATION_REQUEST_CODE && resultCode == Activity.RESULT_OK){
             refresh()
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        // override to not make any menu
     }
 }

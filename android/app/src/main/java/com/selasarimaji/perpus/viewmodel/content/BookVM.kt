@@ -1,6 +1,8 @@
 package com.selasarimaji.perpus.viewmodel.content
 
 import android.arch.lifecycle.MutableLiveData
+import com.google.firebase.firestore.QuerySnapshot
+import com.google.gson.JsonArray
 import com.selasarimaji.perpus.model.Loading
 import com.selasarimaji.perpus.model.RepoDataModel
 import com.selasarimaji.perpus.model.RepoImage
@@ -27,7 +29,8 @@ class BookVM : BaseContentCreationVM<RepoDataModel.Book>(), ImageContentVM<RepoD
             if(categoryQuery.isNotEmpty())
                 repoCategoryVal
                     .loadFromRemote(Loading.Param(filterMap = mapOf("name" to categoryQuery))){
-                        repoCategoryVal.onLoadCallback(it.data)
+                        if (it.data is QuerySnapshot) repoCategoryVal.onLoadCallback(it.data)
+                        else if (it.data is JsonArray) repoCategoryVal.onLoadCallback(it.data)
                     }
         }
     }

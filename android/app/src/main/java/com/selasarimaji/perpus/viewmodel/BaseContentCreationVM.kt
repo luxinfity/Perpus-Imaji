@@ -2,6 +2,8 @@ package com.selasarimaji.perpus.viewmodel
 
 import com.selasarimaji.perpus.model.Loading
 import android.arch.lifecycle.MutableLiveData
+import com.google.firebase.firestore.QuerySnapshot
+import com.google.gson.JsonArray
 import com.selasarimaji.perpus.model.RepoDataModel
 import com.selasarimaji.perpus.repository.BaseRepo
 
@@ -12,6 +14,7 @@ abstract class BaseContentCreationVM <T: RepoDataModel> : BaseLoadingVM() {
 
     var title = MutableLiveData<String>()
     var totalRemoteCount = MutableLiveData<Int>()
+    var filterMap: Map<String, String>? = null
 
     open fun getRealNameOfId(id: String, onResult: (String) -> Unit){
         if (id.isNotEmpty()) {
@@ -47,7 +50,8 @@ abstract class BaseContentCreationVM <T: RepoDataModel> : BaseLoadingVM() {
                 repo.loadFromRemote(Loading.Param(
                         Loading.Param.Position(0, loadDistance), filterMap = filterMap),
                         isLoading){
-                    repo.onLoadCallback(it.data)
+                    if (it.data is QuerySnapshot) repo.onLoadCallback(it.data)
+                    else if (it.data is JsonArray) repo.onLoadCallback(it.data)
                 }
             }
         }
@@ -59,7 +63,8 @@ abstract class BaseContentCreationVM <T: RepoDataModel> : BaseLoadingVM() {
                 repo.loadFromRemote(Loading.Param(
                         Loading.Param.Position(repo.fetchedData.value!!.size, loadDistance), filterMap = filterMap),
                         isLoading){
-                    repo.onLoadCallback(it.data)
+                    if (it.data is QuerySnapshot) repo.onLoadCallback(it.data)
+                    else if (it.data is JsonArray) repo.onLoadCallback(it.data)
                 }
             }
         }
