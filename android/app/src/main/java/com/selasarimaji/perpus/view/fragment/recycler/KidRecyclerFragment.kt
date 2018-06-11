@@ -20,6 +20,15 @@ class KidRecyclerFragment : BaseRecyclerFragment() {
         ViewModelProviders.of(activity!!).get(KidVM::class.java)
     }
 
+    private val adapter by lazy {
+        ContentRecyclerAdapter<RepoDataModel.Kid>(ContentType.Kid) {
+            context?.run {
+                val intent = ContentInspectActivity.createIntentToHere(this, ContentType.Kid, it)
+                startActivityForResult(intent, CREATION_REQUEST_CODE)
+            }
+        }
+    }
+
     override fun setupButton(view: View){
         view.fabButton.setOnClickListener {
             context?.let {
@@ -30,12 +39,6 @@ class KidRecyclerFragment : BaseRecyclerFragment() {
     }
 
     override fun setupRecycler(view: View){
-        val adapter = ContentRecyclerAdapter<RepoDataModel.Kid>(ContentType.Kid){
-            context?.run {
-                val intent = ContentInspectActivity.createIntentToHere(this, ContentType.Kid, it)
-                startActivityForResult(intent, CREATION_REQUEST_CODE)
-            }
-        }
         val layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         view.recyclerView.layoutManager = layoutManager
         view.recyclerView.adapter = adapter
@@ -65,18 +68,28 @@ class KidRecyclerFragment : BaseRecyclerFragment() {
             fabButton.visibility = if (it?.first != true) View.VISIBLE else View.GONE
         })
         viewModelInspect.queryString.observe(this, Observer {
-            it?.let {
-                val filter = if (it.isNotEmpty()) mapOf("name" to it) else null
-                refresh(filter)
-            }
+            onSearch(it ?: "")
         })
         viewModel.loadInitial()
     }
 
-    override fun refresh(filterMap: Map<String, String>?){
-        super.refresh(filterMap)
+    override fun refresh(){
+        super.refresh()
+        viewModel.reload()
+    }
+
+    override fun onSearch(query: String) {
+        super.onSearch(query)
+        // direct result
+        viewModel.repo.fetchedData.value?.filter { !it.name.contains(query) }?.map {
+            // remove item that doesn't contain the name
+            viewModel.repo.deleteLocalItem(it)
+        }
+
+        // remote result
+        val filterMap = if (query.isNotEmpty()) mapOf("name" to query) else null
         viewModel.filterMap = filterMap
-        viewModel.reload(filterMap)
+        viewModel.loadInitial(filterMap)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

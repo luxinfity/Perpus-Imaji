@@ -89,7 +89,7 @@ abstract class RepoDataModel : Serializable {
                     } ?: listOf()
                     val hasImage = it["hasImage"].toString().removeSurrounding("\"").toBoolean()
                     return Book(name, author, year, publisher, idCategoryList, hasImage).apply {
-                        id = it["id"].toString()
+                        id = it["id"].toString().removeSurrounding("\"")
                     }
                 }
             }

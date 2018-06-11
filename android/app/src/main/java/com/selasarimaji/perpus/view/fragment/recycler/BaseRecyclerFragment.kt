@@ -67,7 +67,11 @@ abstract class BaseRecyclerFragment : Fragment() {
 
     abstract fun setupRecycler(view: View)
 
-    open fun refresh(filterMap: Map<String, String>? = null){
+    open fun refresh(){
+        showLoading()
+    }
+
+    open fun onSearch(query: String = ""){
         showLoading()
     }
 }

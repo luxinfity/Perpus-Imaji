@@ -32,8 +32,9 @@ abstract class BaseContentCreationVM <T: RepoDataModel> : BaseLoadingVM() {
         repo.updateRemoteData(dataModel, isLoading, onResult)
     }
 
-    open fun reload(filterMap: Map<String, String>? = null){
+    open fun reload(){
         repo.clearLocalData()
+        filterMap = null
         loadInitial(filterMap)
     }
 

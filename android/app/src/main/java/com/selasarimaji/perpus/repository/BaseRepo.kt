@@ -147,7 +147,7 @@ abstract class BaseRepo <T:RepoDataModel> {
     // region local data
     abstract val fetchedData : MutableLiveData<List<T>>
     fun clearLocalData(){
-        fetchedData.value = fetchedData.value?.toMutableList().apply { this?.clear() }
+        fetchedData.value = fetchedData.value?.toMutableList()?.apply { clear() }
     }
 
     open fun createLocalItem(dataModel: T){

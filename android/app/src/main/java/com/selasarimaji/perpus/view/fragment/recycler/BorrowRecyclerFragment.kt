@@ -83,9 +83,9 @@ class BorrowRecyclerFragment : BaseRecyclerFragment() {
         viewModel.loadInitial()
     }
 
-    override fun refresh(filterMap: Map<String, String>?){
-        super.refresh(filterMap)
-        viewModel.reload(filterMap)
+    override fun refresh(){
+        super.refresh()
+        viewModel.reload()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

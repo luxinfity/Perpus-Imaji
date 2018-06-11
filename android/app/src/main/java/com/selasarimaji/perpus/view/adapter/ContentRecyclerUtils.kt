@@ -24,13 +24,15 @@ class CategoryViewHolder(view: View) : BaseContentViewHolder(view){
 class BookViewHolder(view: View) : BaseContentViewHolder(view){
     fun setupView(item: RepoDataModel.Book) {
         view.bookNameText.text = item.name.capitalizeWords()
-        view.bookDesc.text = "Penulis : ${ item.authors.joinToString(";") { it.capitalizeWords() } }"
+        view.bookDesc.text = "Penulis: ${ item.authors.joinToString(";") { it.capitalizeWords() } }"
     }
 }
 class BorrowViewHolder(view: View) : BaseContentViewHolder(view){
     fun setupView(item: RepoDataModel.Borrow) {
         view.borrowIdText.text = item.id.toUpperCase()
-        view.borrowDescText.text = "Anak : ${item.idChild.capitalizeWords()} \nBuku : ${item.idBook.capitalizeWords()}"
+        view.borrowDescText.text = "Tanggal Pinjam: ${item.startDate} - ${item.endDate}\n" +
+                "Anak: ${item.idChild.capitalizeWords()} " +
+                "\nBuku: ${item.idBook.capitalizeWords()}"
     }
 }
 class KidViewHolder(view: View) : BaseContentViewHolder(view){
