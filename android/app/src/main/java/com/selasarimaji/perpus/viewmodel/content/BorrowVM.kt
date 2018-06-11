@@ -32,6 +32,7 @@ class BorrowVM : BaseContentCreationVM<RepoDataModel.Borrow>() {
                         orderBy = "startDate",
                         filterMap = filterMap), isLoading){
                     if (it.data is QuerySnapshot) repo.onLoadCallback(it.data)
+                    else if (it.data is JsonArray) repo.onLoadCallback(it.data)
                 }
             }
         }
@@ -45,6 +46,7 @@ class BorrowVM : BaseContentCreationVM<RepoDataModel.Borrow>() {
                         orderBy = "startDate",
                         filterMap = filterMap), isLoading){
                     if (it.data is QuerySnapshot) repo.onLoadCallback(it.data)
+                    else if (it.data is JsonArray) repo.onLoadCallback(it.data)
                 }
             }
         }

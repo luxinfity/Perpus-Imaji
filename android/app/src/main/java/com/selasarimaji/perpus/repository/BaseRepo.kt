@@ -6,9 +6,7 @@ import com.google.firebase.firestore.*
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.storage.FirebaseStorage
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
-import com.google.gson.reflect.TypeToken
 import com.selasarimaji.perpus.model.*
 import java.io.File
 
@@ -71,10 +69,6 @@ abstract class BaseRepo <T:RepoDataModel> {
             db.orderBy(params.orderBy).apply {
                 if (params.loadPosition.start > -1) startAt(params.loadPosition.start)
                 if (params.loadPosition.stop > -1) limit(params.loadPosition.stop.toLong())
-
-                params.filterMap?.map {
-                    this.whereGreaterThanOrEqualTo(it.key, it.value)
-                }
             }.get().addOnCompleteListener {
                 loadingFlag?.value = false
                 onResult(Loading.Result(it.isSuccessful, Loading.Type.Read, it.result))
