@@ -5,6 +5,8 @@ Aplikasi Perpustakaan Sederhana. Aplikasi ini memiliki fitur utama:
 - Daftar Buku
 - Daftar Anak / Member
 - Daftar Peminjaman
+- Social media link
+- Download recap data (tidak termasuk gambar) dalam bentuk xlsx
 
 ## How To Use
 
