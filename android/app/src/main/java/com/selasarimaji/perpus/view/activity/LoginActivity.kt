@@ -1,5 +1,6 @@
 package com.selasarimaji.perpus.view.activity
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -41,6 +42,10 @@ class LoginActivity : AppCompatActivity() {
         loginButton.setOnClickListener {
             loginClicked()
         }
+
+        forgotButton.setOnClickListener {
+            forgotPasswordClicked()
+        }
     }
 
     private fun checkLoginStatus() : Boolean{
@@ -60,6 +65,28 @@ class LoginActivity : AppCompatActivity() {
                     passwordInputLayout.editText?.text.toString())
         }else if (passwordInputLayout.editText?.text!!.isEmpty()) {
             passwordInputLayout.error = "Password harus diisi"
+        }
+    }
+
+    private fun forgotPasswordClicked(){
+        emailInputLayout.error = ""
+        if (isEmailValid(emailInputLayout.editText?.text.toString())){
+            AlertDialog.Builder(this).setTitle("Are you sure the email is correct?")
+                    .setPositiveButton("Yes"){ dialog, _ ->
+                        trySendForgotEmail(emailInputLayout.editText?.text.toString())
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton("No"){ dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .show()
+
+        }else{
+            Snackbar.make(emailInputLayout,
+                    "Masukkan email anda yang ingin di reset",
+                    Snackbar.LENGTH_INDEFINITE).apply {
+                setAction("OK"){ dismiss() }
+            }.show()
         }
     }
 
@@ -87,6 +114,21 @@ class LoginActivity : AppCompatActivity() {
                                 Snackbar.make(loginButton, "Email / Password salah, coba kembali", Snackbar.LENGTH_SHORT).show()
                             }
                         }
+                    }
+        }
+    }
+
+    private fun trySendForgotEmail(email: String){
+        progressBar.visibility = View.VISIBLE
+        with(FirebaseAuth.getInstance()) {
+            sendPasswordResetEmail(email)
+                    .addOnCompleteListener {
+                        progressBar.visibility = View.GONE
+                        Snackbar.make(emailInputLayout,
+                                "Silahkan periksa email anda untuk link reset",
+                                Snackbar.LENGTH_INDEFINITE).apply {
+                            setAction("OK"){ dismiss() }
+                        }.show()
                     }
         }
     }
