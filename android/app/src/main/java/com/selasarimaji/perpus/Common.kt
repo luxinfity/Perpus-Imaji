@@ -3,9 +3,12 @@ package com.selasarimaji.perpus
 import android.app.Activity
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
+import android.graphics.drawable.Drawable
+import android.support.annotation.ColorInt
 import android.support.design.widget.TextInputLayout
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
+import android.support.v4.graphics.drawable.DrawableCompat
 import com.esafirm.imagepicker.features.ImagePicker
 import java.text.SimpleDateFormat
 import java.util.*
@@ -63,3 +66,9 @@ fun ImagePicker.startImagePicker() =
 
 fun Int.resDrawable(context: Context) =
     ContextCompat.getDrawable(context, this)
+
+fun Int.resColor(context: Context) =
+    ContextCompat.getColor(context, this)
+
+fun Drawable.tint(@ColorInt colorInt: Int) =
+    DrawableCompat.setTint(this, colorInt)
