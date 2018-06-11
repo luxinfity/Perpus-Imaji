@@ -62,7 +62,7 @@ class CategoryRecyclerFragment : BaseRecyclerFragment() {
             emptyText.visibility = if (it != null && it.isNotEmpty()) View.GONE else View.VISIBLE
             it?.map {
                 val data = it
-                viewModel.getRealNameOfId(data.id){
+                viewModel.getRealNameOfId(data.idParent){
                     val parentName = it
 
                     adapter.updateData(data.copy(idParent = parentName)
