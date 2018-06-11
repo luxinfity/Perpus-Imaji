@@ -31,17 +31,17 @@ const getContentWithCustomFilter = functions.https.onCall((data, context) => {
                 snapshot.forEach(doc => {
                     console.log(doc.id);
                     var item = doc.data();
+                    item.id = doc.id;
                     var check = true;
                     if (filters) {
                         for (key in filters){
-                            if (item[key].indexOf(filters[key]) === -1){
+                            if (item[key].toLowerCase().indexOf(filters[key].toLowerCase()) === -1){
                                 check = false;
                                 break;
                             }
                         }
                     }
-                    if (check) {            
-                        item.id = doc.id;
+                    if (check) {
                         filteredData.push(item);
                     }
                 });

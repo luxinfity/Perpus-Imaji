@@ -81,6 +81,9 @@ class BorrowRecyclerFragment : BaseRecyclerFragment() {
         viewModelInspect.editOrCreateMode.observe(this, Observer {
             fabButton.visibility = if (it?.first != true) View.VISIBLE else View.GONE
         })
+        viewModelInspect.queryString.observe(this, Observer {
+            onSearch(it ?: "")
+        })
         viewModel.loadInitial()
     }
 
@@ -89,14 +92,24 @@ class BorrowRecyclerFragment : BaseRecyclerFragment() {
         viewModel.reload()
     }
 
+    override fun onSearch(query: String) {
+        super.onSearch(query)
+        // direct result
+        viewModel.repo.fetchedData.value?.filter { !it.id.toLowerCase().contains(query.toLowerCase()) }?.map {
+            // remove item that doesn't contain the name
+            viewModel.repo.deleteLocalItem(it)
+        }
+
+        // remote result
+        val filterMap = if (query.isNotEmpty()) mapOf("id" to query) else null
+        viewModel.filterMap = filterMap
+        viewModel.loadInitial(filterMap)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == CREATION_REQUEST_CODE && resultCode == Activity.RESULT_OK){
             refresh()
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        // override to not make any menu
     }
 }
