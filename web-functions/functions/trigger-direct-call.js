@@ -35,7 +35,7 @@ const getContentWithCustomFilter = functions.https.onCall((data, context) => {
                     var check = true;
                     if (filters) {
                         for (key in filters){
-                            if (item[key].indexOf(filters[key]) === -1){
+                            if (item[key].toLowerCase().indexOf(filters[key].toLowerCase()) === -1){
                                 check = false;
                                 break;
                             }
