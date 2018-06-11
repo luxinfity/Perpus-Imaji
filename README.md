@@ -50,10 +50,10 @@ Layanan firebase yang digunakan:
 
 ### Misc
 
-![alt text][delete-misc]
 ![alt text][login-misc] 
 ![alt text][reset-misc]
 ![alt text][search-misc]
+![alt text][delete-misc]
 
 ## License
 
@@ -71,7 +71,7 @@ MIT
 [book-editing]: https://github.com/alifgiant/Perpus-Imaji/blob/v1-release/images/editing/book.png "Book Editing"
 [kid-editing]: https://github.com/alifgiant/Perpus-Imaji/blob/v1-release/images/editing/kid.png "Kid Editing"
 [borrow-editing]: https://github.com/alifgiant/Perpus-Imaji/blob/v1-release/images/editing/borrow.png "Borrow Editing"
-[picker-editing]: https://github.com/alifgiant/Perpus-Imaji/blob/v1-release/images/editing/inspect.png "Inspect Editing"
+[picker-editing]: https://github.com/alifgiant/Perpus-Imaji/blob/v1-release/images/editing/picker.png "Picker Editing"
 
 <!-- misc -->
 [delete-misc]: https://github.com/alifgiant/Perpus-Imaji/blob/v1-release/images/misc/delete.png "Delete Misc"
