@@ -11,6 +11,8 @@ Aplikasi Perpustakaan Sederhana. Aplikasi ini memiliki fitur utama:
 - Social media link
 - Download recap data (tidak termasuk gambar) dalam bentuk xlsx
 
+Demo App dapat dilihat pada [Play Store](https://play.google.com/store/apps/details?id=com.selasarimaji.perpus)
+
 ## How To Use
 
 Aplikasi ini menggunakan layanan [firebase](firebase.com) oleh Google. Untuk menggunakannya:
