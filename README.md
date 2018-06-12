@@ -17,6 +17,7 @@ Aplikasi ini menggunakan layanan [firebase](firebase.com) oleh Google. Untuk men
 
 1. Silahkan masukkan `google-services.json` ke dalam folder `/android/app/`
 2. Deploy cloud functions code yang terdapat dalam `/web-functions`
+4. Copy and paste alamat url funtions `downloadAllData` ke file [InfoFragment.kt](https://github.com/alifgiant/Perpus-Imaji/blob/54ecfb72e8cb045d1fefc078e0350c8b15b15a95/android/app/src/main/java/com/selasarimaji/perpus/view/fragment/InfoFragment.kt#L33)
 3. Buat akun pada authentication agar dapat login ke dalam aplikasi
 
 Layanan firebase yang digunakan:
@@ -24,7 +25,7 @@ Layanan firebase yang digunakan:
 - Authentication
 - Firestore sebagai database
 - Storage sebagai image folder
-- Cloud Function
+- Cloud Function sebagai _well, duh functions_
 
 ## In collaboration with
 
