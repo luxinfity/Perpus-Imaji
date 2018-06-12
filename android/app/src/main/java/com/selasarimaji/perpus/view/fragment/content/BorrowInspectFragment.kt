@@ -202,12 +202,13 @@ class BorrowInspectFragment : BaseInspectFragment<RepoDataModel.Borrow>() {
             add(Calendar.DATE, dayAhead)
         }
         val year = c.get(Calendar.YEAR)
-        val month = c.get(Calendar.MONTH) + 1
+        val month = c.get(Calendar.MONTH)
         val day = c.get(Calendar.DAY_OF_MONTH)
         editText.setOnClickListener {
             DatePickerDialog(context,
                     DatePickerDialog.OnDateSetListener { _, year, month, day ->
-                        editText.setText("${month.addZeroIfBelow10()}/${day.addZeroIfBelow10()}/$year")
+
+                        editText.setText("${(month+1).addZeroIfBelow10()}/${day.addZeroIfBelow10()}/$year")
                     },
                     year, month, day).show()
         }
