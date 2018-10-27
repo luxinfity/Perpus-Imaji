@@ -50,7 +50,7 @@ fun Int.addZeroIfBelow10() =
 
 fun TextInputLayout.tryToRemoveFromList(list: MutableList<TextInputLayout>) =
     this.editText?.text.toString().toLowerCase().also {
-        if (it.isNotEmpty()) {
+        if (it.isNotEmpty() && list.contains(this)) {
             list.remove(this)
         }
     }

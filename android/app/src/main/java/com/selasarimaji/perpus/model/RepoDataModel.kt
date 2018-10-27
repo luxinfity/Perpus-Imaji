@@ -133,7 +133,10 @@ abstract class RepoDataModel : Serializable {
                     val address: String,
                     val isMale: Boolean,
                     val birthDate: String,
-                    val hasImage: Boolean) : RepoDataModel(){
+                    val hasImage: Boolean,
+                    val school: String = "",
+                    val grade: String = "",
+                    val hobby: String = "") : RepoDataModel(){
         @get:Exclude override val collectionName = "Kid"
 
         companion object {
@@ -144,7 +147,10 @@ abstract class RepoDataModel : Serializable {
                     val isMale = it["male"].toString().toBoolean()
                     val birthDate = it["birthDate"].toString()
                     val hasImage = it["hasImage"].toString().toBoolean()
-                    return Kid(name, address, isMale, birthDate, hasImage).apply {
+                    val school = it["school"]?.toString() ?: ""
+                    val grade = it["grade"]?.toString() ?: ""
+                    val hobby = it["hobby"]?.toString() ?: ""
+                    return Kid(name, address, isMale, birthDate, hasImage, school, grade, hobby).apply {
                         id = documentSnapshot.id
                     }
                 }
@@ -156,7 +162,10 @@ abstract class RepoDataModel : Serializable {
                     val isMale = it["male"].toString().removeSurrounding("\"").toBoolean()
                     val birthDate = it["birthDate"].toString().removeSurrounding("\"")
                     val hasImage = it["hasImage"].toString().removeSurrounding("\"").toBoolean()
-                    return Kid(name, address, isMale, birthDate, hasImage).apply {
+                    val school = it["school"]?.toString()?.removeSurrounding("\"") ?: ""
+                    val grade = it["grade"]?.toString()?.removeSurrounding("\"") ?: ""
+                    val hobby = it["hobby"]?.toString()?.removeSurrounding("\"") ?: ""
+                    return Kid(name, address, isMale, birthDate, hasImage, school, grade, hobby).apply {
                         id = it["id"].toString().removeSurrounding("\"")
                     }
                 }

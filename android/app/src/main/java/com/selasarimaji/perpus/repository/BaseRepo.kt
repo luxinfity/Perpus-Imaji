@@ -34,7 +34,7 @@ abstract class BaseRepo <T:RepoDataModel> {
         functions.getHttpsCallable("directCall-getContentCount")
                 .call(mapOf("contentType" to contentName))
                 .continueWith {
-                    it.result.data.toString().toInt()
+                    it.result?.data.toString().toInt()
                 }
                 .addOnCompleteListener {
                     try {
@@ -55,7 +55,7 @@ abstract class BaseRepo <T:RepoDataModel> {
                             "filter" to params.filterMap
                     ))
                     .continueWith {
-                        Gson().toJsonTree(it.result.data).asJsonArray
+                        Gson().toJsonTree(it.result?.data).asJsonArray
                     }
                     .addOnCompleteListener {
                         loadingFlag?.value = false
@@ -85,7 +85,7 @@ abstract class BaseRepo <T:RepoDataModel> {
         loadingFlag.value = true
         db.add(dataModel).addOnCompleteListener {
             loadingFlag.value = false
-            onResult(Loading.Result(it.isSuccessful, Loading.Type.Create, it.result.id))
+            onResult(Loading.Result(it.isSuccessful, Loading.Type.Create, it.result?.id))
         }
     }
     fun deleteFromRemote(id: String,
@@ -109,7 +109,7 @@ abstract class BaseRepo <T:RepoDataModel> {
     fun getRealNameOfId(id: String, onResult: (String?) -> Unit){
         db.document(id).get().addOnCompleteListener {
             if (it.isSuccessful) {
-                onResult(it.result["name"].toString())
+                onResult(it.result?.get("name").toString())
             } else {
                 onResult(null)
             }
@@ -129,7 +129,7 @@ abstract class BaseRepo <T:RepoDataModel> {
                 .addOnCompleteListener {
                     loadingFlag.value = false
                     try {
-                        val result = it.result.data.toString().toBoolean()
+                        val result = it.result?.data.toString().toBoolean()
                         onResult(Loading.Result(it.isSuccessful, Loading.Type.Delete, result))
                     } catch (ex: Exception) {
                         onResult(Loading.Result(false, Loading.Type.Delete))

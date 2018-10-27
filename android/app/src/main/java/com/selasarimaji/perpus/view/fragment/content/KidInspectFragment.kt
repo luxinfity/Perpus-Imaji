@@ -77,6 +77,9 @@ class KidInspectFragment : BaseInspectFragment<RepoDataModel.Kid>() {
                 kidAddressInputLayout.editText?.setText(it.address)
                 kidBirthDateInputLayout.editText?.setText(it.birthDate)
                 kidGenderInputLayout.editText?.setText(if (it.isMale) "Cowok" else "Cewek")
+                kidSchoolInputLayout.editText?.setText(it.school)
+                kidGradeInputLayout.editText?.setText(it.grade)
+                kidHobbyInputLayout.editText?.setText(it.hobby)
 
                 if (it.hasImage) {
                     viewModel.pickedImage.value = RepoImage(it.id, true)
@@ -94,7 +97,10 @@ class KidInspectFragment : BaseInspectFragment<RepoDataModel.Kid>() {
             arrayListOf<TextInputLayout>(kidNameInputLayout,
                     kidAddressInputLayout,
                     kidBirthDateInputLayout,
-                    kidGenderInputLayout)
+                    kidGenderInputLayout,
+                    kidSchoolInputLayout,
+                    kidGradeInputLayout,
+                    kidHobbyInputLayout)
                     .apply {
                         if (it?.first != true) {
                             this.map {
@@ -150,13 +156,16 @@ class KidInspectFragment : BaseInspectFragment<RepoDataModel.Kid>() {
         val gender = kidGenderInputLayout.editText?.text.toString() == "Cowok"
         val dateOfBirth = kidBirthDateInputLayout.tryToRemoveFromList(editTextList)
         val hasImage = viewModel.pickedImage.value?.isRemoteSource == false
+        val school = kidSchoolInputLayout.tryToRemoveFromList(editTextList)
+        val grade = kidGradeInputLayout.tryToRemoveFromList(editTextList)
+        val hobby = kidHobbyInputLayout.tryToRemoveFromList(editTextList)
 
         editTextList.map {
             if (it.error.isNullOrEmpty()) it.error = "Silahkan diisi"
         }
 
         return if(editTextList.isEmpty())
-            RepoDataModel.Kid(name, address, gender, dateOfBirth, hasImage)
+            RepoDataModel.Kid(name, address, gender, dateOfBirth, hasImage, school, grade, hobby)
         else
             null
     }
