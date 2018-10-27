@@ -44,7 +44,7 @@ class CategoryRecyclerFragment : BaseRecyclerFragment() {
         view.recyclerView.adapter = adapter
 
         view.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
                 val totalItemCount = layoutManager.itemCount
 
@@ -78,7 +78,7 @@ class CategoryRecyclerFragment : BaseRecyclerFragment() {
             }
         })
         viewModelInspect.editOrCreateMode.observe(this, Observer {
-            fabButton.visibility = if (it?.first != true) View.VISIBLE else View.GONE
+            if (it?.first != true) fabButton.show() else fabButton.hide()
         })
         viewModelInspect.queryString.observe(this, Observer {
             onSearch(it ?: "")
